@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>放射性碳定年法计算器</title>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚛️</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="碳定年计算器">
+    <style>
+/* 全局样式 - 苹果设计语言 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* 主题切换按钮样式 */
+.theme-toggle-button {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: rgba(0, 0, 0, 0.05);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle-button:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+.theme-toggle-button:active {
+    transform: scale(0.95);
+}
+
+.icon-container {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle-button i {
+    position: absolute;
+    font-size: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: var(--system-label-secondary);
+}
+
+.theme-toggle-button.sun i.sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+    color: #ffcc00;
+}
+
+.theme-toggle-button.sun i.moon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.8);
+    color: var(--system-label-secondary);
+}
+
+.theme-toggle-button.moon i.moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+    color: var(--system-label-secondary);
+}
+
+.theme-toggle-button.moon i.sun {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.8);
+    color: #ffcc00;
+}
+
+.theme-toggle-button.animating {
+    transform: rotate(360deg);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 深色主题变量 */
+:root {
+    /* 苹果系统颜色 */
+    --system-blue: #007aff;
+    --system-green: #34c759;
+    --system-red: #ff3b30;
+    --system-yellow: #ffcc00;
+    --system-orange: #ff9500;
+    
+    /* 中性色 */
+    --system-background: #f2f2f7;
+    --system-card: #ffffff;
+    --system-label-primary: #000000;
+    --system-label-secondary: #8e8e93;
+    --system-label-tertiary: #c7c7cc;
+    --system-separator: #e5e5ea;
+    --system-separator-light: #f2f2f7;
+    
+    /* 字体大小 */
+    --text-caption: 12px;
+    --text-footnote: 13px;
+    --text-body: 17px;
+    --text-subheadline: 15px;
+    --text-headline: 17px;
+    --text-title1: 28px;
+    --text-title2: 22px;
+    --text-title3: 20px;
+    
+    /* 间距 */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 40px;
+    
+    /* 圆角 */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-xxl: 22px;
+    --radius-full: 9999px;
+    
+    /* 阴影 */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 深色主题 */
+body.dark-theme {
+    --system-background: #1c1c1e;
+    --system-card: #2c2c2e;
+    --system-label-primary: #ffffff;
+    --system-label-secondary: #8e8e93;
+    --system-label-tertiary: #636366;
+    --system-separator: #3a3a3c;
+    --system-separator-light: #2c2c2e;
+}
+
+body.dark-theme {
+    background-color: var(--system-background);
+    color: var(--system-label-primary);
+}
+
+body.dark-theme .container {
+    background-color: var(--system-background);
+}
+
+body.dark-theme .calculator-card,
+body.dark-theme .information-card,
+body.dark-theme .limitations-card {
+    background-color: var(--system-card);
+    border-color: var(--system-separator);
+}
+
+body.dark-theme .tabs {
+    background-color: var(--system-background);
+}
+
+body.dark-theme .tab-button.active {
+    background-color: var(--system-card);
+    color: var(--system-blue);
+}
+
+body.dark-theme .input-group input,
+body.dark-theme .input-group select {
+    background-color: var(--system-background);
+    color: var(--system-label-primary);
+    border-color: var(--system-separator);
+}
+
+body.dark-theme .input-group label {
+    color: var(--system-label-primary);
+}
+
+body.dark-theme .result-card {
+    background-color: var(--system-background);
+    border-color: var(--system-separator);
+}
+
+body.dark-theme .calibration-notice {
+    background-color: var(--system-background);
+    border-color: var(--system-separator);
+}
+
+body.dark-theme .theme-toggle-button {
+    background-color: var(--system-card);
+    color: var(--system-label-primary);
+}
+
+body.dark-theme .theme-toggle-button i.sun {
+    color: #ffcc00;
+}
+
+body.dark-theme .theme-toggle-button i.moon {
+    color: #e0e0e0;
+}
+
+body {
+    background-color: var(--system-background);
+    color: var(--system-label-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: var(--spacing-md);
+}
+
+/* 头部样式 */
+header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-md);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: var(--system-background);
+    color: var(--system-blue);
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+}
+
+.back-button:hover {
+    background-color: var(--system-separator);
+    transform: scale(1.05);
+}
+
+.back-button i {
+    font-size: 18px;
+}
+
+.logo {
+    font-size: 3rem;
+    opacity: 0.9;
+}
+
+header h1 {
+    font-size: var(--text-title1);
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+    color: var(--system-label-primary);
+    letter-spacing: -0.5px;
+}
+
+header p {
+    font-size: var(--text-body);
+    color: var(--system-label-secondary);
+    font-weight: 400;
+}
+
+/* 卡片样式 */
+.calculator-card,
+.information-card,
+.limitations-card {
+    background-color: var(--system-card);
+    border-radius: var(--radius-xxl);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calculator-card:hover,
+.information-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* 标签页样式 */
+.tabs {
+    display: flex;
+    margin-bottom: var(--spacing-xl);
+    background-color: var(--system-background);
+    border-radius: var(--radius-full);
+    padding: var(--spacing-xs);
+}
+
+.tab-button {
+    flex: 1;
+    padding: var(--spacing-md);
+    background: none;
+    border: none;
+    font-size: var(--text-body);
+    font-weight: 600;
+    color: var(--system-label-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-full);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-button.active {
+    background-color: var(--system-card);
+    color: var(--system-blue);
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-button:hover:not(.active) {
+    color: var(--system-label-primary);
+}
+
+/* 标签内容样式 */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0;
+        transform: translateY(var(--spacing-sm)); 
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0); 
+    }
+}
+
+/* 输入组样式 */
+.input-group {
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--text-body);
+    font-weight: 600;
+    color: var(--system-label-primary);
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: var(--spacing-md) calc(var(--spacing-md) + 32px) var(--spacing-md) var(--spacing-md);
+    font-size: var(--text-body);
+    border: 1px solid var(--system-separator);
+    border-radius: var(--radius-lg);
+    background-color: var(--system-background);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--system-label-primary);
+}
+
+.input-group input::placeholder,
+.input-group select::placeholder {
+    color: var(--system-label-tertiary);
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: var(--system-blue);
+    background-color: var(--system-card);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.input-group .unit {
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--system-label-secondary);
+    font-size: var(--text-body);
+    font-weight: 500;
+    pointer-events: none;
+}
+
+/* 按钮样式 */
+.calculate-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    background-color: var(--system-blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-body);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: var(--spacing-lg);
+}
+
+.calculate-button:hover {
+    background-color: #0062cc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.calculate-button:active {
+    transform: translateY(0);
+    background-color: #0051d5;
+}
+
+/* 结果样式 */
+.results {
+    margin-top: var(--spacing-xl);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.result-header h3 {
+    font-size: var(--text-title3);
+    font-weight: 700;
+    color: var(--system-label-primary);
+    margin: 0;
+}
+
+.result-tag {
+    background-color: rgba(0, 122, 255, 0.1);
+    color: var(--system-blue);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+}
+
+.result-card {
+    background-color: var(--system-background);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--system-separator);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.result-card:hover {
+    border-color: var(--system-blue);
+    box-shadow: 0 0 0 1px var(--system-blue), 0 0 0 4px rgba(0, 122, 255, 0.05);
+}
+
+.result-card.primary {
+    background-color: rgba(0, 122, 255, 0.05);
+    border-color: rgba(0, 122, 255, 0.2);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--system-separator-light);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.result-item .label {
+    font-size: var(--text-subheadline);
+    font-weight: 500;
+    color: var(--system-label-secondary);
+}
+
+.result-item .value {
+    font-weight: 700;
+    color: var(--system-label-primary);
+    font-size: var(--text-body);
+}
+
+.result-item .value.main {
+    font-size: var(--text-title3);
+    color: var(--system-blue);
+}
+
+.result-note {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--system-separator-light);
+    color: var(--system-label-secondary);
+    font-size: var(--text-footnote);
+}
+
+.info-icon {
+    font-size: var(--text-body);
+    opacity: 0.8;
+}
+
+/* 校准提示样式 */
+.calibration-notice {
+    display: flex;
+    gap: var(--spacing-md);
+    background-color: rgba(255, 149, 0, 0.05);
+    border: 1px solid rgba(255, 149, 0, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+}
+
+.notice-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.notice-content h4 {
+    font-size: var(--text-subheadline);
+    font-weight: 700;
+    color: var(--system-orange);
+    margin-bottom: var(--spacing-xs);
+}
+
+.notice-content p {
+    font-size: var(--text-footnote);
+    color: var(--system-label-primary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* 结果解读样式 */
+.result-interpretation {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--system-separator);
+}
+
+.result-interpretation h4 {
+    font-size: var(--text-subheadline);
+    font-weight: 700;
+    color: var(--system-label-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.result-interpretation p {
+    font-size: var(--text-footnote);
+    color: var(--system-label-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 科学部分样式 */
+.science-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.information-card h2 {
+    font-size: var(--text-title2);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    color: var(--system-label-primary);
+    letter-spacing: -0.3px;
+}
+
+.information-card h3 {
+    font-size: var(--text-title3);
+    font-weight: 700;
+    margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+    color: var(--system-label-primary);
+    letter-spacing: -0.2px;
+}
+
+.information-card p {
+    margin-bottom: var(--spacing-md);
+    color: var(--system-label-primary);
+    font-size: var(--text-body);
+    line-height: 1.6;
+}
+
+.information-card ul {
+    margin-bottom: var(--spacing-md);
+    padding-left: 20px;
+}
+
+.information-card li {
+    margin-bottom: var(--spacing-sm);
+    color: var(--system-label-primary);
+    font-size: var(--text-footnote);
+    line-height: 1.5;
+}
+
+/* 公式卡片 */
+.formula-card {
+    background-color: var(--system-background);
+    border: 1px solid var(--system-separator);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+    text-align: center;
+}
+
+.formula {
+    font-size: var(--text-title3);
+    font-weight: 500;
+    color: var(--system-blue);
+    font-family: 'SF Mono', Menlo, Monaco, 'Courier New', monospace;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+/* 表格样式 */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-md);
+    font-size: var(--text-footnote);
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+}
+
+.data-table th,
+.data-table td {
+    padding: var(--spacing-sm);
+    text-align: left;
+    border-bottom: 1px solid var(--system-separator);
+}
+
+.data-table th {
+    background-color: var(--system-background);
+    color: var(--system-blue);
+    font-weight: 600;
+}
+
+.data-table tr:hover {
+    background-color: var(--system-background);
+}
+
+/* 响应式表格 */
+@media (max-width: 768px) {
+    .data-table {
+        font-size: var(--text-caption);
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 6px 8px;
+    }
+}
+
+/* 局限性卡片 */
+.limitations-card {
+    background-color: rgba(255, 59, 48, 0.03);
+    border: 1px solid rgba(255, 59, 48, 0.1);
+}
+
+.limitations-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.warning-icon {
+    font-size: 24px;
+    color: var(--system-red);
+}
+
+.limitations-card h2 {
+    font-size: var(--text-title2);
+    font-weight: 700;
+    margin: 0;
+    color: var(--system-red);
+}
+
+.limitations-card ul {
+    margin-bottom: var(--spacing-lg);
+    padding-left: 20px;
+}
+
+.limitations-card li {
+    margin-bottom: var(--spacing-md);
+    color: var(--system-label-primary);
+    font-size: var(--text-footnote);
+    line-height: 1.5;
+}
+
+.disclaimer {
+    background-color: var(--system-background);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    border: 1px solid var(--system-separator);
+}
+
+.disclaimer p {
+    font-size: var(--text-caption);
+    color: var(--system-label-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* 详细结果区域样式 */
+.detailed-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.detailed-results .result-card {
+    background: var(--system-background);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.detailed-results .result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.detailed-results .result-card h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--system-blue);
+    font-size: var(--text-body);
+    font-weight: 600;
+    border-bottom: 1px solid var(--system-separator);
+    padding-bottom: var(--spacing-xs);
+}
+
+.detailed-results .result-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+}
+
+.detailed-results .result-item .label {
+    font-weight: 500;
+    color: var(--system-label-secondary);
+    flex: 1;
+}
+
+.detailed-results .result-item .value {
+    font-weight: 600;
+    color: var(--system-label-primary);
+    text-align: right;
+    flex: 1.5;
+}
+
+/* 错误提示样式 */
+.error-message {
+    color: var(--system-red);
+    font-size: var(--text-caption);
+    margin-top: var(--spacing-xs);
+    display: block;
+    text-align: left;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: rgba(255, 59, 48, 0.1);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--system-red);
+    position: relative;
+    z-index: 10;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 警告提示样式 */
+.warning-message {
+    color: var(--system-orange);
+    font-size: var(--text-caption);
+    margin-top: var(--spacing-xs);
+    display: block;
+    text-align: left;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: rgba(255, 149, 0, 0.1);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--system-orange);
+    position: relative;
+    z-index: 10;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 加载指示器样式 */
+.loading-indicator {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--system-blue);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 底部样式 */
+footer {
+    margin-top: var(--spacing-xxl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--system-separator);
+    color: var(--system-label-tertiary);
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.footer-content p {
+    font-size: var(--text-caption);
+    margin: 0;
+}
+
+.data-note {
+    font-size: var(--text-caption) !important;
+    opacity: 0.8;
+}
+
+/* 响应式设计 - 平板端 */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 100%;
+    }
+}
+
+/* 响应式设计 - 移动端 */
+@media (max-width: 768px) {
+    .container {
+        padding: var(--spacing-sm);
+    }
+    
+    header {
+        padding-top: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .logo {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    header h1 {
+        font-size: var(--text-title2);
+    }
+    
+    .calculator-card,
+    .information-card,
+    .limitations-card {
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-xl);
+    }
+    
+    .science-section {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .result-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .calibration-notice {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md);
+    }
+    
+    .notice-icon {
+        align-self: center;
+        font-size: 20px;
+    }
+    
+    .limitations-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .tabs {
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .tab-button {
+        flex: 1;
+        min-width: 120px;
+        padding: 12px 8px;
+        font-size: var(--text-subheadline);
+    }
+    
+    .detailed-results {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .result-card {
+        padding: var(--spacing-md);
+    }
+    
+    .result-card h4 {
+        font-size: var(--text-body);
+    }
+    
+    .formula-card {
+        padding: var(--spacing-md);
+    }
+    
+    .formula {
+        font-size: var(--text-body);
+        padding: 8px 12px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .limitations-card ul {
+        padding-left: 20px;
+    }
+    
+    .limitations-card li {
+        font-size: var(--text-footnote);
+        margin-bottom: 8px;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+    
+    .result-item .label {
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--system-label-secondary);
+    }
+    
+    .result-item .value {
+        font-size: var(--text-body);
+    }
+}
+
+/* 响应式设计 - 小屏幕手机 */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: var(--text-headline);
+    }
+    
+    header p {
+        font-size: var(--text-body);
+    }
+    
+    .calculator-card {
+        padding: var(--spacing-md);
+    }
+    
+    .tabs {
+        padding: var(--spacing-xs);
+    }
+    
+    .tab-button {
+        padding: var(--spacing-sm);
+        font-size: var(--text-subheadline);
+    }
+    
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .result-item .label {
+        font-size: var(--text-caption);
+        opacity: 0.8;
+    }
+    
+    .result-item .value {
+        font-size: var(--text-body);
+    }
+    
+    .result-item .value.main {
+        font-size: var(--text-title2);
+    }
+    
+    .formula {
+        font-size: var(--text-body);
+    }
+    
+    .formula-card {
+        padding: var(--spacing-sm);
+    }
+    
+    .limitations-card li {
+        font-size: var(--text-caption);
+    }
+    
+    .information-card {
+        padding: var(--spacing-md);
+    }
+    
+    .information-card h3 {
+        font-size: var(--text-headline);
+    }
+    
+    .information-card p {
+        font-size: var(--text-body);
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <a href="index.html" class="back-button">
+                    <i class="fa fa-arrow-left"></i>
+                </a>
+                <div class="logo">⚛️</div>
+                <button id="themeToggle" class="theme-toggle-button sun" title="切换主题">
+                    <div class="icon-container">
+                        <i class="fa fa-sun-o sun"></i>
+                        <i class="fa fa-moon-o moon"></i>
+                    </div>
+                </button>
+            </div>
+            <h1>放射性碳定年法计算器</h1>
+            <p>Radiocarbon Dating Calculator</p>
+        </header>
+        
+        <div class="calculator-card">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="pmc-to-age">pMC 转 年代</button>
+                <button class="tab-button" data-tab="age-to-pmc">年代 转 pMC</button>
+            </div>
+            
+            <div class="tab-content active" id="pmc-to-age">
+                <div class="input-group">
+                    <label for="pmc-value">现代碳百分比 (pMC):</label>
+                    <input type="number" id="pmc-value" placeholder="例如: 50.0" min="0" max="200" step="0.001">
+                    <span class="unit">%</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="pmc-error">测量误差 (±σ):</label>
+                    <input type="number" id="pmc-error" placeholder="例如: 0.5" min="0" max="50" step="0.001">
+                    <span class="unit">%</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="half-life">碳14半衰期 (年):</label>
+                    <select id="half-life">
+                        <option value="5730">5730 年 (标准物理半衰期)</option>
+                        <option value="5568">5568 年 (Libby半衰期)</option>
+                    </select>
+                </div>
+                
+                <button class="calculate-button" id="calculate-age">计算年代</button>
+                
+                <div class="results" id="pmc-to-age-results">
+                    <div class="result-header">
+                        <h3>计算结果</h3>
+                        <div class="result-tag">放射性碳年龄</div>
+                    </div>
+                    
+                    <div class="result-card primary">
+                        <div class="result-item">
+                            <span class="label">距今约:</span>
+                            <span class="value main" id="age-result">--</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">置信区间 (±1σ):</span>
+                            <span class="value" id="confidence-interval">--</span>
+                        </div>
+                        <div class="result-note">
+                            <span class="info-icon">ℹ️</span>
+                            <span>BP = 距1950年，国际放射性碳定年标准</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-item">
+                            <span class="label">pMC值:</span>
+                            <span class="value" id="input-pmc-display">--</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">碳14/C12 比值:</span>
+                            <span class="value" id="ratio-display">--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="calibration-notice">
+                        <div class="notice-icon">⚠️</div>
+                        <div class="notice-content">
+                            <h4>校准提示（极其重要）</h4>
+                            <p>此结果为<strong>放射性碳年龄</strong>，并非日历年。由于历史上大气¹⁴C浓度有波动，必须使用校正曲线（如IntCal20）进行校正，才能转化为真实的日历年龄。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-interpretation">
+                        <h4>结果解读</h4>
+                        <p id="interpretation-text">请输入数值并计算以查看结果解读。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="age-to-pmc">
+                <div class="input-group">
+                    <label for="age-value">年代 (BP):</label>
+                    <input type="number" id="age-value" placeholder="例如: 5730" min="0" max="50000" step="1">
+                    <span class="unit">年</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="age-error">年龄误差 (±):</label>
+                    <input type="number" id="age-error" placeholder="例如: 100" min="0" max="10000" step="1">
+                    <span class="unit">年</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="half-life-2">碳14半衰期 (年):</label>
+                    <select id="half-life-2">
+                        <option value="5730">5730 年 (标准物理半衰期)</option>
+                        <option value="5568">5568 年 (Libby半衰期)</option>
+                    </select>
+                </div>
+                
+                <button class="calculate-button" id="calculate-pmc">计算pMC</button>
+                
+                <div class="results" id="age-to-pmc-results">
+                    <div class="result-header">
+                        <h3>计算结果</h3>
+                        <div class="result-tag">碳14剩余比例</div>
+                    </div>
+                    
+                    <div class="result-card primary">
+                        <div class="result-item">
+                            <span class="label">现代碳百分比 (pMC):</span>
+                            <span class="value main" id="pmc-result">--</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">碳14/C12 比值:</span>
+                            <span class="value" id="ratio-result">--</span>
+                        </div>
+                        <div class="result-note">
+                            <span class="info-icon">ℹ️</span>
+                            <span>100% pMC = 1950年大气碳14标准</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-item">
+                            <span class="label">输入年代:</span>
+                            <span class="value" id="input-age-display">--</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">半衰期:</span>
+                            <span class="value" id="half-life-display">--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-interpretation">
+                        <h4>结果解读</h4>
+                        <p id="pmc-interpretation-text">请输入数值并计算以查看结果解读。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="science-section">
+            <div class="information-card">
+                <h2>穿越时间的时钟</h2>
+                <p>放射性碳定年法如何揭示古老秘密？这是考古学、地质学和古生物学中一项革命性的技术，使我们能够测定5万年内含碳有机材料的死亡年代。</p>
+                
+                <h3>碳-14定年法的科学原理</h3>
+                <ul>
+                    <li><strong>恒定交换：</strong>活着的生物通过呼吸、进食与大气交换碳，其体内的¹⁴C/¹²C比例与大气基本一致。</li>
+                    <li><strong>时钟归零：</strong>生物死亡后，停止与外界碳交换，体内的¹⁴C不再得到补充。</li>
+                    <li><strong>定时衰变：</strong>¹⁴C以固定的速率衰变，其半衰期约为5730年。</li>
+                    <li><strong>测量与计算：</strong>通过测量样品中剩余的¹⁴C比例，并与现代标准比较，即可计算出死亡至今的年代。</li>
+                </ul>
+            </div>
+            
+            <div class="information-card">
+                <h3>计算核心：放射性衰变定律</h3>
+                <div class="formula-card">
+                    <div class="formula">t = (T<sub>half</sub> / ln(2)) * ln(N₀ / Nₜ)</div>
+                </div>
+                <ul>
+                    <li><strong>t：</strong>待求的样品年龄（距今年限）。</li>
+                    <li><strong>T<sub>half</sub>：</strong>碳-14的半衰期（默认使用更精确的5730年）。</li>
+                    <li><strong>ln：</strong>自然对数。</li>
+                    <li><strong>N₀：</strong>参考现代碳标准中的¹⁴C比例（设为100%或1）。</li>
+                    <li><strong>Nₜ：</strong>测量得到的样品中剩余¹⁴C比例（%）。</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="limitations-card">
+            <div class="limitations-header">
+                <div class="warning-icon">⚠️</div>
+                <h2>关键局限性说明</h2>
+            </div>
+            <ul>
+                <li><strong>"reservoirs效应"：</strong>海洋生物、食用海产品的古人其表观年龄会偏老数百年。</li>
+                <li><strong>样品污染：</strong>年轻的碳或古老的碳污染会严重干扰结果。</li>
+                <li><strong>大气¹⁴C波动：</strong>必须使用校正曲线进行校准。</li>
+                <li><strong>材料要求：</strong>仅适用于曾参与全球碳交换的有机材料。</li>
+                <li><strong>误差范围：</strong>所有放射性定年法都存在测量误差，结果应以年龄 ± 误差范围的形式呈现。</li>
+            </ul>
+            <div class="disclaimer">
+                <p><strong>免责声明：</strong>本计算器是基于理想衰变模型的简化教学工具，结果仅为理论估算值。专业研究必须由合格实验室完成。</p>
+            </div>
+        </div>
+        
+        <!-- 加载指示器 -->
+        <div class="loading-indicator" id="loading-indicator">
+            <div class="loading-spinner"></div>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <p>© 2024 放射性碳定年法计算器</p>
+                <p class="data-note">数据仅供参考 | 遵循科学原理设计</p>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+// 全局配置常量
+const CONFIG = {
+    MODERN_C14_RATIO: 1.2e-12, // 现代碳的14C/C12比值
+    CURRENT_YEAR: new Date().getFullYear(),
+    MAX_AGE_LIMIT: 60000, // 放射性碳定年法的有效上限约为60,000年
+    MIN_PMC_LIMIT: 0.1,   // 最低可检测的pMC值
+    MAX_PMC_LIMIT: 150    // 最高合理的pMC值（考虑现代碳污染）
+};
+
+// 历史时期分类数据
+const HISTORICAL_PERIODS = {
+    // 现代时期
+    MODERN: { maxAge: 100, name: "现代", description: "工业革命以来的时期" },
+    
+    // 近现代
+    EARLY_MODERN: { maxAge: 500, name: "近现代", description: "地理大发现至工业革命" },
+    
+    // 中世纪
+    LATE_MIDDLE_AGES: { maxAge: 800, name: "中世纪晚期", description: "黑死病至文艺复兴" },
+    HIGH_MIDDLE_AGES: { maxAge: 1000, name: "中世纪盛期", description: "十字军东征时期" },
+    EARLY_MIDDLE_AGES: { maxAge: 1500, name: "中世纪早期", description: "罗马帝国衰落后" },
+    
+    // 古代
+    LATE_ANTIQUITY: { maxAge: 2000, name: "古代晚期", description: "罗马帝国晚期" },
+    CLASSICAL_ANTIQUITY: { maxAge: 3000, name: "古典时代", description: "古希腊罗马文明" },
+    BRONZE_AGE_LATE: { maxAge: 4000, name: "青铜时代晚期", description: "青铜文明鼎盛期" },
+    BRONZE_AGE_MIDDLE: { maxAge: 5000, name: "青铜时代中期", description: "早期城邦文明" },
+    BRONZE_AGE_EARLY: { maxAge: 6000, name: "青铜时代早期", description: "金属工具出现" },
+    
+    // 新石器时代
+    NEOLITHIC_LATE: { maxAge: 8000, name: "新石器时代晚期", description: "农业普及" },
+    NEOLITHIC_MIDDLE: { maxAge: 10000, name: "新石器时代中期", description: "早期农业" },
+    NEOLITHIC_EARLY: { maxAge: 12000, name: "新石器时代早期", description: "定居生活开始" },
+    
+    // 旧石器时代
+    UPPER_PALEOLITHIC: { maxAge: 40000, name: "旧石器时代晚期", description: "现代人类出现，艺术创作" },
+    MIDDLE_PALEOLITHIC: { maxAge: 60000, name: "旧石器时代中期", description: "尼安德特人时期" }
+};
+
+// 地质年代分类数据
+const GEOLOGICAL_PERIODS = {
+    // 第四纪
+    HOLOCENE: { maxAge: 11700, name: "全新世", description: "现代地质时期，人类文明发展" },
+    PLEISTOCENE_LATE: { maxAge: 126000, name: "更新世晚期", description: "冰河时期，大型哺乳动物繁盛" },
+    PLEISTOCENE_MIDDLE: { maxAge: 781000, name: "更新世中期", description: "冰河周期变化" },
+    PLEISTOCENE_EARLY: { maxAge: 2588000, name: "更新世早期", description: "冰河时代开始" },
+    
+    // 新近纪
+    PLIOCENE: { maxAge: 5330000, name: "上新世", description: "早期人类祖先出现" },
+    MIOCENE: { maxAge: 23030000, name: "中新世", description: "哺乳动物多样化" },
+    
+    // 中生代（恐龙时代）
+    CRETACEOUS: { maxAge: 145000000, name: "白垩纪", description: "恐龙繁盛，开花植物出现" },
+    JURASSIC: { maxAge: 201300000, name: "侏罗纪", description: "大型恐龙，早期鸟类" },
+    TRIASSIC: { maxAge: 252200000, name: "三叠纪", description: "恐龙出现，大陆开始分裂" },
+    
+    // 古生代
+    PERMIAN: { maxAge: 298900000, name: "二叠纪", description: "盘古大陆，生物大灭绝前" },
+    CARBONIFEROUS: { maxAge: 358900000, name: "石炭纪", description: "大规模森林，煤炭形成" },
+    DEVONIAN: { maxAge: 419200000, name: "泥盆纪", description: "鱼类繁盛，早期两栖动物" },
+    SILURIAN: { maxAge: 443800000, name: "志留纪", description: "早期陆地植物" },
+    ORDOVICIAN: { maxAge: 485400000, name: "奥陶纪", description: "海洋无脊椎动物繁盛" },
+    CAMBRIAN: { maxAge: 541000000, name: "寒武纪", description: "生命大爆发" }
+};
+
+// 标签页切换功能
+function initTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // 移除所有标签和内容的活动状态
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // 添加当前标签和内容的活动状态
+            const tabId = button.getAttribute('data-tab');
+            button.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+}
+
+// 输入验证和限制函数
+function setupInputHandlers() {
+    // 数字输入限制
+    const numericInputs = document.querySelectorAll('input[type="number"]');
+    numericInputs.forEach(input => {
+        input.addEventListener('input', limitInputToNumeric);
+        input.addEventListener('focus', () => input.select());
+        
+        // 清除输入框的错误提示
+        input.addEventListener('input', () => {
+            const errorElement = input.parentNode.querySelector('.error-message');
+            if (errorElement) errorElement.remove();
+        });
+    });
+}
+
+// 限制输入为数字
+function limitInputToNumeric(event) {
+    // 允许数字、小数点和负号（仅限第一个字符）
+    const value = event.target.value;
+    const regex = /^\-?\d*\.?\d*$/;
+    
+    if (!regex.test(value) && value !== '') {
+        event.target.value = value.substring(0, value.length - 1);
+    }
+}
+
+// 显示错误提示
+function showError(inputElement, message) {
+    // 移除之前的错误提示
+    const existingError = inputElement.parentNode.querySelector('.error-message');
+    if (existingError) existingError.remove();
+    
+    // 显示新的错误提示
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.textContent = message;
+    errorElement.style.color = '#ff3b30';
+    errorElement.style.fontSize = '12px';
+    errorElement.style.marginTop = '4px';
+    
+    inputElement.parentNode.appendChild(errorElement);
+    inputElement.focus();
+    
+    // 3秒后自动移除错误提示
+    setTimeout(() => errorElement.remove(), 3000);
+}
+
+// 显示警告提示
+function showWarning(inputElement, message) {
+    // 移除之前的警告提示
+    const existingWarning = inputElement.parentNode.querySelector('.warning-message');
+    if (existingWarning) existingWarning.remove();
+    
+    // 显示新的警告提示
+    const warningElement = document.createElement('div');
+    warningElement.className = 'warning-message';
+    warningElement.textContent = message;
+    warningElement.style.color = '#ff9500';
+    warningElement.style.fontSize = '12px';
+    warningElement.style.marginTop = '4px';
+    
+    inputElement.parentNode.appendChild(warningElement);
+    
+    // 5秒后自动移除警告提示
+    setTimeout(() => warningElement.remove(), 5000);
+}
+
+// pMC 转 年代 计算函数
+function pmcToAge(pmc, errorPercent, halfLife) {
+    if (pmc <= 0) return { age: 0, error: 0, lowerBound: 0, upperBound: 0 };
+    
+    // 计算年代：t = -ln(pMC/100) / (ln(2)/半衰期)
+    const age = -Math.log(pmc / 100) / (Math.LN2 / halfLife);
+    
+    // 计算误差范围（使用误差传播公式）
+    const pmcError = (pmc * errorPercent) / 100;
+    const dt_dpmc = -1 / (pmc * (Math.LN2 / halfLife)); // 导数
+    const ageError = Math.abs(dt_dpmc) * pmcError;
+    
+    // 添加基础误差以模拟实际测量不确定性
+    const baseError = pmc > 50 ? 20 : (pmc > 10 ? 40 : 80);
+    const totalError = Math.sqrt(ageError * ageError + baseError * baseError);
+    
+    // 计算置信区间
+    const lowerBound = Math.max(0, age - totalError);
+    const upperBound = Math.min(CONFIG.MAX_AGE_LIMIT, age + totalError);
+    
+    // 计算标准差（假设95%置信区间）
+    const standardError = totalError / 2;
+    
+    return { 
+        age, 
+        error: totalError, 
+        standardError, 
+        lowerBound, 
+        upperBound, 
+        remainingRatio: pmc / 100,
+        c14Ratio: CONFIG.MODERN_C14_RATIO * (pmc / 100)
+    };
+}
+
+// 年代 转 pMC 计算函数
+function ageToPMC(age, ageError, halfLife) {
+    if (age < 0) return { pmc: 100, pmcError: 0, c14Ratio: CONFIG.MODERN_C14_RATIO };
+    
+    // 计算pMC：pMC = 100 * e^(-t * ln(2)/半衰期)
+    const pmc = 100 * Math.exp(-age * (Math.LN2 / halfLife));
+    
+    // 计算pMC误差（使用误差传播公式）
+    const dpmc_dt = -pmc * (Math.LN2 / halfLife); // 导数
+    const pmcError = Math.abs(dpmc_dt) * ageError;
+    
+    // 计算碳14/C12比值
+    const c14Ratio = CONFIG.MODERN_C14_RATIO * (pmc / 100);
+    
+    return { 
+        pmc, 
+        pmcError, 
+        c14Ratio,
+        remainingRatio: pmc / 100
+    };
+}
+
+// 格式化数字显示
+function formatNumber(num, decimals = 2) {
+    if (num === null || isNaN(num)) return '--';
+    
+    if (Math.abs(num) >= 1000000) {
+        return (num / 1000000).toFixed(decimals) + 'M';
+    } else if (Math.abs(num) >= 1000) {
+        return (num / 1000).toFixed(decimals) + 'K';
+    } else if (Math.abs(num) < 0.001 && num !== 0) {
+        return num.toExponential(decimals);
+    } else {
+        return num.toFixed(decimals);
+    }
+}
+
+// 格式化科学计数法
+function formatScientific(num, decimals = 3) {
+    if (num === null || isNaN(num)) return '--';
+    return num.toExponential(decimals);
+}
+
+// 获取历史时期信息
+function getHistoricalPeriod(ageBP) {
+    for (const [key, period] of Object.entries(HISTORICAL_PERIODS)) {
+        if (ageBP <= period.maxAge) {
+            return period;
+        }
+    }
+    return { name: "史前时期", description: "超出放射性碳定年法范围" };
+}
+
+// 获取地质年代信息
+function getGeologicalPeriod(ageBP) {
+    for (const [key, period] of Object.entries(GEOLOGICAL_PERIODS)) {
+        if (ageBP <= period.maxAge) {
+            return period;
+        }
+    }
+    return { name: "前寒武纪", description: "地球早期，生命起源" };
+}
+
+// 转换为日历年份
+function convertToCalendarYear(ageBP, errorMargin) {
+    // BP = Before Present，Present = 1950年
+    const yearBefore1950 = Math.round(ageBP);
+    const calendarYear = 1950 - yearBefore1950;
+    
+    // 计算误差范围
+    const errorYears = Math.round(errorMargin);
+    const upperBound = 1950 - (yearBefore1950 - errorYears);
+    const lowerBound = 1950 - (yearBefore1950 + errorYears);
+    
+    // 格式化显示
+    let yearDisplay = '';
+    if (calendarYear > 0) {
+        yearDisplay = `公元 ${calendarYear} 年`;
+    } else if (calendarYear === 0) {
+        yearDisplay = `公元元年 (公元前1年/公元1年交界)`;
+    } else {
+        yearDisplay = `公元前 ${Math.abs(calendarYear - 1)} 年`;
+    }
+    
+    // 格式化误差范围
+    let errorDisplay = '';
+    if (lowerBound > 0 && upperBound > 0) {
+        errorDisplay = `公元 ${lowerBound} - ${upperBound} 年`;
+    } else if (lowerBound <= 0 && upperBound > 0) {
+        errorDisplay = `公元前 ${Math.abs(lowerBound - 1)} 年 - 公元 ${upperBound} 年`;
+    } else {
+        errorDisplay = `公元前 ${Math.abs(lowerBound - 1)} - ${Math.abs(upperBound - 1)} 年`;
+    }
+    
+    return {
+        year: yearDisplay,
+        yearNumber: calendarYear,
+        errorRange: errorDisplay
+    };
+}
+
+// 显示pMC转年龄结果 - 优化版本
+function displayAgeResults(result, pmc, errorPercent, halfLife) {
+    // 更新基本结果
+    document.getElementById('age-result').textContent = '距今约 ' + Math.round(result.age) + ' 年';
+    document.getElementById('confidence-interval').textContent = 
+        '距今约 ' + Math.round(result.lowerBound) + ' - ' + Math.round(result.upperBound) + ' 年';
+    document.getElementById('input-pmc-display').textContent = pmc.toFixed(2) + ' %';
+    document.getElementById('ratio-display').textContent = formatScientific(result.c14Ratio, 2);
+    
+    // 获取历史时期和地质年代信息
+    const historicalPeriod = getHistoricalPeriod(result.age);
+    const geologicalPeriod = getGeologicalPeriod(result.age);
+    
+    // 转换为日历年份
+    const calendarYear = convertToCalendarYear(result.age, result.error);
+    
+    // 创建详细结果展示
+    const detailedResults = document.getElementById('detailed-results');
+    if (!detailedResults) {
+        // 如果不存在详细结果区域，创建一个
+        const resultsSection = document.getElementById('pmc-to-age-results');
+        const detailedResultsDiv = document.createElement('div');
+        detailedResultsDiv.id = 'detailed-results';
+        detailedResultsDiv.className = 'detailed-results';
+        resultsSection.appendChild(detailedResultsDiv);
+    }
+    
+    // 更新详细结果
+    document.getElementById('detailed-results').innerHTML = `
+        <div class="result-card">
+            <h4>历史时期</h4>
+            <div class="result-item">
+                <span class="label">时期名称:</span>
+                <span class="value">${historicalPeriod.name}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">时期描述:</span>
+                <span class="value">${historicalPeriod.description}</span>
+            </div>
+        </div>
+        
+        <div class="result-card">
+            <h4>日历年份</h4>
+            <div class="result-item">
+                <span class="label">估计年份:</span>
+                <span class="value">${calendarYear.year}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">误差范围:</span>
+                <span class="value">${calendarYear.errorRange}</span>
+            </div>
+        </div>
+        
+        <div class="result-card">
+            <h4>地质年代</h4>
+            <div class="result-item">
+                <span class="label">地质时期:</span>
+                <span class="value">${geologicalPeriod.name}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">地质描述:</span>
+                <span class="value">${geologicalPeriod.description}</span>
+            </div>
+        </div>
+    `;
+    
+    // 更新结果解读
+    let interpretationText = '';
+    if (result.age < 500) {
+        interpretationText = '样品非常年轻，可能属于近现代。请注意现代碳污染可能导致年龄低估。';
+    } else if (result.age < 5000) {
+        interpretationText = `样品属于${historicalPeriod.name}。这个时期的校准曲线相对稳定，但仍需专业校准。`;
+    } else if (result.age < 20000) {
+        interpretationText = `样品属于${historicalPeriod.name}。请注意此时期校准曲线可能存在波动，导致年龄范围较宽。`;
+    } else {
+        interpretationText = `样品非常古老，属于${historicalPeriod.name}。结果的不确定性较大，应谨慎解读。`;
+    }
+    
+    // 添加校准提示
+    interpretationText += '<br><strong>重要提示：</strong>放射性碳年龄需要使用IntCal系列校准曲线进行校准，才能转换为准确的日历年龄。';
+    
+    document.getElementById('interpretation-text').innerHTML = interpretationText;
+    
+    // 添加结果动画效果
+    const resultsSection = document.getElementById('pmc-to-age-results');
+    resultsSection.style.opacity = '0';
+    setTimeout(() => {
+        resultsSection.style.transition = 'opacity 0.5s ease';
+        resultsSection.style.opacity = '1';
+    }, 100);
+}
+
+// 显示年龄转pMC结果 - 优化版本
+function displayPMCResults(result, age, ageError, halfLife) {
+    // 更新基本结果
+    document.getElementById('pmc-result').textContent = result.pmc.toFixed(3) + ' %';
+    document.getElementById('ratio-result').textContent = formatScientific(result.c14Ratio, 2);
+    document.getElementById('input-age-display').textContent = Math.round(age) + ' 年';
+    document.getElementById('half-life-display').textContent = halfLife + ' 年';
+    
+    // 获取历史时期和地质年代信息
+    const historicalPeriod = getHistoricalPeriod(age);
+    const geologicalPeriod = getGeologicalPeriod(age);
+    
+    // 转换为日历年份
+    const calendarYear = convertToCalendarYear(age, ageError);
+    
+    // 创建详细结果展示
+    const detailedResults = document.getElementById('pmc-detailed-results');
+    if (!detailedResults) {
+        // 如果不存在详细结果区域，创建一个
+        const resultsSection = document.getElementById('age-to-pmc-results');
+        const detailedResultsDiv = document.createElement('div');
+        detailedResultsDiv.id = 'pmc-detailed-results';
+        detailedResultsDiv.className = 'detailed-results';
+        resultsSection.appendChild(detailedResultsDiv);
+    }
+    
+    // 更新详细结果
+    document.getElementById('pmc-detailed-results').innerHTML = `
+        <div class="result-card">
+            <h4>历史时期</h4>
+            <div class="result-item">
+                <span class="label">时期名称:</span>
+                <span class="value">${historicalPeriod.name}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">时期描述:</span>
+                <span class="value">${historicalPeriod.description}</span>
+            </div>
+        </div>
+        
+        <div class="result-card">
+            <h4>日历年份</h4>
+            <div class="result-item">
+                <span class="label">估计年份:</span>
+                <span class="value">${calendarYear.year}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">误差范围:</span>
+                <span class="value">${calendarYear.errorRange}</span>
+            </div>
+        </div>
+        
+        <div class="result-card">
+            <h4>地质年代</h4>
+            <div class="result-item">
+                <span class="label">地质时期:</span>
+                <span class="value">${geologicalPeriod.name}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">地质描述:</span>
+                <span class="value">${geologicalPeriod.description}</span>
+            </div>
+        </div>
+    `;
+    
+    // 更新结果解读
+    let interpretationText = '';
+    if (result.pmc > 95) {
+        interpretationText = 'pMC值接近100%，表明样品可能为现代物质或受到现代碳污染。';
+    } else if (result.pmc > 50) {
+        interpretationText = `pMC值较高，样品相对年轻，属于${historicalPeriod.name}。`;
+    } else if (result.pmc > 10) {
+        interpretationText = `pMC值中等，样品属于${historicalPeriod.name}，适合考古学研究。`;
+    } else if (result.pmc > 1) {
+        interpretationText = `pMC值较低，样品非常古老，属于${historicalPeriod.name}。`;
+    } else {
+        interpretationText = `pMC值极低，样品可能超出放射性碳定年法的有效范围。`;
+    }
+    
+    document.getElementById('pmc-interpretation-text').textContent = interpretationText;
+    
+    // 添加结果动画效果
+    const resultsSection = document.getElementById('age-to-pmc-results');
+    resultsSection.style.opacity = '0';
+    setTimeout(() => {
+        resultsSection.style.transition = 'opacity 0.5s ease';
+        resultsSection.style.opacity = '1';
+    }, 100);
+}
+
+// 显示加载指示器
+function showLoadingIndicator() {
+    document.getElementById('loading-indicator').style.display = 'flex';
+}
+
+// 隐藏加载指示器
+function hideLoadingIndicator() {
+    document.getElementById('loading-indicator').style.display = 'none';
+}
+
+// pMC 转 年代 计算按钮事件
+function setupPMCToAgeCalculation() {
+    const calculateButton = document.getElementById('calculate-age');
+    calculateButton.addEventListener('click', () => {
+        console.log('计算年代按钮被点击');
+        
+        const pmcInput = document.getElementById('pmc-value');
+        const errorInput = document.getElementById('pmc-error');
+        const halfLifeSelect = document.getElementById('half-life');
+        
+        const pmc = parseFloat(pmcInput.value);
+        const errorPercent = parseFloat(errorInput.value) || 1.0; // 默认1%误差
+        const halfLife = parseFloat(halfLifeSelect.value);
+        
+        console.log('输入值:', { pmc, errorPercent, halfLife });
+        
+        // 输入验证
+        if (isNaN(pmc) || pmc <= 0) {
+            showError(pmcInput, '请输入有效的pMC值');
+            return;
+        }
+        
+        if (errorPercent < 0) {
+            showError(errorInput, '误差值必须为正数');
+            return;
+        }
+        
+        // 检查pMC值是否在合理范围内
+        if (pmc > CONFIG.MAX_PMC_LIMIT) {
+            showError(pmcInput, 'pMC值过高，请检查输入');
+            return;
+        }
+        
+        if (pmc < CONFIG.MIN_PMC_LIMIT) {
+            showWarning(pmcInput, 'pMC值过低，可能超出检测范围');
+        }
+        
+        // 显示加载指示器
+        showLoadingIndicator();
+        
+        // 使用setTimeout模拟异步计算，确保UI更新
+        setTimeout(() => {
+            try {
+                // 执行计算
+                const result = pmcToAge(pmc, errorPercent, halfLife);
+                console.log('计算结果:', result);
+                
+                // 显示结果
+                displayAgeResults(result, pmc, errorPercent, halfLife);
+            } catch (error) {
+                console.error('计算错误:', error);
+                alert('计算过程中发生错误，请检查输入值');
+            } finally {
+                // 隐藏加载指示器
+                hideLoadingIndicator();
+            }
+        }, 300); // 短暂延迟以显示加载效果
+    });
+    
+    // 键盘支持
+    document.getElementById('pmc-value').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') calculateButton.click();
+    });
+}
+
+// 年代 转 pMC 计算按钮事件
+function setupAgeToPMCCalculation() {
+    const calculateButton = document.getElementById('calculate-pmc');
+    calculateButton.addEventListener('click', () => {
+        console.log('计算pMC按钮被点击');
+        
+        const ageInput = document.getElementById('age-value');
+        const ageErrorInput = document.getElementById('age-error');
+        const halfLifeSelect = document.getElementById('half-life-2');
+        
+        const age = parseFloat(ageInput.value);
+        const ageError = parseFloat(ageErrorInput.value) || 50; // 默认50年误差
+        const halfLife = parseFloat(halfLifeSelect.value);
+        
+        console.log('输入值:', { age, ageError, halfLife });
+        
+        // 输入验证
+        if (isNaN(age) || age < 0) {
+            showError(ageInput, '请输入有效的年代值');
+            return;
+        }
+        
+        if (ageError < 0) {
+            showError(ageErrorInput, '误差值必须为正数');
+            return;
+        }
+        
+        // 检查年龄值是否在合理范围内
+        if (age > CONFIG.MAX_AGE_LIMIT) {
+            showError(ageInput, '年龄过大，超出放射性碳定年法的有效范围');
+            return;
+        }
+        
+        // 显示加载指示器
+        showLoadingIndicator();
+        
+        // 使用setTimeout模拟异步计算，确保UI更新
+        setTimeout(() => {
+            try {
+                // 执行计算
+                const result = ageToPMC(age, ageError, halfLife);
+                console.log('计算结果:', result);
+                
+                // 显示结果
+                displayPMCResults(result, age, ageError, halfLife);
+            } catch (error) {
+                console.error('计算错误:', error);
+                alert('计算过程中发生错误，请检查输入值');
+            } finally {
+                // 隐藏加载指示器
+                hideLoadingIndicator();
+            }
+        }, 300); // 短暂延迟以显示加载效果
+    });
+    
+    // 键盘支持
+    document.getElementById('age-value').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') calculateButton.click();
+    });
+}
+
+// 主题切换功能
+function initThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    
+    // 检查本地存储中的主题偏好，默认浅色模式
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeToggle.classList.remove('sun');
+        themeToggle.classList.add('moon');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+        // 添加动画类
+        themeToggle.classList.add('animating');
+        
+        // 切换主题
+        const isDarkMode = document.body.classList.toggle('dark-theme');
+        
+        // 更新按钮状态
+        if (isDarkMode) {
+            setTimeout(() => {
+                themeToggle.classList.remove('sun');
+                themeToggle.classList.add('moon');
+            }, 150);
+            localStorage.setItem('theme', 'dark');
+        } else {
+            setTimeout(() => {
+                themeToggle.classList.remove('moon');
+                themeToggle.classList.add('sun');
+            }, 150);
+            localStorage.setItem('theme', 'light');
+        }
+        
+        // 移除动画类
+        setTimeout(() => {
+            themeToggle.classList.remove('animating');
+        }, 300);
+    });
+}
+
+// 页面加载完成后的初始化
+function init() {
+    console.log('页面初始化开始');
+    
+    // 初始化主题切换
+    initThemeToggle();
+    
+    // 显示加载指示器
+    showLoadingIndicator();
+    
+    // 初始化标签页
+    initTabs();
+    
+    // 设置输入处理
+    setupInputHandlers();
+    
+    // 设置计算功能
+    setupPMCToAgeCalculation();
+    setupAgeToPMCCalculation();
+    
+    // 设置默认半衰期选项
+    document.getElementById('half-life').value = '5730';
+    document.getElementById('half-life-2').value = '5730';
+    
+    // 预填充示例数据
+    document.getElementById('pmc-value').placeholder = '例如: 50.0';
+    document.getElementById('pmc-error').placeholder = '例如: 1.0';
+    document.getElementById('age-value').placeholder = '例如: 5730';
+    document.getElementById('age-error').placeholder = '例如: 50';
+    
+    // 添加移动端优化
+    optimizeForMobile();
+    
+    // 隐藏加载指示器
+    setTimeout(() => {
+        hideLoadingIndicator();
+        console.log('页面初始化完成');
+    }, 500);
+}
+
+// 移动端优化
+function optimizeForMobile() {
+    // 检测是否为移动设备
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // 为移动设备添加触摸优化
+        document.querySelectorAll('input, select, button').forEach(element => {
+            element.style.minHeight = '44px'; // iOS推荐的最小触摸目标尺寸
+        });
+        
+        // 添加触摸反馈
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            button.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // 优化输入框体验
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('focus', function() {
+                // 延迟滚动以确保输入框可见
+                setTimeout(() => {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        });
+    }
+    
+    // 添加窗口大小变化监听
+    window.addEventListener('resize', debounce(function() {
+        // 重新调整布局
+        adjustLayoutForScreenSize();
+    }, 250));
+    
+    // 初始调整布局
+    adjustLayoutForScreenSize();
+}
+
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+// 根据屏幕大小调整布局
+function adjustLayoutForScreenSize() {
+    const screenWidth = window.innerWidth;
+    
+    // 根据屏幕宽度调整字体大小
+    if (screenWidth < 480) {
+        document.documentElement.style.setProperty('--font-size-base', '14px');
+        document.documentElement.style.setProperty('--font-size-sm', '12px');
+        document.documentElement.style.setProperty('--font-size-xs', '10px');
+    } else if (screenWidth < 768) {
+        document.documentElement.style.setProperty('--font-size-base', '15px');
+        document.documentElement.style.setProperty('--font-size-sm', '13px');
+        document.documentElement.style.setProperty('--font-size-xs', '11px');
+    } else {
+        document.documentElement.style.setProperty('--font-size-base', '16px');
+        document.documentElement.style.setProperty('--font-size-sm', '14px');
+        document.documentElement.style.setProperty('--font-size-xs', '12px');
+    }
+}
+
+// 页面加载完成后初始化
+window.addEventListener('DOMContentLoaded', init);
+
+// 全局错误处理
+window.addEventListener('error', function(event) {
+    console.error('全局错误:', event.error);
+    hideLoadingIndicator(); // 确保在错误情况下隐藏加载指示器
+    // 可以在这里添加用户友好的错误提示
+});
+
+// 未处理的Promise拒绝
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('未处理的Promise拒绝:', event.reason);
+    hideLoadingIndicator(); // 确保在错误情况下隐藏加载指示器
+    // 可以在这里添加用户友好的错误提示
+});
+    </script>
+</body>
+</html>

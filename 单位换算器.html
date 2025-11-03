@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单位换算器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* 苹果设计语言样式 */
+        :root {
+            --primary-color: #007AFF;
+            --secondary-color: #5856D6;
+            --success-color: #34C759;
+            --warning-color: #FF9500;
+            --error-color: #FF3B30;
+            --background-color: #F2F2F7;
+            --card-background: #FFFFFF;
+            --text-primary: #000000;
+            --text-secondary: #8E8E93;
+            --border-color: #C6C6C8;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        /* 深色模式变量 */
+        body.dark-theme {
+            --primary-color: #0A84FF;
+            --secondary-color: #5E5CE6;
+            --success-color: #30D158;
+            --warning-color: #FF9F0A;
+            --error-color: #FF453A;
+            --background-color: #000000;
+            --card-background: #1C1C1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8E8E93;
+            --border-color: #38383A;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            background-color: var(--card-background);
+            box-shadow: 0 1px 5px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        /* 头部按钮组 */
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* 苹果风格圆形按钮 */
+        .ios-circle-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .ios-circle-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .ios-circle-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .ios-circle-button:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+
+        /* 按钮图标 */
+        .ios-circle-button i {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .ios-circle-button:hover i {
+            transform: scale(1.1);
+        }
+
+        /* 深色模式切换动画 */
+        .theme-toggle-icon {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .theme-toggle-icon .sun-icon,
+        .theme-toggle-icon .moon-icon {
+            position: absolute;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .theme-toggle-icon .sun-icon {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        .theme-toggle-icon .moon-icon {
+            opacity: 0;
+            transform: rotate(-90deg);
+        }
+
+        body.dark-theme .theme-toggle-icon .sun-icon {
+            opacity: 0;
+            transform: rotate(90deg);
+        }
+
+        body.dark-theme .theme-toggle-icon .moon-icon {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        /* 返回按钮波纹效果 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(0, 122, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 导航栏样式 */
+        .nav {
+            width: 100%;
+            margin-left: 30px;
+        }
+
+        .category-selector {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .main-category-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--card-background);
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .main-category-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .main-category-select:hover {
+            border-color: var(--primary-color);
+        }
+
+        /* 主要内容区域 */
+        .main {
+            padding: 30px 0;
+        }
+
+        .converter-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .converter-card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            padding: 30px;
+            transition: var(--transition);
+        }
+
+        .converter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .converter-header {
+            margin-bottom: 30px;
+        }
+
+        .converter-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .converter-description {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .converter-inputs {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field, .select-field {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background-color: var(--card-background);
+            transition: var(--transition);
+            margin-bottom: 10px;
+        }
+
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .swap-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .swap-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .swap-button:hover {
+            background-color: #0056CC;
+            transform: rotate(180deg);
+        }
+
+        .converter-results {
+            background-color: rgba(0, 122, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            min-height: 100px;
+        }
+
+        .conversion-details {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* 快速转换区域 */
+        .quick-conversions {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            padding: 30px;
+            height: fit-content;
+        }
+
+        .quick-conversions-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .quick-conversion-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .quick-conversion-card {
+            background-color: rgba(0, 122, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            transition: var(--transition);
+        }
+
+        .quick-conversion-card:hover {
+            background-color: rgba(0, 122, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .quick-conversion-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .quick-conversion-value {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* 页脚样式 */
+        .footer {
+            background-color: var(--card-background);
+            padding: 20px 0;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 40px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .converter-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-conversions {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header .container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-buttons {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+            }
+            
+            .nav {
+                width: 100%;
+                margin-top: 15px;
+            }
+            
+            .category-selector {
+                max-width: 100%;
+            }
+            
+            .converter-inputs {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .swap-button-container {
+                order: -1;
+                margin-bottom: 0;
+            }
+            
+            .converter-card, .quick-conversions {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .converter-card, .quick-conversions {
+                padding: 15px;
+            }
+            
+            .converter-title {
+                font-size: 24px;
+            }
+            
+            .main-category-select {
+                padding: 10px 14px;
+                font-size: 14px;
+                padding-right: 36px;
+            }
+            
+            .ios-circle-button {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .ios-circle-button i {
+                font-size: 16px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .converter-card, .quick-conversions {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 122, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">单位换算器</h1>
+            <nav class="nav">
+                <div class="category-selector">
+                    <select id="mainCategory" class="main-category-select">
+                        <option value="">选择物理量类别</option>
+                    </select>
+                </div>
+            </nav>
+            <div class="header-buttons">
+                <button id="backToHome" class="ios-circle-button" title="返回主页">
+                    <i class="fas fa-home"></i>
+                </button>
+                <button id="themeToggle" class="ios-circle-button" title="切换深色模式">
+                    <div class="theme-toggle-icon">
+                        <i class="fas fa-sun sun-icon"></i>
+                        <i class="fas fa-moon moon-icon"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="converter-container">
+                <div class="converter-card">
+                    <div class="converter-header">
+                        <h2 class="converter-title">长度换算</h2>
+                        <p class="converter-description">在不同长度单位之间进行转换</p>
+                    </div>
+                    
+                    <div class="converter-inputs">
+                        <div class="input-group">
+                            <input type="number" id="fromValue" class="input-field" placeholder="输入数值">
+                            <select id="fromUnit" class="select-field">
+                                <!-- 动态填充 -->
+                            </select>
+                        </div>
+                        
+                        <div class="swap-button-container">
+                            <button id="swapUnits" class="swap-button">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="number" id="toValue" class="input-field" placeholder="转换结果" readonly>
+                            <select id="toUnit" class="select-field">
+                                <!-- 动态填充 -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="converter-results">
+                        <div id="conversionDetails" class="conversion-details">
+                            <!-- 动态填充转换详情 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-conversions">
+                    <h3 class="quick-conversions-title">常用换算</h3>
+                    <div id="quickConversionCards" class="quick-conversion-cards">
+                        <!-- 动态填充常用换算卡片 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p> 单位换算器---精确、简单、优雅的单位转换工具</p>
+        </div>
+    </footer>
+
+    <script>
+        // 单位换算器核心功能
+        class UnitConverter {
+            constructor() {
+                this.categories = {
+                    length: {
+                        name: '长度',
+                        units: {
+                            '千米': 1000,
+                            '米': 1,
+                            '分米': 0.1,
+                            '厘米': 0.01,
+                            '毫米': 0.001,
+                            '微米': 0.000001,
+                            '海里': 1852,
+                            '英里': 1609.344,
+                            '码': 0.9144,
+                            '英尺': 0.3048,
+                            '英寸': 0.0254,
+                            '里': 500,
+                            '丈': 3.333333,
+                            '尺': 0.333333,
+                            '寸': 0.0333333
+                        },
+                        quickConversions: [
+                            { from: '千米', to: '英里', formula: '1 千米 = 0.621371 英里' },
+                            { from: '米', to: '英尺', formula: '1 米 = 3.28084 英尺' },
+                            { from: '厘米', to: '英寸', formula: '1 厘米 = 0.393701 英寸' }
+                        ]
+                    },
+                    weight: {
+                        name: '重量',
+                        units: {
+                            '吨': 1000000,
+                            '千克': 1000,
+                            '克': 1,
+                            '毫克': 0.001,
+                            '微克': 0.000001,
+                            '磅': 453.592,
+                            '盎司': 28.3495,
+                            '英石': 6350.29,
+                            '斤': 500,
+                            '两': 50,
+                            '钱': 5
+                        },
+                        quickConversions: [
+                            { from: '千克', to: '磅', formula: '1 千克 = 2.20462 磅' },
+                            { from: '斤', to: '千克', formula: '1 斤 = 0.5 千克' },
+                            { from: '盎司', to: '克', formula: '1 盎司 = 28.3495 克' }
+                        ]
+                    },
+                    area: {
+                        name: '面积',
+                        units: {
+                            '平方千米': 1000000,
+                            '公顷': 10000,
+                            '平方米': 1,
+                            '平方分米': 0.01,
+                            '平方厘米': 0.0001,
+                            '平方毫米': 0.000001,
+                            '平方英里': 2589988.11034,
+                            '英亩': 4046.86,
+                            '平方码': 0.836127,
+                            '平方英尺': 0.092903,
+                            '平方英寸': 0.00064516,
+                            '亩': 666.667
+                        },
+                        quickConversions: [
+                            { from: '平方米', to: '平方英尺', formula: '1 平方米 = 10.7639 平方英尺' },
+                            { from: '平方千米', to: '平方英里', formula: '1 平方千米 = 0.386102 平方英里' },
+                            { from: '亩', to: '平方米', formula: '1 亩 = 666.667 平方米' }
+                        ]
+                    },
+                    temperature: {
+                        name: '温度',
+                        units: {
+                            '摄氏度': 'C',
+                            '华氏度': 'F',
+                            '开氏度': 'K',
+                            '兰氏度': 'R',
+                            '列氏度': 'Re'
+                        },
+                        quickConversions: [
+                            { from: '摄氏度', to: '华氏度', formula: '°F = (°C × 9/5) + 32' },
+                            { from: '华氏度', to: '摄氏度', formula: '°C = (°F - 32) × 5/9' },
+                            { from: '摄氏度', to: '开氏度', formula: 'K = °C + 273.15' }
+                        ]
+                    },
+                    volume: {
+                        name: '体积',
+                        units: {
+                            '立方米': 1,
+                            '立方分米': 0.001,
+                            '立方厘米': 0.000001,
+                            '升': 0.001,
+                            '毫升': 0.000001,
+                            '加仑(美)': 0.00378541,
+                            '加仑(英)': 0.00454609,
+                            '品脱(美)': 0.000473176,
+                            '品脱(英)': 0.000568261,
+                            '液盎司(美)': 0.0000295735,
+                            '液盎司(英)': 0.0000284131
+                        },
+                        quickConversions: [
+                            { from: '升', to: '立方米', formula: '1 升 = 0.001 立方米' },
+                            { from: '加仑(美)', to: '升', formula: '1 加仑(美) = 3.78541 升' },
+                            { from: '立方米', to: '升', formula: '1 立方米 = 1000 升' }
+                        ]
+                    },
+                    time: {
+                        name: '时间',
+                        units: {
+                            '年': 31536000,
+                            '月': 2592000,
+                            '周': 604800,
+                            '日': 86400,
+                            '小时': 3600,
+                            '分钟': 60,
+                            '秒': 1,
+                            '毫秒': 0.001,
+                            '微秒': 0.000001
+                        },
+                        quickConversions: [
+                            { from: '日', to: '小时', formula: '1 日 = 24 小时' },
+                            { from: '小时', to: '分钟', formula: '1 小时 = 60 分钟' },
+                            { from: '分钟', to: '秒', formula: '1 分钟 = 60 秒' }
+                        ]
+                    },
+                    energy: {
+                        name: '能量',
+                        units: {
+                            '焦耳': 1,
+                            '千焦': 1000,
+                            '兆焦': 1000000,
+                            '卡路里': 4.184,
+                            '千卡': 4184,
+                            '瓦时': 3600,
+                            '千瓦时': 3600000,
+                            '英热单位': 1055.06,
+                            '英尺磅': 1.35582
+                        },
+                        quickConversions: [
+                            { from: '焦耳', to: '卡路里', formula: '1 焦耳 = 0.239006 卡路里' },
+                            { from: '千瓦时', to: '焦耳', formula: '1 千瓦时 = 3,600,000 焦耳' },
+                            { from: '卡路里', to: '焦耳', formula: '1 卡路里 = 4.184 焦耳' }
+                        ]
+                    },
+                    pressure: {
+                        name: '压力',
+                        units: {
+                            '帕斯卡': 1,
+                            '千帕': 1000,
+                            '兆帕': 1000000,
+                            '巴': 100000,
+                            '毫巴': 100,
+                            '标准大气压': 101325,
+                            '毫米汞柱': 133.322,
+                            '磅每平方英寸': 6894.76,
+                            '托': 133.322
+                        },
+                        quickConversions: [
+                            { from: '标准大气压', to: '帕斯卡', formula: '1 标准大气压 = 101,325 帕斯卡' },
+                            { from: '巴', to: '帕斯卡', formula: '1 巴 = 100,000 帕斯卡' },
+                            { from: '磅每平方英寸', to: '千帕', formula: '1 磅每平方英寸 = 6.89476 千帕' }
+                        ]
+                    },
+                    speed: {
+                        name: '速度',
+                        units: {
+                            '米/秒': 1,
+                            '千米/小时': 0.277778,
+                            '英里/小时': 0.44704,
+                            '节': 0.514444,
+                            '英尺/秒': 0.3048,
+                            '马赫': 343
+                        },
+                        quickConversions: [
+                            { from: '千米/小时', to: '米/秒', formula: '1 千米/小时 = 0.277778 米/秒' },
+                            { from: '英里/小时', to: '千米/小时', formula: '1 英里/小时 = 1.60934 千米/小时' },
+                            { from: '米/秒', to: '千米/小时', formula: '1 米/秒 = 3.6 千米/小时' }
+                        ]
+                    },
+                    data: {
+                        name: '数据',
+                        units: {
+                            '字节': 1,
+                            '千字节': 1024,
+                            '兆字节': 1048576,
+                            '吉字节': 1073741824,
+                            '太字节': 1099511627776,
+                            '比特': 0.125,
+                            '千比特': 128,
+                            '兆比特': 131072,
+                            '吉比特': 134217728
+                        },
+                        quickConversions: [
+                            { from: '吉字节', to: '兆字节', formula: '1 吉字节 = 1024 兆字节' },
+                            { from: '兆字节', to: '千字节', formula: '1 兆字节 = 1024 千字节' },
+                            { from: '字节', to: '比特', formula: '1 字节 = 8 比特' }
+                        ]
+                    },
+                    acceleration: {
+                        name: '加速度',
+                        units: {
+                            '米/秒²': 1,
+                            '厘米/秒²': 0.01,
+                            '千米/秒²': 1000,
+                            '英尺/秒²': 0.3048,
+                            '英寸/秒²': 0.0254,
+                            '标准重力': 9.80665,
+                            '伽利略': 0.01
+                        },
+                        quickConversions: [
+                            { from: '标准重力', to: '米/秒²', formula: '1 标准重力 = 9.80665 米/秒²' },
+                            { from: '米/秒²', to: '英尺/秒²', formula: '1 米/秒² = 3.28084 英尺/秒²' },
+                            { from: '厘米/秒²', to: '米/秒²', formula: '100 厘米/秒² = 1 米/秒²' }
+                        ]
+                    },
+                    action: {
+                        name: '作用量',
+                        units: {
+                            '焦耳·秒': 1,
+                            '电子伏特·秒': 1.602176634e-19,
+                            '尔格·秒': 1e-7,
+                            '千克·米²/秒': 1,
+                            '普朗克常数': 6.62607015e-34,
+                            '约化普朗克常数': 1.054571817e-34
+                        },
+                        quickConversions: [
+                            { from: '普朗克常数', to: '焦耳·秒', formula: '1 普朗克常数 = 6.62607×10⁻³⁴ 焦耳·秒' },
+                            { from: '电子伏特·秒', to: '焦耳·秒', formula: '1 电子伏特·秒 = 1.60218×10⁻¹⁹ 焦耳·秒' },
+                            { from: '尔格·秒', to: '焦耳·秒', formula: '1 尔格·秒 = 1×10⁻⁷ 焦耳·秒' }
+                        ]
+                    },
+                    capacitance: {
+                        name: '电容',
+                        units: {
+                            '法拉': 1,
+                            '微法拉': 1e-6,
+                            '纳法拉': 1e-9,
+                            '皮法拉': 1e-12,
+                            '千法拉': 1000,
+                            '兆法拉': 1000000
+                        },
+                        quickConversions: [
+                            { from: '法拉', to: '微法拉', formula: '1 法拉 = 1,000,000 微法拉' },
+                            { from: '微法拉', to: '纳法拉', formula: '1 微法拉 = 1,000 纳法拉' },
+                            { from: '皮法拉', to: '法拉', formula: '1 皮法拉 = 1×10⁻¹² 法拉' }
+                        ]
+                    },
+                    density: {
+                        name: '密度',
+                        units: {
+                            '千克/立方米': 1,
+                            '克/立方厘米': 1000,
+                            '克/毫升': 1000,
+                            '千克/升': 1,
+                            '磅/立方英尺': 16.0185,
+                            '磅/立方英寸': 27679.9,
+                            '磅/加仑(美)': 119.826,
+                            '磅/加仑(英)': 99.7764
+                        },
+                        quickConversions: [
+                            { from: '克/立方厘米', to: '千克/立方米', formula: '1 克/立方厘米 = 1000 千克/立方米' },
+                            { from: '千克/立方米', to: '磅/立方英尺', formula: '1 千克/立方米 = 0.062428 磅/立方英尺' },
+                            { from: '磅/立方英尺', to: '千克/立方米', formula: '1 磅/立方英尺 = 16.0185 千克/立方米' }
+                        ]
+                    },
+                    dynamicViscosity: {
+                        name: '动力黏度',
+                        units: {
+                            '帕斯卡·秒': 1,
+                            '泊': 0.1,
+                            '厘泊': 0.001,
+                            '千克/米·秒': 1,
+                            '牛顿·秒/平方米': 1,
+                            '磅/英尺·秒': 1.48816,
+                            '磅力·秒/平方英尺': 47.8803
+                        },
+                        quickConversions: [
+                            { from: '帕斯卡·秒', to: '泊', formula: '1 帕斯卡·秒 = 10 泊' },
+                            { from: '泊', to: '厘泊', formula: '1 泊 = 100 厘泊' },
+                            { from: '磅/英尺·秒', to: '帕斯卡·秒', formula: '1 磅/英尺·秒 = 1.48816 帕斯卡·秒' }
+                        ]
+                    },
+                    charge: {
+                        name: '电荷',
+                        units: {
+                            '库仑': 1,
+                            '微库仑': 1e-6,
+                            '纳库仑': 1e-9,
+                            '皮库仑': 1e-12,
+                            '毫库仑': 0.001,
+                            '千库仑': 1000,
+                            '兆库仑': 1000000,
+                            '基本电荷': 1.602176634e-19,
+                            '安时': 3600,
+                            '毫安时': 3.6
+                        },
+                        quickConversions: [
+                            { from: '库仑', to: '基本电荷', formula: '1 库仑 = 6.242×10¹⁸ 基本电荷' },
+                            { from: '安时', to: '库仑', formula: '1 安时 = 3600 库仑' },
+                            { from: '毫安时', to: '库仑', formula: '1 毫安时 = 3.6 库仑' }
+                        ]
+                    },
+                    current: {
+                        name: '电流',
+                        units: {
+                            '安培': 1,
+                            '毫安培': 0.001,
+                            '微安培': 1e-6,
+                            '纳安培': 1e-9,
+                            '千安培': 1000,
+                            '兆安培': 1000000,
+                            '静电安培': 3.33564e-10,
+                            '电磁安培': 10
+                        },
+                        quickConversions: [
+                            { from: '安培', to: '毫安培', formula: '1 安培 = 1000 毫安培' },
+                            { from: '毫安培', to: '微安培', formula: '1 毫安培 = 1000 微安培' },
+                            { from: '千安培', to: '安培', formula: '1 千安培 = 1000 安培' }
+                        ]
+                    },
+                    electricDipole: {
+                        name: '电偶极子',
+                        units: {
+                            '库仑·米': 1,
+                            '德拜': 3.33564e-30,
+                            '静电单位·厘米': 3.33564e-30,
+                            '原子单位': 8.47835326e-30
+                        },
+                        quickConversions: [
+                            { from: '德拜', to: '库仑·米', formula: '1 德拜 = 3.33564×10⁻³⁰ 库仑·米' },
+                            { from: '库仑·米', to: '德拜', formula: '1 库仑·米 = 2.9979×10²⁹ 德拜' },
+                            { from: '原子单位', to: '库仑·米', formula: '1 原子单位 = 8.47835×10⁻³⁰ 库仑·米' }
+                        ]
+                    },
+                    resistance: {
+                        name: '电阻',
+                        units: {
+                            '欧姆': 1,
+                            '千欧姆': 1000,
+                            '兆欧姆': 1000000,
+                            '毫欧姆': 0.001,
+                            '微欧姆': 1e-6,
+                            '吉欧姆': 1000000000,
+                            '静电欧姆': 8.98755179e11,
+                            '电磁欧姆': 1e-9
+                        },
+                        quickConversions: [
+                            { from: '兆欧姆', to: '千欧姆', formula: '1 兆欧姆 = 1000 千欧姆' },
+                            { from: '千欧姆', to: '欧姆', formula: '1 千欧姆 = 1000 欧姆' },
+                            { from: '欧姆', to: '毫欧姆', formula: '1 欧姆 = 1000 毫欧姆' }
+                        ]
+                    },
+                    voltage: {
+                        name: '电压/电势差',
+                        units: {
+                            '伏特': 1,
+                            '毫伏特': 0.001,
+                            '微伏特': 1e-6,
+                            '千伏特': 1000,
+                            '兆伏特': 1000000,
+                            '吉伏特': 1000000000,
+                            '静电伏特': 299.792458,
+                            '电磁伏特': 1e-8
+                        },
+                        quickConversions: [
+                            { from: '千伏特', to: '伏特', formula: '1 千伏特 = 1000 伏特' },
+                            { from: '伏特', to: '毫伏特', formula: '1 伏特 = 1000 毫伏特' },
+                            { from: '毫伏特', to: '微伏特', formula: '1 毫伏特 = 1000 微伏特' }
+                        ]
+                    },
+                    flowRate: {
+                        name: '流量（体积）',
+                        units: {
+                            '立方米/秒': 1,
+                            '升/秒': 0.001,
+                            '升/分钟': 1.66667e-5,
+                            '立方米/小时': 0.000277778,
+                            '立方米/天': 1.15741e-5,
+                            '立方英尺/秒': 0.0283168,
+                            '立方英尺/分钟': 0.000471947,
+                            '加仑(美)/分钟': 6.30902e-5,
+                            '加仑(英)/分钟': 7.57682e-5
+                        },
+                        quickConversions: [
+                            { from: '升/分钟', to: '立方米/秒', formula: '1 升/分钟 = 1.66667×10⁻⁵ 立方米/秒' },
+                            { from: '立方米/小时', to: '升/秒', formula: '1 立方米/小时 = 0.277778 升/秒' },
+                            { from: '加仑(美)/分钟', to: '升/分钟', formula: '1 加仑(美)/分钟 = 3.78541 升/分钟' }
+                        ]
+                    },
+                    force: {
+                        name: '力',
+                        units: {
+                            '牛顿': 1,
+                            '千牛顿': 1000,
+                            '兆牛顿': 1000000,
+                            '达因': 1e-5,
+                            '千克力': 9.80665,
+                            '磅力': 4.44822,
+                            '盎司力': 0.278014,
+                            '吨力': 9806.65,
+                            '磅达': 0.138255
+                        },
+                        quickConversions: [
+                            { from: '千克力', to: '牛顿', formula: '1 千克力 = 9.80665 牛顿' },
+                            { from: '磅力', to: '牛顿', formula: '1 磅力 = 4.44822 牛顿' },
+                            { from: '牛顿', to: '达因', formula: '1 牛顿 = 100,000 达因' }
+                        ]
+                    },
+                    frequency: {
+                        name: '频率',
+                        units: {
+                            '赫兹': 1,
+                            '千赫兹': 1000,
+                            '兆赫兹': 1000000,
+                            '吉赫兹': 1000000000,
+                            '太赫兹': 1000000000000,
+                            '毫赫兹': 0.001,
+                            '微赫兹': 1e-6,
+                            '纳赫兹': 1e-9,
+                            '每秒': 1,
+                            '每分钟': 0.0166667,
+                            '弧度/秒': 0.159155
+                        },
+                        quickConversions: [
+                            { from: '兆赫兹', to: '千赫兹', formula: '1 兆赫兹 = 1000 千赫兹' },
+                            { from: '千赫兹', to: '赫兹', formula: '1 千赫兹 = 1000 赫兹' },
+                            { from: '赫兹', to: '每分钟', formula: '1 赫兹 = 60 次/分钟' }
+                        ]
+                    },
+                    illuminance: {
+                        name: '照度',
+                        units: {
+                            '勒克斯': 1,
+                            '千勒克斯': 1000,
+                            '辐透': 10000,
+                            '毫辐透': 10,
+                            '英尺烛光': 10.7639,
+                            '诺克斯': 0.001,
+                            'phot': 10000,
+                            '毫phot': 10
+                        },
+                        quickConversions: [
+                            { from: '英尺烛光', to: '勒克斯', formula: '1 英尺烛光 = 10.7639 勒克斯' },
+                            { from: '辐透', to: '勒克斯', formula: '1 辐透 = 10,000 勒克斯' },
+                            { from: '勒克斯', to: '诺克斯', formula: '1 勒克斯 = 1000 诺克斯' }
+                        ]
+                    },
+                    inductance: {
+                        name: '电感',
+                        units: {
+                            '亨利': 1,
+                            '毫亨利': 0.001,
+                            '微亨利': 1e-6,
+                            '纳亨利': 1e-9,
+                            '皮亨利': 1e-12,
+                            '千亨利': 1000,
+                            '兆亨利': 1000000,
+                            '吉亨利': 1000000000,
+                            '静电亨利': 8.98755179e11,
+                            '电磁亨利': 1e-9
+                        },
+                        quickConversions: [
+                            { from: '亨利', to: '毫亨利', formula: '1 亨利 = 1000 毫亨利' },
+                            { from: '毫亨利', to: '微亨利', formula: '1 毫亨利 = 1000 微亨利' },
+                            { from: '微亨利', to: '纳亨利', formula: '1 微亨利 = 1000 纳亨利' }
+                        ]
+                    },
+                    entropy: {
+                        name: '信息熵',
+                        units: {
+                            '比特': 1,
+                            '奈特': 1.4427,
+                            '哈特利': 3.32193,
+                            '自然对数单位': 1.4427,
+                            '十进制数字': 3.32193,
+                            '字节': 8,
+                            '千字节': 8192,
+                            '兆字节': 8388608
+                        },
+                        quickConversions: [
+                            { from: '字节', to: '比特', formula: '1 字节 = 8 比特' },
+                            { from: '奈特', to: '比特', formula: '1 奈特 = 1.4427 比特' },
+                            { from: '哈特利', to: '比特', formula: '1 哈特利 = 3.32193 比特' }
+                        ]
+                    },
+                    kinematicViscosity: {
+                        name: '运动粘度',
+                        units: {
+                            '平方米/秒': 1,
+                            '斯托克斯': 0.0001,
+                            '厘斯托克斯': 0.000001,
+                            '平方米/小时': 0.000277778,
+                            '平方英尺/秒': 0.092903,
+                            '平方英尺/小时': 0.0000258064
+                        },
+                        quickConversions: [
+                            { from: '斯托克斯', to: '平方米/秒', formula: '1 斯托克斯 = 0.0001 平方米/秒' },
+                            { from: '厘斯托克斯', to: '斯托克斯', formula: '100 厘斯托克斯 = 1 斯托克斯' },
+                            { from: '平方米/秒', to: '平方英尺/秒', formula: '1 平方米/秒 = 10.7639 平方英尺/秒' }
+                        ]
+                    },
+                    luminance: {
+                        name: '亮度',
+                        units: {
+                            '坎德拉/平方米': 1,
+                            '坎德拉/平方厘米': 10000,
+                            '坎德拉/平方英尺': 10.7639,
+                            '坎德拉/平方英寸': 1550,
+                            '尼特': 1,
+                            '毫尼特': 0.001,
+                            '朗伯': 3183.1,
+                            '毫朗伯': 3.1831,
+                            '英尺朗伯': 3.42626
+                        },
+                        quickConversions: [
+                            { from: '尼特', to: '坎德拉/平方米', formula: '1 尼特 = 1 坎德拉/平方米' },
+                            { from: '坎德拉/平方英尺', to: '尼特', formula: '1 坎德拉/平方英尺 = 10.7639 尼特' },
+                            { from: '英尺朗伯', to: '尼特', formula: '1 英尺朗伯 = 3.42626 尼特' }
+                        ]
+                    },
+                    luminousFlux: {
+                        name: '光通量',
+                        units: {
+                            '流明': 1,
+                            '千流明': 1000,
+                            '兆流明': 1000000,
+                            '毫流明': 0.001,
+                            '微流明': 1e-6
+                        },
+                        quickConversions: [
+                            { from: '千流明', to: '流明', formula: '1 千流明 = 1000 流明' },
+                            { from: '流明', to: '毫流明', formula: '1 流明 = 1000 毫流明' },
+                            { from: '毫流明', to: '微流明', formula: '1 毫流明 = 1000 微流明' }
+                        ]
+                    },
+                    luminousIntensity: {
+                        name: '发光强度',
+                        units: {
+                            '坎德拉': 1,
+                            '毫坎德拉': 0.001,
+                            '微坎德拉': 1e-6,
+                            '千坎德拉': 1000,
+                            '兆坎德拉': 1000000,
+                            '国际烛光': 1.019,
+                            '亥夫纳烛光': 0.903
+                        },
+                        quickConversions: [
+                            { from: '千坎德拉', to: '坎德拉', formula: '1 千坎德拉 = 1000 坎德拉' },
+                            { from: '坎德拉', to: '毫坎德拉', formula: '1 坎德拉 = 1000 毫坎德拉' },
+                            { from: '国际烛光', to: '坎德拉', formula: '1 国际烛光 = 1.019 坎德拉' }
+                        ]
+                    },
+                    magneticFlux: {
+                        name: '磁通量',
+                        units: {
+                            '韦伯': 1,
+                            '毫韦伯': 0.001,
+                            '微韦伯': 1e-6,
+                            '千韦伯': 1000,
+                            '兆韦伯': 1000000,
+                            '麦克斯韦': 1e-8,
+                            '特斯拉·平方米': 1,
+                            '高斯·平方厘米': 1e-8
+                        },
+                        quickConversions: [
+                            { from: '韦伯', to: '麦克斯韦', formula: '1 韦伯 = 100,000,000 麦克斯韦' },
+                            { from: '麦克斯韦', to: '韦伯', formula: '1 麦克斯韦 = 1×10⁻⁸ 韦伯' },
+                            { from: '特斯拉·平方米', to: '韦伯', formula: '1 特斯拉·平方米 = 1 韦伯' }
+                        ]
+                    },
+                    magneticFluxDensity: {
+                        name: '磁通密度',
+                        units: {
+                            '特斯拉': 1,
+                            '毫特斯拉': 0.001,
+                            '微特斯拉': 1e-6,
+                            '纳特斯拉': 1e-9,
+                            '千特斯拉': 1000,
+                            '兆特斯拉': 1000000,
+                            '高斯': 0.0001,
+                            '麦克斯韦/平方厘米': 0.0001,
+                            '伽马': 1e-9
+                        },
+                        quickConversions: [
+                            { from: '特斯拉', to: '高斯', formula: '1 特斯拉 = 10,000 高斯' },
+                            { from: '高斯', to: '特斯拉', formula: '1 高斯 = 0.0001 特斯拉' },
+                            { from: '微特斯拉', to: '高斯', formula: '1 微特斯拉 = 0.01 高斯' }
+                        ]
+                    },
+                    planeAngle: {
+                        name: '平面角',
+                        units: {
+                            '弧度': 1,
+                            '度': 0.0174533,
+                            '分': 0.000290888,
+                            '秒': 4.84814e-6,
+                            '梯度': 0.015708,
+                            '圈': 6.28319,
+                            '象限': 1.5708,
+                            '直角': 1.5708
+                        },
+                        quickConversions: [
+                            { from: '度', to: '弧度', formula: '1 度 = 0.0174533 弧度' },
+                            { from: '弧度', to: '度', formula: '1 弧度 = 57.2958 度' },
+                            { from: '圈', to: '度', formula: '1 圈 = 360 度' }
+                        ]
+                    },
+                    radiation: {
+                        name: '辐射',
+                        units: {
+                            '戈瑞': 1,
+                            '毫戈瑞': 0.001,
+                            '微戈瑞': 1e-6,
+                            '千戈瑞': 1000,
+                            '兆戈瑞': 1000000,
+                            '拉德': 0.01,
+                            '毫拉德': 0.00001,
+                            '雷姆': 0.01,
+                            '毫雷姆': 0.00001,
+                            '西弗特': 1,
+                            '毫西弗特': 0.001,
+                            '微西弗特': 1e-6,
+                            '贝克勒尔': 1,
+                            '千贝克勒尔': 1000,
+                            '兆贝克勒尔': 1000000,
+                            '居里': 37000000,
+                            '毫居里': 37000,
+                            '微居里': 37
+                        },
+                        quickConversions: [
+                            { from: '戈瑞', to: '拉德', formula: '1 戈瑞 = 100 拉德' },
+                            { from: '拉德', to: '戈瑞', formula: '1 拉德 = 0.01 戈瑞' },
+                            { from: '西弗特', to: '雷姆', formula: '1 西弗特 = 100 雷姆' }
+                        ]
+                    },
+                    solidAngle: {
+                        name: '立体角',
+                        units: {
+                            '球面度': 1,
+                            '平方度': 0.000304617,
+                            '平方分': 5.07699e-8,
+                            '平方秒': 8.46159e-12,
+                            '平方象限': 0.785398,
+                            '平方半径': 12.5664,
+                            '半球面度': 6.28319,
+                            '八分之一球面度': 0.785398
+                        },
+                        quickConversions: [
+                            { from: '平方度', to: '球面度', formula: '1 平方度 = 0.000304617 球面度' },
+                            { from: '球面度', to: '平方度', formula: '1 球面度 = 3282.81 平方度' },
+                            { from: '平方半径', to: '球面度', formula: '1 平方半径 = 12.5664 球面度' }
+                        ]
+                    },
+                    torque: {
+                        name: '扭矩力矩',
+                        units: {
+                            '牛顿·米': 1,
+                            '千牛顿·米': 1000,
+                            '兆牛顿·米': 1000000,
+                            '牛顿·厘米': 0.01,
+                            '牛顿·毫米': 0.001,
+                            '达因·厘米': 1e-7,
+                            '千克力·米': 9.80665,
+                            '磅力·英尺': 1.35582,
+                            '磅力·英寸': 0.112985,
+                            '盎司力·英寸': 0.00706155
+                        },
+                        quickConversions: [
+                            { from: '千克力·米', to: '牛顿·米', formula: '1 千克力·米 = 9.80665 牛顿·米' },
+                            { from: '磅力·英尺', to: '牛顿·米', formula: '1 磅力·英尺 = 1.35582 牛顿·米' },
+                            { from: '牛顿·米', to: '牛顿·厘米', formula: '1 牛顿·米 = 100 牛顿·厘米' }
+                        ]
+                    }
+                };
+                
+                this.currentCategory = 'length';
+                this.fromUnit = '';
+                this.toUnit = '';
+                this.fromValue = 0;
+                this.toValue = 0;
+            }
+            
+            // 获取所有类别
+            getAllCategories() {
+                const categories = [];
+                for (const [id, category] of Object.entries(this.categories)) {
+                    categories.push({
+                        id: id,
+                        name: category.name
+                    });
+                }
+                return categories;
+            }
+            
+            // 获取当前类别的所有单位
+            getUnits(category = this.currentCategory) {
+                return Object.keys(this.categories[category].units);
+            }
+            
+            // 获取当前类别的名称
+            getCategoryName(category = this.currentCategory) {
+                return this.categories[category].name;
+            }
+            
+            // 获取当前类别的常用换算
+            getQuickConversions(category = this.currentCategory) {
+                return this.categories[category].quickConversions;
+            }
+            
+            // 设置当前类别
+            setCategory(category) {
+                if (this.categories[category]) {
+                    this.currentCategory = category;
+                    return true;
+                }
+                return false;
+            }
+            
+            // 执行单位转换
+            convert(value, fromUnit, toUnit, category = this.currentCategory) {
+                if (!value || value === '' || isNaN(value)) {
+                    return 0;
+                }
+                
+                // 温度转换特殊处理
+                if (category === 'temperature') {
+                    return this.convertTemperature(value, fromUnit, toUnit);
+                }
+                
+                // 其他单位转换
+                const units = this.categories[category].units;
+                const fromFactor = units[fromUnit];
+                const toFactor = units[toUnit];
+                
+                if (fromFactor === undefined || toFactor === undefined) {
+                    return 0;
+                }
+                
+                // 转换为基准单位，再转换为目标单位
+                const baseValue = value * fromFactor;
+                const result = baseValue / toFactor;
+                
+                return result;
+            }
+            
+            // 温度转换特殊处理
+            convertTemperature(value, fromUnit, toUnit) {
+                // 先转换为摄氏度
+                let celsius;
+                switch (fromUnit) {
+                    case '摄氏度':
+                        celsius = parseFloat(value);
+                        break;
+                    case '华氏度':
+                        celsius = (parseFloat(value) - 32) * 5/9;
+                        break;
+                    case '开氏度':
+                        celsius = parseFloat(value) - 273.15;
+                        break;
+                    case '兰氏度':
+                        celsius = (parseFloat(value) - 491.67) * 5/9;
+                        break;
+                    case '列氏度':
+                        celsius = parseFloat(value) * 4/5;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                // 从摄氏度转换为目标单位
+                let result;
+                switch (toUnit) {
+                    case '摄氏度':
+                        result = celsius;
+                        break;
+                    case '华氏度':
+                        result = celsius * 9/5 + 32;
+                        break;
+                    case '开氏度':
+                        result = celsius + 273.15;
+                        break;
+                    case '兰氏度':
+                        result = (celsius + 273.15) * 9/5;
+                        break;
+                    case '列氏度':
+                        result = celsius * 5/4;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                return result;
+            }
+            
+            // 格式化数字显示
+            formatNumber(num, precision = 6) {
+                if (isNaN(num) || !isFinite(num)) {
+                    return '0';
+                }
+                
+                // 如果是整数，直接返回
+                if (Number.isInteger(num)) {
+                    return num.toString();
+                }
+                
+                // 否则，根据精度格式化
+                const factor = Math.pow(10, precision);
+                const rounded = Math.round(num * factor) / factor;
+                
+                // 移除尾随的零
+                let result = rounded.toString();
+                if (result.includes('.')) {
+                    result = result.replace(/0+$/, '');
+                    if (result.endsWith('.')) {
+                        result = result.slice(0, -1);
+                    }
+                }
+                
+                return result;
+            }
+            
+            // 生成转换详情文本
+            getConversionDetails(value, fromUnit, toUnit, result) {
+                const formattedValue = this.formatNumber(value);
+                const formattedResult = this.formatNumber(result);
+                
+                if (this.currentCategory === 'temperature') {
+                    return `${formattedValue} ${fromUnit} = ${formattedResult} ${toUnit}`;
+                }
+                
+                return `${formattedValue} ${fromUnit} = ${formattedResult} ${toUnit}`;
+            }
+        }
+
+        // 应用程序主文件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化单位转换器
+            const converter = new UnitConverter();
+            
+            // 获取DOM元素
+            const fromValueInput = document.getElementById('fromValue');
+            const fromUnitSelect = document.getElementById('fromUnit');
+            const toValueInput = document.getElementById('toValue');
+            const toUnitSelect = document.getElementById('toUnit');
+            const swapButton = document.getElementById('swapUnits');
+            const conversionDetails = document.getElementById('conversionDetails');
+            const quickConversionCards = document.getElementById('quickConversionCards');
+            const converterTitle = document.querySelector('.converter-title');
+            const converterDescription = document.querySelector('.converter-description');
+            const mainCategorySelect = document.getElementById('mainCategory');
+            
+            // 初始化页面
+            function initializePage() {
+                populateUnitSelects();
+                updateQuickConversions();
+                updateConverterHeader();
+                
+                // 设置默认单位
+                const units = converter.getUnits();
+                if (units.length >= 2) {
+                    fromUnitSelect.value = units[0];
+                    toUnitSelect.value = units[1];
+                }
+            }
+            
+            // 填充主类别选择下拉框
+            function populateMainCategorySelect() {
+                const categories = converter.getAllCategories();
+                
+                // 清空现有选项
+                mainCategorySelect.innerHTML = '<option value="">选择物理量类别</option>';
+                
+                // 添加新选项
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    mainCategorySelect.appendChild(option);
+                });
+                
+                // 设置默认选中第一个类别
+                if (categories.length > 0) {
+                    mainCategorySelect.value = categories[0].id;
+                    switchCategory(categories[0].id);
+                }
+            }
+            
+            // 填充单位选择下拉框
+            function populateUnitSelects() {
+                const units = converter.getUnits();
+                
+                // 清空现有选项
+                fromUnitSelect.innerHTML = '';
+                toUnitSelect.innerHTML = '';
+                
+                // 添加新选项
+                units.forEach(unit => {
+                    const fromOption = document.createElement('option');
+                    fromOption.value = unit;
+                    fromOption.textContent = unit;
+                    fromUnitSelect.appendChild(fromOption);
+                    
+                    const toOption = document.createElement('option');
+                    toOption.value = unit;
+                    toOption.textContent = unit;
+                    toUnitSelect.appendChild(toOption);
+                });
+            }
+            
+            // 更新快速转换卡片
+            function updateQuickConversions() {
+                const quickConversions = converter.getQuickConversions();
+                quickConversionCards.innerHTML = '';
+                
+                quickConversions.forEach(conversion => {
+                    const card = document.createElement('div');
+                    card.className = 'quick-conversion-card';
+                    
+                    const title = document.createElement('div');
+                    title.className = 'quick-conversion-title';
+                    title.textContent = `${conversion.from} → ${conversion.to}`;
+                    
+                    const formula = document.createElement('div');
+                    formula.className = 'quick-conversion-value';
+                    formula.textContent = conversion.formula;
+                    
+                    card.appendChild(title);
+                    card.appendChild(formula);
+                    quickConversionCards.appendChild(card);
+                });
+            }
+            
+            // 更新转换器标题和描述
+            function updateConverterHeader() {
+                const categoryName = converter.getCategoryName();
+                converterTitle.textContent = `${categoryName}换算`;
+                converterDescription.textContent = `在不同${categoryName}单位之间进行转换`;
+            }
+            
+            // 执行转换
+            function performConversion() {
+                const value = parseFloat(fromValueInput.value);
+                const fromUnit = fromUnitSelect.value;
+                const toUnit = toUnitSelect.value;
+                
+                if (isNaN(value)) {
+                    toValueInput.value = '';
+                    conversionDetails.innerHTML = '<p>请输入有效的数字</p>';
+                    return;
+                }
+                
+                const result = converter.convert(value, fromUnit, toUnit);
+                toValueInput.value = converter.formatNumber(result);
+                
+                // 更新转换详情
+                const details = converter.getConversionDetails(value, fromUnit, toUnit, result);
+                conversionDetails.innerHTML = `<p>${details}</p>`;
+                
+                // 添加更多转换详情
+                if (converter.currentCategory !== 'temperature') {
+                    const reciprocal = converter.convert(1, fromUnit, toUnit);
+                    const reciprocalDetails = converter.getConversionDetails(1, fromUnit, toUnit, reciprocal);
+                    conversionDetails.innerHTML += `<p>${reciprocalDetails}</p>`;
+                }
+            }
+            
+            // 交换单位
+            function swapUnits() {
+                const tempUnit = fromUnitSelect.value;
+                fromUnitSelect.value = toUnitSelect.value;
+                toUnitSelect.value = tempUnit;
+                
+                const tempValue = fromValueInput.value;
+                fromValueInput.value = toValueInput.value;
+                toValueInput.value = tempValue;
+                
+                performConversion();
+            }
+            
+            // 切换类别
+            function switchCategory(category) {
+                if (!converter.setCategory(category)) {
+                    return;
+                }
+                
+                // 重新初始化页面
+                initializePage();
+                
+                // 清空输入和输出
+                fromValueInput.value = '';
+                toValueInput.value = '';
+                conversionDetails.innerHTML = '<p>输入数值进行转换</p>';
+            }
+            
+            // 事件监听器
+            fromValueInput.addEventListener('input', performConversion);
+            fromUnitSelect.addEventListener('change', performConversion);
+            toUnitSelect.addEventListener('change', performConversion);
+            swapButton.addEventListener('click', swapUnits);
+            
+            // 主类别选择变化事件
+            mainCategorySelect.addEventListener('change', function() {
+                switchCategory(this.value);
+            });
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                // Enter键执行转换
+                if (e.key === 'Enter' && document.activeElement === fromValueInput) {
+                    performConversion();
+                }
+                
+                // Ctrl/Cmd + K 交换单位
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    swapUnits();
+                }
+            });
+            
+            // 初始化页面
+            populateMainCategorySelect();
+            
+            // 设置初始转换详情
+            conversionDetails.innerHTML = '<p>输入数值进行转换</p>';
+            
+            // 获取新添加的按钮元素
+            const backToHomeButton = document.getElementById('backToHome');
+            const themeToggleButton = document.getElementById('themeToggle');
+            
+            // 返回主页按钮点击事件
+            backToHomeButton.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            
+            // 深色模式切换按钮点击事件 - 与主页面保持一致的全局主题设置
+            themeToggleButton.addEventListener('click', function() {
+                const isDarkMode = document.body.classList.toggle('dark-theme');
+                
+                // 保存主题偏好到本地存储，与主页面保持一致
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                
+                // 添加波纹效果
+                this.classList.add('ripple-effect');
+                setTimeout(() => {
+                    this.classList.remove('ripple-effect');
+                }, 600);
+            });
+            
+            // 检查本地存储中的主题设置，默认浅色模式
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+            
+            // 保存主题设置到本地存储
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        const isDarkMode = document.body.classList.contains('dark-theme');
+                        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                    }
+                });
+            });
+            
+            observer.observe(document.body, {
+                attributes: true
+            });
+        });
+    </script>
+</body>
+</html>

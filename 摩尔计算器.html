@@ -1,0 +1,2809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="theme-color" content="#007AFF">
+  <meta name="apple-mobile-web-app-title" content="摩尔计算器">
+  <title>摩尔计算器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#007AFF',
+            secondary: '#5856D6',
+            success: '#34C759',
+            warning: '#FF9500',
+            danger: '#FF3B30',
+            dark: '#1C1C1E',
+            light: '#F2F2F7',
+            'gray-50': '#F9F9F9',
+            'gray-100': '#F2F2F7',
+            'gray-200': '#E5E5EA',
+            'gray-300': '#D1D1D6',
+            'gray-400': '#C7C7CC',
+            'gray-500': '#AEAEB2',
+            'gray-600': '#8E8E93',
+            'gray-700': '#636366',
+            'gray-800': '#48484A',
+            'gray-900': '#3A3A3C',
+            'gray-950': '#2C2C2E',
+          },
+          fontFamily: {
+            system: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          },
+          boxShadow: {
+            'ios': '0 2px 10px rgba(0, 0, 0, 0.05)',
+            'ios-hover': '0 4px 20px rgba(0, 0, 0, 0.1)',
+          }
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-button {
+        border-radius: 0.75rem;
+        background-color: var(--primary-color, #007AFF);
+        color: white;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        transition: all 200ms ease-in-out;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        outline: none;
+      }
+      .ios-button:hover {
+        background-color: rgba(0, 122, 255, 0.9);
+      }
+      .ios-button:active {
+        background-color: rgba(0, 122, 255, 0.8);
+      }
+      .ios-button:focus {
+        box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.5), 0 0 0 4px transparent;
+      }
+      
+      .ios-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #D1D5DB;
+        background-color: white;
+        color: #111827;
+        transition: all 200ms;
+      }
+      .ios-input::placeholder {
+        color: #9CA3AF;
+      }
+      .ios-input:focus {
+        border-color: var(--primary-color, #007AFF);
+        box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        outline: none;
+      }
+      
+      .ios-card {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-ios, 0 4px 20px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05));
+        transition: all 300ms;
+        overflow: hidden;
+      }
+      .ios-card:hover {
+        box-shadow: var(--shadow-ios-hover, 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 15px rgba(0, 0, 0, 0.08));
+      }
+      
+      .ios-tab-active {
+        color: var(--primary-color, #007AFF);
+        font-weight: 500;
+        position: relative;
+      }
+      
+      .ios-tab-inactive {
+        color: #6B7280;
+        transition: color 200ms;
+      }
+      .ios-tab-inactive:hover {
+        color: #374151;
+      }
+      
+      .swipe-action {
+        transition: transform 0.3s ease-in-out;
+      }
+      
+      .ios-toggle {
+        width: 3rem;
+        height: 1.5rem;
+        border-radius: 9999px;
+        background-color: #D1D5DB;
+        transition: background-color 300ms;
+        position: relative;
+        cursor: pointer;
+      }
+      .ios-toggle::after {
+        content: '';
+        position: absolute;
+        width: 1.25rem;
+        height: 1.25rem;
+        background-color: white;
+        border-radius: 9999px;
+        left: 0.125rem;
+        top: 0.125rem;
+        transition: transform 300ms;
+      }
+      .ios-toggle:checked::after {
+        transform: translateX(1.5rem);
+      }
+      .ios-toggle:checked {
+        background-color: var(--primary-color, #007AFF);
+      }
+    }
+  </style>
+  <style>
+    /* 苹果设计语言增强样式 */
+
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 安全区域适配 */
+    .safe-area-inset-top {
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .safe-area-inset-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .safe-area-inset-left {
+      padding-left: env(safe-area-inset-left);
+    }
+
+    .safe-area-inset-right {
+      padding-right: env(safe-area-inset-right);
+    }
+
+    /* 毛玻璃效果 */
+    .header-blur {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* 卡片悬停效果 */
+    .ios-card {
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transform: translateY(0);
+      will-change: transform;
+    }
+
+    .ios-card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* 移动端触摸反馈 */
+    .ios-card:active {
+      transform: scale(0.98);
+    }
+
+    /* 输入框自定义样式 */
+    .ios-input {
+      border-color: rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease-in-out;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 12px;
+    }
+
+    .ios-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+      outline: none;
+    }
+
+    .ios-input::placeholder {
+      color: rgba(0, 0, 0, 0.3);
+    }
+
+    /* 移动端输入框优化 */
+    @media (max-width: 640px) {
+      .ios-input {
+        font-size: 16px; /* 防止iOS缩放 */
+      }
+    }
+
+    /* 按钮深度效果 */
+    .ios-button {
+      position: relative;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      border-radius: 12px;
+    }
+
+    .ios-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.2);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      transition: transform 0.3s ease-out;
+    }
+
+    .ios-button:hover::before {
+      transform: scaleX(1);
+    }
+
+    /* 移动端按钮触摸反馈 */
+    .ios-button:active {
+      transform: scale(0.95);
+    }
+
+    /* 标签导航容器样式 - 苹果设计语言 */
+    .tab-navigation {
+      position: relative;
+      margin-bottom: 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    /* 标签导航滚动容器 */
+    .tab-scroll-container {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    /* 苹果风格阴影定义 */
+    .shadow-ios {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* iOS设备优化 - 确保所有可滚动元素都有良好的滚动体验 */
+    .ios-card, .tab-navigation, .result-panel {
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* 苹果风格按钮触摸反馈增强 */
+.ios-button {
+  transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
+.ios-button:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* 隐藏滚动条但保留滚动功能 */
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+    
+    /* 模态框动画 - 苹果风格淡入淡出 */
+    #tutorial-modal {
+      transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    #tutorial-modal:not(.hidden) {
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    #tutorial-modal .ios-card {
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px) scale(0.98); 
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1); 
+      }
+    }
+    
+    /* 确保页面主体可以正常滚动 */
+    body {
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    main {
+      overflow: visible;
+    }
+
+    .tab-scroll-container::-webkit-scrollbar {
+      display: none; /* Chrome/Safari/Opera */
+    }
+
+    /* 标签按钮样式 - 苹果设计语言 */
+    .tab-button {
+      flex: 1 0 auto;
+      min-width: 80px;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #8E8E93;
+      background-color: transparent;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      position: relative;
+      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 4px;
+    }
+
+    .tab-button i {
+      font-size: 18px;
+      margin-bottom: 4px;
+      transition: transform 0.2s ease;
+    }
+
+    .tab-button span {
+      transition: color 0.2s ease;
+    }
+
+    /* 活跃标签样式 */
+    .tab-button.active {
+      color: #007AFF;
+      background-color: rgba(0, 122, 255, 0.1);
+    }
+
+    /* 悬停和按下效果 */
+    .tab-button:hover {
+      color: #007AFF;
+    }
+
+    .tab-button:active {
+      transform: scale(0.95);
+    }
+
+    .tab-button.active:active {
+      transform: scale(0.92);
+    }
+
+    /* 标签按钮图标动画 */
+    .tab-button.active i {
+      transform: scale(1.1);
+    }
+
+    /* 滚动指示器 */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 0;
+      height: 2px;
+      background: linear-gradient(to right, transparent, rgba(0, 122, 255, 0.3), transparent);
+      width: 60px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .scroll-indicator.left {
+      left: 0;
+      background: linear-gradient(to right, rgba(0, 122, 255, 0.3), transparent);
+    }
+
+    .scroll-indicator.right {
+      right: 0;
+      background: linear-gradient(to left, rgba(0, 122, 255, 0.3), transparent);
+    }
+
+    .scroll-indicator.visible {
+      opacity: 1;
+    }
+
+    /* 小屏幕优化 */
+    @media (max-width: 640px) {
+      .tab-navigation {
+        margin-bottom: 0.75rem;
+        border-radius: 14px;
+      }
+
+      .tab-button {
+        min-width: 70px;
+        padding: 10px 12px;
+        font-size: 12px;
+        margin: 3px;
+      }
+
+      .tab-button i {
+        font-size: 16px;
+        margin-bottom: 3px;
+      }
+    }
+
+    /* 黑夜模式下的标签导航 */
+    .dark-mode .tab-navigation {
+      background: rgba(30, 30, 30, 0.8);
+    }
+
+    .dark-mode .tab-button {
+      color: #8E8E93;
+    }
+
+    .dark-mode .tab-button.active {
+      color: #0A84FF;
+      background-color: rgba(10, 132, 255, 0.15);
+    }
+
+    .dark-mode .tab-button:hover {
+      color: #0A84FF;
+    }
+
+    /* 标签切换动画 */
+    .ios-tab-active,
+    .ios-tab-inactive {
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* 移动端标签触摸反馈 */
+    @media (max-width: 640px) {
+      .ios-tab-active:active,
+      .ios-tab-inactive:active {
+        transform: scale(0.95);
+      }
+    }
+
+    /* 结果面板动画 */
+    #molarity-result,
+    #molecular-result,
+    #animal-result,
+    #dilution-result,
+    #serial-result {
+      animation: fadeIn 0.3s ease-in-out;
+      will-change: opacity, transform;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 无滚动条的滚动容器 */
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 苹果风格滚动条优化 - 保持原生滚动体验但优化样式 */
+.ios-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* 教程对话框滚动优化 - 保留滚动功能同时遵循苹果设计 */
+#tutorial-modal .ios-card {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overflow-y: auto !important;
+  /* 确保在iOS设备上有合适的最大高度 */
+  max-height: calc(100vh - 48px);
+}
+
+/* 保持其他元素的滚动条优化但不影响关键内容 */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+    /* 加载状态动画 */
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* 触摸优化 */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    input, textarea, [contenteditable] {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .ios-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .ios-button {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
+      
+      .container {
+        padding: 0.5rem;
+      }
+      
+      /* 标签导航优化 */
+      .tab-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+      }
+      
+      .tab-nav::-webkit-scrollbar {
+        display: none; /* Chrome/Safari/Opera */
+      }
+      
+      .tab-button {
+        flex: 0 0 auto;
+        min-width: 80px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      /* 表单布局优化 */
+      .grid-cols-1.sm\\:grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+      
+      /* 输入框优化 */
+      .ios-input {
+        padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+        font-size: 1rem;
+      }
+      
+      /* 结果面板优化 */
+      .result-panel {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      /* pH刻度优化 */
+      .ph-scale {
+        height: 24px;
+        margin: 1rem 0;
+      }
+      
+      .ph-indicator {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .ph-labels {
+        font-size: 0.625rem;
+        gap: 0.125rem;
+      }
+      
+      .ph-descriptions {
+        font-size: 0.5rem;
+        gap: 0.125rem;
+      }
+      
+      .ph-desc {
+        min-width: 40px;
+      }
+      
+      /* 规则说明优化 */
+      .rules-panel {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .rules-panel h3 {
+        font-size: 1rem;
+      }
+      
+      /* 温度输入优化 */
+      .temp-input {
+        width: 80px;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    /* 超小屏幕设备优化 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 0.25rem;
+      }
+      
+      .ios-card {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        border-radius: 12px;
+      }
+      
+      .ios-card h2 {
+        font-size: 1.125rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .ios-card p {
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .tab-button {
+        min-width: 70px;
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+      }
+      
+      .tab-button i {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      /* 单列布局 */
+      .grid-cols-1.sm\\:grid-cols-2 {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+      
+      .ios-input {
+        padding: 0.625rem 2.25rem 0.625rem 0.625rem;
+        font-size: 0.875rem;
+      }
+      
+      .ios-button {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      /* 结果面板 */
+      .result-panel {
+        padding: 0.625rem;
+        font-size: 0.75rem;
+      }
+      
+      /* pH刻度 */
+      .ph-scale {
+        height: 20px;
+        margin: 0.75rem 0;
+      }
+      
+      .ph-indicator {
+        width: 16px;
+        height: 16px;
+      }
+      
+      .ph-labels {
+        font-size: 0.5rem;
+        gap: 0.0625rem;
+      }
+      
+      .ph-descriptions {
+        font-size: 0.375rem;
+        gap: 0.0625rem;
+        margin-top: 0.25rem;
+      }
+      
+      .ph-desc {
+        min-width: 30px;
+      }
+      
+      /* 规则说明 */
+      .rules-panel {
+        padding: 0.625rem;
+        font-size: 0.75rem;
+      }
+      
+      .rules-panel h3 {
+        font-size: 0.875rem;
+      }
+      
+      /* 温度输入 */
+      .temp-input {
+        width: 70px;
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+      }
+      
+      /* 教程对话框移动端优化 */
+      #tutorial-modal {
+        padding: 1rem;
+      }
+      
+      #tutorial-content {
+        max-height: 85vh;
+      }
+      
+      .tutorial-section {
+        margin-bottom: 1rem;
+      }
+      
+      .tutorial-section h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .tutorial-section p {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .tutorial-section code {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+      
+      .tutorial-section ul {
+        padding-left: 1rem;
+      }
+      
+      .tutorial-section li {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      .tutorial-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    /* 横屏模式优化 */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .container {
+        padding: 0.5rem;
+      }
+      
+      .ios-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .ios-card h2 {
+        font-size: 1.125rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .tab-button {
+        min-width: 80px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .tab-button i {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      .ios-input {
+        padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .ios-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+      }
+      
+      .result-panel {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      /* 教程对话框横屏优化 */
+      #tutorial-modal {
+        padding: 1rem;
+      }
+      
+      #tutorial-content {
+        max-height: 70vh;
+      }
+    }
+
+    /* 移动端性能优化 */
+    @media (max-width: 768px) {
+      /* 减少动画和过渡效果 */
+      .ios-card {
+        transition: transform 0.2s ease;
+      }
+      
+      .ios-button {
+        transition: background-color 0.2s ease, transform 0.1s ease;
+      }
+      
+      .ios-tab-active,
+      .ios-tab-inactive {
+        transition: color 0.2s ease;
+      }
+      
+      /* 减少阴影效果 */
+      .ios-card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .ios-card:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    /* 高对比度模式支持 */
+    @media (prefers-contrast: high) {
+      .ios-input {
+        border-color: black;
+      }
+      
+      .ios-card {
+        border: 1px solid black;
+      }
+    }
+
+    /* 减少动画模式支持 */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* 选择文本样式 */
+    ::selection {
+      background-color: rgba(0, 122, 255, 0.2);
+    }
+
+    /* 触摸反馈增强 */
+    @media (hover: none) and (pointer: coarse) {
+      .ios-button {
+        transition: all 0.1s ease;
+      }
+      
+      .ios-button:active {
+        transform: scale(0.95);
+      }
+    }
+
+    /* 数字输入框清除按钮美化 */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield; /* 添加标准属性以实现兼容性 */
+    }
+
+    /* 自定义复选框 */
+    input[type="checkbox"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #007AFF;
+      border-radius: 4px;
+      background-color: white;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    input[type="checkbox"]:checked {
+      background-color: #007AFF;
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    input[type="checkbox"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+    }
+
+    /* 标签页指示器动画 */
+    .ios-tab-active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 2px;
+      background-color: #007AFF;
+      border-radius: 1px;
+      transition: width 0.3s ease;
+    }
+
+    .ios-tab-active:hover::after {
+      width: 60%;
+    }
+
+    /* 工具提示样式 */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 12px;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* 结果区域样式增强 */
+    .bg-gray-50 {
+      background-color: #F9F9F9;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* 表格样式 */
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    table th,
+    table td {
+      padding: 8px 12px;
+    }
+
+    table th {
+      font-weight: 600;
+      color: #8E8E93;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    table tr:not(:last-child) td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* 信息提示样式 */
+    .info-text {
+      color: #007AFF;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* 警告样式 */
+    .text-warning {
+      color: #FF9500;
+    }
+
+    /* 成功样式 */
+    .text-success {
+      color: #34C759;
+    }
+
+    /* 错误样式 */
+    .text-error {
+      color: #FF3B30;
+    }
+
+    /* 有效数字计算器样式 */
+    #significant-result,
+    #ph-result {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* 有效数字规则说明样式 */
+    .rule-item {
+      margin-bottom: 12px;
+      padding: 12px;
+      background-color: #F9F9F9;
+      border-radius: 8px;
+      border-left: 3px solid #007AFF;
+    }
+
+    .rule-item p {
+      margin: 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* pH值计算器样式 */
+    .ph-scale-container {
+      position: relative;
+      height: 40px;
+      background: linear-gradient(to right, 
+        #FF3B30 0%, 
+        #FF9500 20%, 
+        #FFCC00 35%, 
+        #34C759 50%, 
+        #007AFF 65%, 
+        #5856D6 80%, 
+        #AF52DE 100%);
+      border-radius: 20px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .ph-scale-labels {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0 10px;
+    }
+
+    .ph-scale-labels span {
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .ph-indicator {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      border: 2px solid #007AFF;
+      transition: left 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .ph-descriptions {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.625rem;
+      color: #666;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .ph-desc {
+      text-align: center;
+      flex: 1;
+      min-width: 50px;
+    }
+
+    /* pH值类型选择样式 */
+    .ph-type-selector {
+      margin-bottom: 20px;
+    }
+
+    .ph-type-selector label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* pH值输入区域样式 */
+    .ph-input-section {
+      background-color: #F9F9F9;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* 单选按钮样式 */
+    input[type="radio"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #C7C7CC;
+      border-radius: 50%;
+      background-color: white;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    input[type="radio"]:checked {
+      border-color: #007AFF;
+      background-color: #007AFF;
+    }
+
+    input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      background-color: white;
+      border-radius: 50%;
+    }
+
+    input[type="radio"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+    }
+
+    /* 单选按钮标签样式 */
+    .radio-label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    /* 温度输入样式 */
+    .temperature-input {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .temperature-input input {
+      flex: 1;
+      margin-right: 8px;
+    }
+
+    .temperature-input span {
+      color: #8E8E93;
+      font-size: 14px;
+    }
+
+    /* 黑夜模式样式 */
+    .dark-mode {
+      background-color: #1C1C1E;
+      color: #FFFFFF;
+    }
+
+    .dark-mode .bg-white {
+      background-color: #1E1E1E !important;
+    }
+
+    .dark-mode .bg-gray-50 {
+      background-color: #252525 !important;
+    }
+
+    .dark-mode .text-gray-900 {
+      color: #FFFFFF !important;
+    }
+
+    .dark-mode .text-gray-700 {
+      color: #E0E0E0 !important;
+    }
+
+    .dark-mode .text-gray-600 {
+      color: #CCCCCC !important;
+    }
+
+    .dark-mode .text-gray-500 {
+      color: #AAAAAA !important;
+    }
+
+    .dark-mode .text-gray-400 {
+      color: #999999 !important;
+    }
+
+    .dark-mode .text-gray-300 {
+      color: #888888 !important;
+    }
+
+    .dark-mode .border-gray-200 {
+      border-color: #333333 !important;
+    }
+
+    .dark-mode .border-gray-300 {
+      border-color: #404040 !important;
+    }
+
+    .dark-mode .ios-card {
+      background-color: #252525;
+      border-color: #333333;
+    }
+
+    .dark-mode .ios-input {
+      background-color: #333333;
+      border-color: #444444;
+      color: #FFFFFF;
+    }
+
+    .dark-mode .ios-input:focus {
+      border-color: #0A84FF;
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+    }
+
+    .dark-mode .ios-input::placeholder {
+      color: #AAAAAA;
+    }
+
+    .dark-mode .rule-item {
+      background-color: #2A2A2A;
+      border-left-color: #0A84FF;
+    }
+
+    .dark-mode .rule-item p {
+      color: #E0E0E0;
+    }
+
+    .dark-mode .ph-input-section {
+      background-color: #2A2A2A;
+    }
+
+    .dark-mode .ph-type-selector label {
+      color: #E0E0E0;
+    }
+
+    .dark-mode .modal-content {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+    }
+
+    .dark-mode .modal-header {
+      border-bottom-color: #333333;
+    }
+
+    .dark-mode .modal-footer {
+      border-top-color: #333333;
+    }
+
+    /* 黑夜模式下的主题切换按钮过渡效果 */
+    #theme-icon {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* 教程对话框黑夜模式样式 */
+    .dark-mode .ios-card {
+      background: rgba(44, 44, 46, 0.95);
+      border: 1px solid rgba(84, 84, 88, 0.65);
+      color: #f2f2f7;
+    }
+
+    .dark-mode .ios-card h2 {
+      color: #f2f2f7;
+    }
+
+    .dark-mode .ios-card h3 {
+      color: #f2f2f7;
+    }
+
+    .dark-mode .ios-card p {
+      color: #d1d1d6;
+    }
+
+    .dark-mode .ios-card ul {
+      color: #d1d1d6;
+    }
+
+    .dark-mode .ios-card li {
+      color: #d1d1d6;
+    }
+
+    .dark-mode .ios-card strong {
+      color: #f2f2f7;
+    }
+
+    .dark-mode .ios-card code {
+      background: rgba(58, 58, 60, 0.8);
+      color: #a2a2a7;
+    }
+
+    .dark-mode .ios-card .close-btn {
+      color: #8e8e93;
+    }
+
+    .dark-mode .ios-card .close-btn:hover {
+      color: #f2f2f7;
+    }
+
+    .dark-mode .ios-card .ios-button {
+      background: #007aff;
+      color: white;
+    }
+
+    .dark-mode .ios-card .ios-button:hover {
+      background: #0051d5;
+    }
+
+    .dark-mode .ios-card .tutorial-section {
+      border-bottom: 1px solid rgba(84, 84, 88, 0.65);
+    }
+
+    .dark-mode .ios-card .tutorial-section:last-child {
+      border-bottom: none;
+    }
+
+    .dark-mode .ios-card .tutorial-section h3 {
+      color: #007aff;
+    }
+
+    .dark-mode .ios-card .tutorial-section ul li::before {
+      color: #007aff;
+    }
+
+    .dark-mode .ios-card .notes-section {
+      background: rgba(58, 58, 60, 0.5);
+      border-left: 4px solid #ff9500;
+    }
+
+    .dark-mode .ios-card .notes-section h3 {
+      color: #ff9500;
+    }
+
+    .dark-mode .ios-card .notes-section ul li::before {
+      color: #ff9500;
+    }
+
+    .dark-mode .ios-card .notes-section strong {
+      color: #ff9500;
+    }
+
+    /* 主题切换按钮过渡效果 */
+    .theme-toggle {
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    #theme-icon {
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    /* 教程按钮过渡效果 */
+    .tutorial-toggle {
+      transition: all 0.2s ease;
+    }
+
+    .tutorial-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    #tutorial-icon {
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+<body class="font-system bg-gray-100 text-gray-900 min-h-screen">
+  <!-- 头部导航 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50 safe-area-inset-top">
+    <div class="container mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-flask text-primary text-xl sm:text-2xl"></i>
+        <h1 class="text-lg sm:text-xl font-bold">摩尔计算器</h1>
+      </div>
+      <div class="flex items-center space-x-3 sm:space-x-4">
+          <button id="tutorial-button" class="text-gray-500 hover:text-primary transition-all duration-200 p-2 sm:p-0 flex items-center justify-center w-10 h-10 rounded-full ios-button">
+            <i class="fas fa-book-open text-lg sm:text-xl"></i>
+          </button>
+          <button id="theme-toggle" class="text-gray-500 hover:text-primary transition-all duration-200 p-2 sm:p-0 flex items-center justify-center w-10 h-10 rounded-full ios-button">
+            <i class="fas fa-sun text-lg sm:text-xl" id="theme-icon"></i>
+          </button>
+          <a href="index.html" id="home-button" class="text-gray-500 hover:text-primary transition-all duration-200 p-2 sm:p-0 flex items-center justify-center w-10 h-10 rounded-full ios-button">
+            <i class="fas fa-home text-lg sm:text-xl"></i>
+          </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要内容 -->
+  <main class="container mx-auto px-3 sm:px-4 py-4 sm:py-6 safe-area-inset-bottom">
+    <!-- 标签切换 -->
+    <div class="mb-4 sm:mb-6">
+      <div class="tab-navigation">
+        <div class="tab-scroll-container">
+          <button id="tab-molarity" class="tab-button active px-3 py-2 sm:px-4 sm:py-3 text-center min-w-[80px] sm:min-w-[100px] whitespace-nowrap">
+            <i class="fa fa-flask block mb-1 text-base sm:text-lg"></i>
+            <span class="text-xs sm:text-xs">摩尔浓度</span>
+          </button>
+          <button id="tab-molecular" class="tab-button px-3 py-2 sm:px-4 sm:py-3 text-center min-w-[80px] sm:min-w-[100px] whitespace-nowrap">
+            <i class="fa fa-cube block mb-1 text-base sm:text-lg"></i>
+            <span class="text-xs sm:text-xs">分子量</span>
+          </button>
+          <button id="tab-animal" class="tab-button px-3 py-2 sm:px-4 sm:py-3 text-center min-w-[80px] sm:min-w-[100px] whitespace-nowrap">
+            <i class="fa fa-paw block mb-1 text-base sm:text-lg"></i>
+            <span class="text-xs sm:text-xs">动物配方</span>
+          </button>
+          <button id="tab-dilution" class="tab-button px-3 py-2 sm:px-4 sm:py-3 text-center min-w-[80px] sm:min-w-[100px] whitespace-nowrap">
+            <i class="fa fa-tint block mb-1 text-base sm:text-lg"></i>
+            <span class="text-xs sm:text-xs">稀释</span>
+          </button>
+          <button id="tab-significant" class="tab-button px-3 py-2 sm:px-4 sm:py-3 text-center min-w-[80px] sm:min-w-[100px] whitespace-nowrap">
+            <i class="fa fa-superscript block mb-1 text-base sm:text-lg"></i>
+            <span class="text-xs sm:text-xs">有效数字</span>
+          </button>
+          <button id="tab-ph" class="tab-button px-3 py-2 sm:px-4 sm:py-3 text-center min-w-[80px] sm:min-w-[100px] whitespace-nowrap">
+            <i class="fa fa-eyedropper block mb-1 text-base sm:text-lg"></i>
+            <span class="text-xs sm:text-xs">pH值</span>
+          </button>
+        </div>
+        <div class="scroll-indicator left"></div>
+        <div class="scroll-indicator right"></div>
+      </div>
+    </div>
+
+    <!-- 摩尔浓度计算器 -->
+    <div id="panel-molarity" class="ios-card p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+      <h2 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">摩尔浓度计算器</h2>
+      <p class="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-sm md:text-base">本计算器可帮助您计算出特定溶液中溶质的质量、溶液浓度和体积之间的关系</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">质量 (mg)</label>
+          <div class="relative">
+            <input type="number" id="mass" class="ios-input pr-10 sm:pr-12 text-sm" placeholder="输入质量">
+            <span class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs sm:text-sm">mg</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">浓度 (mM)</label>
+          <div class="relative">
+            <input type="number" id="concentration" class="ios-input pr-10 sm:pr-12 text-sm" placeholder="输入浓度">
+            <span class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs sm:text-sm">mM</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">体积 (mL)</label>
+          <div class="relative">
+            <input type="number" id="volume" class="ios-input pr-10 sm:pr-12 text-sm" placeholder="输入体积">
+            <span class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs sm:text-sm">mL</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">分子量 (g/mol)</label>
+          <div class="relative">
+            <input type="number" id="molecular-weight" class="ios-input pr-10 sm:pr-12 text-sm" placeholder="输入分子量">
+            <span class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs sm:text-sm">g/mol</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center">
+        <button id="calculate-molarity" class="ios-button w-full sm:w-auto py-2 sm:py-3 text-sm sm:text-base">
+          <i class="fa fa-check-circle mr-1 sm:mr-2"></i>计算
+        </button>
+      </div>
+      <div id="molarity-result" class="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-xl hidden">
+        <h3 class="text-sm sm:text-md font-semibold mb-1 sm:mb-2">计算结果</h3>
+        <p id="molarity-result-text" class="text-gray-700 text-xs sm:text-sm"></p>
+      </div>
+      <div class="mt-3 sm:mt-4 text-xs text-gray-500">
+        *在配置溶液时，请务必参考产品标签和SDS / COA对应批次的分子量。
+      </div>
+    </div>
+
+    <!-- 分子量计算器 -->
+    <div id="panel-molecular" class="ios-card p-4 md:p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">分子量计算器</h2>
+      <p class="text-gray-600 mb-6 text-sm md:text-base">通过输入化合物的化学式来计算其分子量</p>
+      <div class="mb-6">
+        <input type="text" id="chemical-formula" class="ios-input" placeholder="输入化学式，如C10H16N2O2">
+      </div>
+      <div class="flex justify-center">
+        <button id="calculate-molecular" class="ios-button w-full sm:w-auto">
+          <i class="fa fa-check-circle mr-2"></i>计算分子量
+        </button>
+      </div>
+      <div id="molecular-result" class="mt-6 p-4 bg-gray-50 rounded-xl hidden">
+        <h3 class="text-md font-semibold mb-2">计算结果</h3>
+        <p id="molecular-result-text" class="text-gray-700"></p>
+      </div>
+      <div class="mt-4 text-xs text-gray-500">
+        * 分子式中请使用大写字母。
+      </div>
+    </div>
+
+    <!-- 动物体内配方计算器 -->
+    <div id="panel-animal" class="ios-card p-4 md:p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">动物体内配方计算器</h2>
+      <p class="text-gray-600 mb-6 text-sm md:text-base">用于计算动物体内实验的药物配方和给药方案</p>
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-md font-medium mb-3">第一步：请输入基本实验信息</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">给药剂量 (mg/kg)</label>
+              <input type="number" id="dose" class="ios-input" placeholder="输入剂量">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">动物平均体重 (g)</label>
+              <input type="number" id="weight" class="ios-input" placeholder="输入体重">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">每只动物给药体积 (μL)</label>
+              <input type="number" id="admin-volume" class="ios-input" placeholder="输入体积">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">动物数量 (只)</label>
+              <input type="number" id="animal-count" class="ios-input" placeholder="输入数量">
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-md font-medium mb-3">第二步：请输入动物体内配方组成</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">% DMSO</label>
+              <input type="number" id="dmso-percent" class="ios-input" placeholder="DMSO百分比">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">% PEG300</label>
+              <input type="number" id="peg-percent" class="ios-input" placeholder="PEG300百分比">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">% Tween 80</label>
+              <input type="number" id="tween-percent" class="ios-input" placeholder="Tween 80百分比">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">% ddH2O</label>
+              <input type="number" id="water-percent" class="ios-input" placeholder="水百分比">
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="inline-flex items-center">
+              <input type="checkbox" id="use-corn-oil" class="rounded text-primary focus:ring-primary">
+              <span class="ml-2 text-sm text-gray-700">使用玉米油作为溶剂（替代PEG300、Tween 80和水）</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="flex justify-center">
+          <button id="calculate-animal" class="ios-button w-full sm:w-auto">
+            <i class="fa fa-check-circle mr-2"></i>计算配方
+          </button>
+        </div>
+        
+        <div id="animal-result" class="p-4 bg-gray-50 rounded-xl hidden">
+          <h3 class="text-md font-semibold mb-2">计算结果</h3>
+          <div id="animal-result-text" class="text-gray-700 space-y-2"></div>
+        </div>
+        
+        <div class="mt-4 text-xs text-gray-500">
+          <p>注意：1. 首先保证母液是澄清的；</p>
+          <p>2.一定要按照顺序依次将溶剂加入，进行下一步操作之前必须保证上一步操作得到的是澄清的溶液，可采用涡旋、超声或水浴加热等物理方法助溶。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 稀释计算器 -->
+    <div id="panel-dilution" class="ios-card p-4 md:p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">稀释计算器</h2>
+      <p class="text-gray-600 mb-6 text-sm md:text-base">用本工具协助配置特定浓度的溶液，使用的计算公式为：开始浓度 × 开始体积 = 最终浓度 × 最终体积</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">开始浓度 (C1)</label>
+          <div class="relative">
+            <input type="number" id="start-concentration" class="ios-input pr-16" placeholder="输入开始浓度">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">mol/L</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">开始体积 (V1)</label>
+          <div class="relative">
+            <input type="number" id="start-volume" class="ios-input pr-12" placeholder="输入开始体积">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">mL</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">最终浓度 (C2)</label>
+          <div class="relative">
+            <input type="number" id="final-concentration" class="ios-input pr-16" placeholder="输入最终浓度">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">mol/L</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">最终体积 (V2)</label>
+          <div class="relative">
+            <input type="number" id="final-volume" class="ios-input pr-12" placeholder="输入最终体积">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">mL</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center">
+        <button id="calculate-dilution" class="ios-button w-full sm:w-auto">
+          <i class="fa fa-check-circle mr-2"></i>计算稀释
+        </button>
+      </div>
+      <div id="dilution-result" class="mt-6 p-4 bg-gray-50 rounded-xl hidden">
+        <h3 class="text-md font-semibold mb-2">计算结果</h3>
+        <p id="dilution-result-text" class="text-gray-700"></p>
+      </div>
+      <div class="mt-4 text-xs text-gray-500">
+        *在配置溶液时，请务必参考产品标签上、SDS / COA批次特异的分子量使用本工具。
+      </div>
+      
+      <!-- 连续稀释计算器 -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <h3 class="text-md font-medium mb-4">连续稀释计算器</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">初始浓度</label>
+            <input type="number" id="serial-start-concentration" class="ios-input" placeholder="输入初始浓度">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">稀释倍数</label>
+            <input type="number" id="dilution-factor" class="ios-input" placeholder="输入稀释倍数">
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <button id="calculate-serial" class="ios-button w-full sm:w-auto">
+            <i class="fa fa-check-circle mr-2"></i>计算连续稀释
+          </button>
+        </div>
+        <div id="serial-result" class="mt-6 p-4 bg-gray-50 rounded-xl hidden">
+          <h3 class="text-md font-semibold mb-2">计算结果</h3>
+          <div id="serial-result-text" class="text-gray-700"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 有效数字计算器 -->
+    <div id="panel-significant" class="ios-card p-4 md:p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">有效数字计算器</h2>
+      <p class="text-gray-600 mb-6 text-sm md:text-base">计算数字的有效数字位数，或根据指定有效数字位数格式化数字</p>
+      
+      <div class="mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">输入数字</label>
+            <input type="text" id="significant-input" class="ios-input" placeholder="输入数字，如0.004560">
+          </div>
+          <div id="significant-format-options" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">有效数字位数</label>
+            <input type="number" id="significant-digits" class="ios-input" placeholder="输入有效数字位数" min="1" max="15">
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">计算类型</label>
+          <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+            <label class="inline-flex items-center">
+              <input type="radio" name="significant-type" value="count" checked class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm text-gray-700">计算有效数字位数</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="significant-type" value="format" class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm text-gray-700">格式化为指定有效数字位数</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="flex justify-center">
+          <button id="calculate-significant" class="ios-button w-full sm:w-auto">
+            <i class="fa fa-check-circle mr-2"></i>计算有效数字
+          </button>
+        </div>
+      </div>
+      
+      <div id="significant-result" class="p-4 bg-gray-50 rounded-xl hidden">
+        <h3 class="text-md font-semibold mb-2">计算结果</h3>
+        <p id="significant-result-text" class="text-gray-700"></p>
+      </div>
+      
+      <!-- 有效数字规则说明 -->
+      <div class="mt-6 p-4 bg-gray-50 rounded-xl rules-panel">
+        <h3 class="text-md font-semibold mb-3">有效数字规则说明</h3>
+        <div class="space-y-3">
+          <div class="rule-item">
+            <p><strong>非零数字：</strong>所有非零数字都是有效数字（例如：123有3位有效数字）。</p>
+          </div>
+          <div class="rule-item">
+            <p><strong>夹在非零数字中的零：</strong>夹在非零数字之间的零是有效数字（例如：101有3位有效数字）。</p>
+          </div>
+          <div class="rule-item">
+            <p><strong>前导零：</strong>小数点前的零和紧随小数点后的零不是有效数字（例如：0.012有2位有效数字）。</p>
+          </div>
+          <div class="rule-item">
+            <p><strong>尾随零：</strong>小数部分的尾随零是有效数字（例如：1.2300有5位有效数字）。</p>
+          </div>
+          <div class="rule-item">
+            <p><strong>整数中的尾随零：</strong>整数中的尾随零可能不是有效数字，除非有小数点或科学计数法表示（例如：1200可能有2、3或4位有效数字，取决于上下文）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- pH值计算器 -->
+    <div id="panel-ph" class="ios-card p-4 md:p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">pH值计算器</h2>
+      <p class="text-gray-600 mb-6 text-sm md:text-base">计算溶液的pH值或氢离子浓度</p>
+      
+      <div class="mb-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">计算类型</label>
+          <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+            <label class="inline-flex items-center">
+              <input type="radio" name="ph-type" value="concentration" checked class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm text-gray-700">从氢离子浓度计算pH值</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="ph-type" value="ph" class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm text-gray-700">从pH值计算氢离子浓度</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="ph-type" value="weak-acid" class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm text-gray-700">弱酸pH值计算</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- 氢离子浓度输入 -->
+        <div id="ph-concentration-input" class="ph-input-section">
+          <label class="block text-sm font-medium text-gray-700 mb-2">氢离子浓度 (mol/L)</label>
+          <input type="number" id="h-concentration" class="ios-input" placeholder="输入氢离子浓度，如1e-7">
+        </div>
+        
+        <!-- pH值输入 -->
+        <div id="ph-value-input" class="ph-input-section hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-2">pH值</label>
+          <input type="number" id="ph-value" class="ios-input" placeholder="输入pH值，如7.4">
+        </div>
+        
+        <!-- 弱酸计算输入 -->
+        <div id="weak-acid-input" class="ph-input-section hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">酸浓度 (mol/L)</label>
+              <input type="number" id="acid-concentration" class="ios-input" placeholder="输入酸浓度">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">酸解离常数 (Ka)</label>
+              <input type="number" id="acid-ka" class="ios-input" placeholder="输入酸解离常数">
+            </div>
+          </div>
+          <div class="temperature-input">
+            <label class="block text-sm font-medium text-gray-700 mb-2">温度 (°C)</label>
+            <input type="number" id="temperature" class="ios-input temp-input" value="25" placeholder="25">
+            <span>°C</span>
+          </div>
+        </div>
+        
+        <div class="flex justify-center mt-4">
+          <button id="calculate-ph" class="ios-button w-full sm:w-auto">
+            <i class="fa fa-check-circle mr-2"></i>计算pH值
+          </button>
+        </div>
+      </div>
+      
+      <div id="ph-result" class="p-4 bg-gray-50 rounded-xl hidden">
+        <h3 class="text-md font-semibold mb-2">计算结果</h3>
+        <p id="ph-result-text" class="text-gray-700"></p>
+      </div>
+      
+      <!-- pH值刻度 -->
+      <div class="mt-6">
+        <h3 class="text-md font-semibold mb-3">pH值刻度</h3>
+        <div class="ph-scale-container">
+          <div class="ph-scale-labels">
+            <span>0</span>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+            <span>6</span>
+            <span>7</span>
+            <span>8</span>
+            <span>9</span>
+            <span>10</span>
+            <span>11</span>
+            <span>12</span>
+            <span>13</span>
+            <span>14</span>
+          </div>
+          <div class="ph-indicator" id="ph-indicator" style="left: 50%;"></div>
+        </div>
+        <div class="ph-descriptions">
+          <div class="ph-desc">强酸</div>
+          <div class="ph-desc">弱酸</div>
+          <div class="ph-desc">中性</div>
+          <div class="ph-desc">弱碱</div>
+          <div class="ph-desc">强碱</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 教程对话框 - 苹果风格模态框 -->
+  <div id="tutorial-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="ios-card max-w-2xl w-full max-h-[90vh] overflow-y-auto ios-scroll rounded-2xl shadow-ios scrollbar-hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">使用教程</h2>
+        <button id="close-tutorial" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all duration-200 ios-button">
+          <i class="fas fa-times text-lg text-gray-700"></i>
+        </button>
+      </div>
+      
+      <div id="tutorial-content">
+        <div class="tutorial-section">
+          <h3 class="text-lg font-medium mb-2">摩尔浓度计算器</h3>
+          <p>摩尔浓度计算器可以帮助您计算溶液中溶质的质量、浓度和体积之间的关系。只需填写其中三个参数，系统将自动计算第四个参数。</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li>质量：溶质的质量，单位为毫克(mg)</li>
+            <li>浓度：溶液的摩尔浓度，单位为毫摩尔/升(mM)</li>
+            <li>体积：溶液的体积，单位为毫升(mL)</li>
+            <li>分子量：溶质的分子量，单位为克/摩尔(g/mol)</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-section">
+          <h3 class="text-lg font-medium mb-2">分子量计算器</h3>
+          <p>分子量计算器可以根据化学式计算化合物的分子量。输入化学式时，请使用大写字母表示元素，数字表示原子数量。</p>
+          <p class="mt-2">例如：<code>C10H16N2O2</code> 表示咖啡因的化学式。</p>
+        </div>
+        
+        <div class="tutorial-section">
+          <h3 class="text-lg font-medium mb-2">动物体内配方计算器</h3>
+          <p>动物体内配方计算器用于计算动物实验的药物配方和给药方案。</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li>首先输入基本实验信息：给药剂量、动物体重、给药体积和动物数量</li>
+            <li>然后选择配方组成：可以自定义DMSO、PEG300、Tween 80和水的比例，或选择使用玉米油作为溶剂</li>
+            <li>系统将计算工作液浓度和配制方法</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-section">
+          <h3 class="text-lg font-medium mb-2">稀释计算器</h3>
+          <p>稀释计算器使用公式 C1×V1 = C2×V2 来计算溶液稀释所需的参数。</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li>开始浓度(C1)：稀释前的溶液浓度</li>
+            <li>开始体积(V1)：需要取用的原溶液体积</li>
+            <li>最终浓度(C2)：稀释后的目标浓度</li>
+            <li>最终体积(V2)：稀释后的最终溶液体积</li>
+          </ul>
+          <p class="mt-2">连续稀释计算器可以计算一系列稀释步骤的浓度，适用于需要多级稀释的实验。</p>
+        </div>
+        
+        <div class="tutorial-section">
+          <h3 class="text-lg font-medium mb-2">有效数字计算器</h3>
+          <p>有效数字计算器可以计算数字的有效数字位数，或根据指定的有效数字位数格式化数字。</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li>计算有效数字位数：输入数字，系统将计算其有效数字位数</li>
+            <li>格式化数字：输入数字和目标有效数字位数，系统将格式化数字</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-section">
+          <h3 class="text-lg font-medium mb-2">pH值计算器</h3>
+          <p>pH值计算器可以计算溶液的pH值或氢离子浓度。</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li>从氢离子浓度计算pH值：输入氢离子浓度，计算pH值</li>
+            <li>从pH值计算氢离子浓度：输入pH值，计算氢离子浓度</li>
+            <li>弱酸pH值计算：输入酸浓度和酸解离常数，计算弱酸溶液的pH值</li>
+          </ul>
+        </div>
+        
+        <div class="notes-section mt-4 p-4 bg-yellow-50 rounded-lg">
+          <h3 class="text-lg font-medium mb-2">注意事项</h3>
+          <ul class="list-disc pl-5">
+            <li>所有计算结果仅供参考，实际实验中请根据具体情况进行调整</li>
+            <li>在配置溶液时，请务必参考产品标签和SDS/COA对应批次的分子量</li>
+            <li>动物实验请遵循相关伦理规范和实验指导原则</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 移动端优化：防抖函数
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+      };
+    }
+
+    // 标签切换功能
+    const tabs = {
+      'tab-molarity': 'panel-molarity',
+      'tab-molecular': 'panel-molecular',
+      'tab-animal': 'panel-animal',
+      'tab-dilution': 'panel-dilution',
+      'tab-significant': 'panel-significant',
+      'tab-ph': 'panel-ph'
+    };
+
+    // 滚动指示器功能
+    function updateScrollIndicators() {
+      const scrollContainer = document.querySelector('.tab-scroll-container');
+      const leftIndicator = document.querySelector('.scroll-indicator.left');
+      const rightIndicator = document.querySelector('.scroll-indicator.right');
+      
+      if (scrollContainer && leftIndicator && rightIndicator) {
+        // 检查是否可以滚动
+        const canScrollLeft = scrollContainer.scrollLeft > 0;
+        const canScrollRight = scrollContainer.scrollLeft < scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        
+        // 显示或隐藏滚动指示器
+        leftIndicator.style.opacity = canScrollLeft ? '1' : '0';
+        rightIndicator.style.opacity = canScrollRight ? '1' : '0';
+      }
+    }
+
+    // 为每个标签添加点击事件
+    Object.keys(tabs).forEach(tabId => {
+      const tab = document.getElementById(tabId);
+      if (tab) {
+        // 移动端优化：使用被动事件监听器
+        tab.addEventListener('click', debounce(function() {
+          // 隐藏所有面板
+          Object.values(tabs).forEach(panelId => {
+            const panel = document.getElementById(panelId);
+            if (panel) {
+              panel.classList.add('hidden');
+            }
+          });
+          
+          // 取消所有标签的激活状态
+          Object.keys(tabs).forEach(id => {
+            const t = document.getElementById(id);
+            if (t) {
+              t.classList.remove('active');
+            }
+          });
+          
+          // 显示当前面板并激活当前标签
+          const currentPanel = document.getElementById(tabs[tabId]);
+          if (currentPanel) {
+            currentPanel.classList.remove('hidden');
+          }
+          tab.classList.add('active');
+          
+          // 将当前标签滚动到视图中心
+          tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }, 100), { passive: true });
+        
+        // 移动端优化：添加触摸反馈
+        tab.addEventListener('touchstart', function() {
+          this.style.transform = 'scale(0.95)';
+        }, { passive: true });
+        
+        tab.addEventListener('touchend', function() {
+          this.style.transform = 'scale(1)';
+        }, { passive: true });
+      }
+    });
+
+    // 初始化滚动指示器和滚动事件监听
+    document.addEventListener('DOMContentLoaded', function() {
+      const scrollContainer = document.querySelector('.tab-scroll-container');
+      
+      if (scrollContainer) {
+        // 初始更新滚动指示器
+        updateScrollIndicators();
+        
+        // 监听滚动事件
+        scrollContainer.addEventListener('scroll', debounce(updateScrollIndicators, 50), { passive: true });
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', debounce(updateScrollIndicators, 100), { passive: true });
+      }
+    });
+
+    // 摩尔浓度计算器功能
+    const calculateMolarityBtn = document.getElementById('calculate-molarity');
+    if (calculateMolarityBtn) {
+      // 移动端优化：添加触摸反馈
+      calculateMolarityBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculateMolarityBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculateMolarityBtn.addEventListener('click', () => {
+        const mass = parseFloat(document.getElementById('mass').value);
+        const concentration = parseFloat(document.getElementById('concentration').value);
+        const volume = parseFloat(document.getElementById('volume').value);
+        const molecularWeight = parseFloat(document.getElementById('molecular-weight').value);
+        
+        const resultElement = document.getElementById('molarity-result');
+        const resultText = document.getElementById('molarity-result-text');
+        
+        if (resultElement && resultText) {
+          // 检查缺失值
+          let missingCount = 0;
+          let missingField = '';
+          
+          if (isNaN(mass)) { missingCount++; missingField = '质量'; }
+          if (isNaN(concentration)) { missingCount++; missingField = '浓度'; }
+          if (isNaN(volume)) { missingCount++; missingField = '体积'; }
+          if (isNaN(molecularWeight)) { missingCount++; missingField = '分子量'; }
+          
+          if (missingCount !== 1) {
+            resultText.textContent = '请只留一个字段为空，其他三个字段必须填写有效值。';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          let result = 0;
+          let unit = '';
+          
+          // 计算缺失的值
+          if (isNaN(mass)) {
+            result = concentration * volume * molecularWeight;
+            unit = 'mg';
+            resultText.textContent = `所需质量: ${result.toFixed(2)} ${unit}`;
+          } else if (isNaN(concentration)) {
+            result = mass / (volume * molecularWeight);
+            unit = 'mM';
+            resultText.textContent = `所需浓度: ${result.toFixed(4)} ${unit}`;
+          } else if (isNaN(volume)) {
+            result = mass / (concentration * molecularWeight);
+            unit = 'mL';
+            resultText.textContent = `所需体积: ${result.toFixed(2)} ${unit}`;
+          } else if (isNaN(molecularWeight)) {
+            result = mass / (concentration * volume);
+            unit = 'g/mol';
+            resultText.textContent = `分子量: ${result.toFixed(2)} ${unit}`;
+          }
+          
+          resultElement.classList.remove('hidden');
+        }
+      });
+    }
+
+    // 分子量计算器功能 - 简化版元素原子量
+    const elementWeights = {
+      'H': 1.008, 'He': 4.003, 'Li': 6.941, 'Be': 9.012, 'B': 10.81,
+      'C': 12.01, 'N': 14.01, 'O': 16.00, 'F': 19.00, 'Ne': 20.18,
+      'Na': 22.99, 'Mg': 24.31, 'Al': 26.98, 'Si': 28.09, 'P': 30.97,
+      'S': 32.07, 'Cl': 35.45, 'Ar': 39.95, 'K': 39.10, 'Ca': 40.08,
+      'Sc': 44.96, 'Ti': 47.87, 'V': 50.94, 'Cr': 51.99, 'Mn': 54.94,
+      'Fe': 55.85, 'Co': 58.93, 'Ni': 58.69, 'Cu': 63.55, 'Zn': 65.38,
+      'Ga': 69.72, 'Ge': 72.63, 'As': 74.92, 'Se': 78.96, 'Br': 79.90,
+      'Kr': 83.80, 'Rb': 85.47, 'Sr': 87.62, 'Y': 88.91, 'Zr': 91.22,
+      'Nb': 92.91, 'Mo': 95.95, 'Tc': 98.00, 'Ru': 101.07, 'Rh': 102.91,
+      'Pd': 106.42, 'Ag': 107.87, 'Cd': 112.41, 'In': 114.82, 'Sn': 118.71,
+      'Sb': 121.76, 'Te': 127.60, 'I': 126.90, 'Xe': 131.29, 'Cs': 132.91,
+      'Ba': 137.33, 'La': 138.91, 'Ce': 140.12, 'Pr': 140.91, 'Nd': 144.24,
+      'Pm': 145.00, 'Sm': 150.36, 'Eu': 151.96, 'Gd': 157.25, 'Tb': 158.93,
+      'Dy': 162.50, 'Ho': 164.93, 'Er': 167.26, 'Tm': 168.93, 'Yb': 173.05,
+      'Lu': 174.97, 'Hf': 178.49, 'Ta': 180.95, 'W': 183.84, 'Re': 186.21,
+      'Os': 190.23, 'Ir': 192.22, 'Pt': 195.08, 'Au': 196.97, 'Hg': 200.59,
+      'Tl': 204.38, 'Pb': 207.2, 'Bi': 208.98, 'Po': 209.00, 'At': 210.00,
+      'Rn': 222.00, 'Fr': 223.00, 'Ra': 226.00, 'Ac': 227.00, 'Th': 232.04,
+      'Pa': 231.04, 'U': 238.03, 'Np': 237.00, 'Pu': 244.00, 'Am': 243.00,
+      'Cm': 247.00, 'Bk': 247.00, 'Cf': 251.00, 'Es': 252.00, 'Fm': 257.00,
+      'Md': 258.00, 'No': 259.00, 'Lr': 262.00, 'Rf': 267.00, 'Db': 270.00,
+      'Sg': 271.00, 'Bh': 270.00, 'Hs': 277.00, 'Mt': 278.00, 'Ds': 281.00,
+      'Rg': 282.00, 'Cn': 285.00, 'Fl': 289.00, 'Lv': 293.00, 'Ts': 294.00,
+      'Og': 294.00
+    };
+
+    const calculateMolecularBtn = document.getElementById('calculate-molecular');
+    if (calculateMolecularBtn) {
+      // 移动端优化：添加触摸反馈
+      calculateMolecularBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculateMolecularBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculateMolecularBtn.addEventListener('click', () => {
+        const formula = document.getElementById('chemical-formula').value.trim();
+        const resultElement = document.getElementById('molecular-result');
+        const resultText = document.getElementById('molecular-result-text');
+        
+        if (!formula) {
+          if (resultElement && resultText) {
+            resultText.textContent = '请输入化学式';
+            resultElement.classList.remove('hidden');
+          }
+          return;
+        }
+        
+        try {
+          // 解析化学式
+          let totalWeight = 0;
+          let i = 0;
+          
+          while (i < formula.length) {
+            // 获取元素符号
+            let element = formula[i++];
+            if (i < formula.length && formula[i] >= 'a' && formula[i] <= 'z') {
+              element += formula[i++];
+            }
+            
+            // 获取原子数量
+            let count = '';
+            while (i < formula.length && formula[i] >= '0' && formula[i] <= '9') {
+              count += formula[i++];
+            }
+            
+            const atomCount = count ? parseInt(count) : 1;
+            const elementWeight = elementWeights[element];
+            
+            if (elementWeight === undefined) {
+              throw new Error(`未知元素: ${element}`);
+            }
+            
+            totalWeight += elementWeight * atomCount;
+          }
+          
+          if (resultElement && resultText) {
+            resultText.textContent = `化学式 ${formula} 的分子量为: ${totalWeight.toFixed(2)} g/mol`;
+            resultElement.classList.remove('hidden');
+          }
+        } catch (error) {
+          if (resultElement && resultText) {
+            resultText.textContent = `计算错误: ${error.message}`;
+            resultElement.classList.remove('hidden');
+          }
+        }
+      });
+    }
+
+    // 动物体内配方计算器功能
+    const calculateAnimalBtn = document.getElementById('calculate-animal');
+    if (calculateAnimalBtn) {
+      // 移动端优化：添加触摸反馈
+      calculateAnimalBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculateAnimalBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculateAnimalBtn.addEventListener('click', () => {
+        const dose = parseFloat(document.getElementById('dose').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        const adminVolume = parseFloat(document.getElementById('admin-volume').value);
+        const animalCount = parseFloat(document.getElementById('animal-count').value);
+        const dmsoPercent = parseFloat(document.getElementById('dmso-percent').value) || 0;
+        const pegPercent = parseFloat(document.getElementById('peg-percent').value) || 0;
+        const tweenPercent = parseFloat(document.getElementById('tween-percent').value) || 0;
+        const waterPercent = parseFloat(document.getElementById('water-percent').value) || 0;
+        const useCornOil = document.getElementById('use-corn-oil').checked;
+        
+        const resultElement = document.getElementById('animal-result');
+        const resultText = document.getElementById('animal-result-text');
+        
+        if (resultElement && resultText) {
+          // 验证输入
+          if (isNaN(dose) || isNaN(weight) || isNaN(adminVolume) || isNaN(animalCount)) {
+            resultText.textContent = '请填写所有基本实验信息';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          if (!useCornOil && (isNaN(dmsoPercent) || isNaN(pegPercent) || isNaN(tweenPercent) || isNaN(waterPercent))) {
+            resultText.textContent = '请填写所有配方组成信息';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          // 验证百分比总和
+          if (!useCornOil) {
+            const totalPercent = dmsoPercent + pegPercent + tweenPercent + waterPercent;
+            if (Math.abs(totalPercent - 100) > 0.01) {
+              resultText.textContent = `配方组成百分比总和应为100%，当前为${totalPercent.toFixed(2)}%`;
+              resultElement.classList.remove('hidden');
+              return;
+            }
+          }
+          
+          // 计算工作液浓度
+          const workingConcentration = (dose * weight) / (adminVolume / 1000); // mg/mL
+          
+          // 计算总体积
+          const totalVolume = (adminVolume * animalCount) / 1000; // mL
+          
+          // 计算所需药物总量
+          const totalDrug = dose * weight * animalCount; // mg
+          
+          // 计算各组分体积
+          let resultHTML = `<div class="space-y-2">
+            <p><strong>工作液浓度:</strong> ${workingConcentration.toFixed(2)} mg/mL</p>
+            <p><strong>总体积:</strong> ${totalVolume.toFixed(2)} mL</p>
+            <p><strong>所需药物总量:</strong> ${totalDrug.toFixed(2)} mg</p>
+          </div>`;
+          
+          if (useCornOil) {
+            resultHTML += `<div class="mt-4">
+              <p><strong>配制方法:</strong></p>
+              <ol class="list-decimal pl-5 mt-2">
+                <li>取 ${totalDrug.toFixed(2)} mg 药物</li>
+                <li>加入 ${totalVolume.toFixed(2)} mL 玉米油</li>
+                <li>充分混匀至完全溶解</li>
+              </ol>
+            </div>`;
+          } else {
+            const dmsoVolume = (totalVolume * dmsoPercent / 100).toFixed(2);
+            const pegVolume = (totalVolume * pegPercent / 100).toFixed(2);
+            const tweenVolume = (totalVolume * tweenPercent / 100).toFixed(2);
+            const waterVolume = (totalVolume * waterPercent / 100).toFixed(2);
+            
+            resultHTML += `<div class="mt-4">
+              <p><strong>配制方法:</strong></p>
+              <ol class="list-decimal pl-5 mt-2">
+                <li>取 ${totalDrug.toFixed(2)} mg 药物</li>
+                <li>加入 ${dmsoVolume} mL DMSO，充分混匀</li>
+                <li>加入 ${pegVolume} mL PEG300，充分混匀</li>
+                <li>加入 ${tweenVolume} mL Tween 80，充分混匀</li>
+                <li>加入 ${waterVolume} mL ddH2O，充分混匀</li>
+              </ol>
+            </div>`;
+          }
+          
+          resultText.innerHTML = resultHTML;
+          resultElement.classList.remove('hidden');
+        }
+      });
+    }
+
+    // 稀释计算器功能
+    const calculateDilutionBtn = document.getElementById('calculate-dilution');
+    if (calculateDilutionBtn) {
+      // 移动端优化：添加触摸反馈
+      calculateDilutionBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculateDilutionBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculateDilutionBtn.addEventListener('click', () => {
+        const startConcentration = parseFloat(document.getElementById('start-concentration').value);
+        const startVolume = parseFloat(document.getElementById('start-volume').value);
+        const finalConcentration = parseFloat(document.getElementById('final-concentration').value);
+        const finalVolume = parseFloat(document.getElementById('final-volume').value);
+        
+        const resultElement = document.getElementById('dilution-result');
+        const resultText = document.getElementById('dilution-result-text');
+        
+        if (resultElement && resultText) {
+          // 检查缺失值
+          let missingCount = 0;
+          let missingField = '';
+          
+          if (isNaN(startConcentration)) { missingCount++; missingField = '开始浓度'; }
+          if (isNaN(startVolume)) { missingCount++; missingField = '开始体积'; }
+          if (isNaN(finalConcentration)) { missingCount++; missingField = '最终浓度'; }
+          if (isNaN(finalVolume)) { missingCount++; missingField = '最终体积'; }
+          
+          if (missingCount !== 1) {
+            resultText.textContent = '请只留一个字段为空，其他三个字段必须填写有效值。';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          let result = 0;
+          let unit = '';
+          
+          // 计算缺失的值
+          if (isNaN(startConcentration)) {
+            result = (finalConcentration * finalVolume) / startVolume;
+            unit = 'mol/L';
+            resultText.textContent = `开始浓度: ${result.toFixed(4)} ${unit}`;
+          } else if (isNaN(startVolume)) {
+            result = (finalConcentration * finalVolume) / startConcentration;
+            unit = 'mL';
+            resultText.textContent = `开始体积: ${result.toFixed(2)} ${unit}`;
+          } else if (isNaN(finalConcentration)) {
+            result = (startConcentration * startVolume) / finalVolume;
+            unit = 'mol/L';
+            resultText.textContent = `最终浓度: ${result.toFixed(4)} ${unit}`;
+          } else if (isNaN(finalVolume)) {
+            result = (startConcentration * startVolume) / finalConcentration;
+            unit = 'mL';
+            resultText.textContent = `最终体积: ${result.toFixed(2)} ${unit}`;
+          }
+          
+          resultElement.classList.remove('hidden');
+        }
+      });
+    }
+
+    // 连续稀释计算器功能
+    const calculateSerialBtn = document.getElementById('calculate-serial');
+    if (calculateSerialBtn) {
+      // 移动端优化：添加触摸反馈
+      calculateSerialBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculateSerialBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculateSerialBtn.addEventListener('click', () => {
+        const startConcentration = parseFloat(document.getElementById('serial-start-concentration').value);
+        const dilutionFactor = parseFloat(document.getElementById('dilution-factor').value);
+        
+        const resultElement = document.getElementById('serial-result');
+        const resultText = document.getElementById('serial-result-text');
+        
+        if (resultElement && resultText) {
+          if (isNaN(startConcentration) || isNaN(dilutionFactor)) {
+            resultText.textContent = '请填写所有字段';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          // 计算连续稀释
+          let resultHTML = '<div class="space-y-2">';
+          resultHTML += `<p><strong>初始浓度:</strong> ${startConcentration.toFixed(4)} mol/L</p>`;
+          resultHTML += `<p><strong>稀释倍数:</strong> ${dilutionFactor}</p>`;
+          resultHTML += '<p><strong>连续稀释结果:</strong></p>';
+          
+          let currentConcentration = startConcentration;
+          for (let i = 1; i <= 10; i++) {
+            currentConcentration = currentConcentration / dilutionFactor;
+            resultHTML += `<p>第${i}次稀释: ${currentConcentration.toExponential(2)} mol/L</p>`;
+            
+            // 如果浓度太小，停止计算
+            if (currentConcentration < 1e-10) {
+              break;
+            }
+          }
+          
+          resultHTML += '</div>';
+          resultText.innerHTML = resultHTML;
+          resultElement.classList.remove('hidden');
+        }
+      });
+    }
+
+    // 有效数字计算器功能
+    const calculateSignificantBtn = document.getElementById('calculate-significant');
+    if (calculateSignificantBtn) {
+      // 移动端优化：添加触摸反馈
+      calculateSignificantBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculateSignificantBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculateSignificantBtn.addEventListener('click', () => {
+        const input = document.getElementById('significant-input').value.trim();
+        const digits = parseInt(document.getElementById('significant-digits').value);
+        const type = document.querySelector('input[name="significant-type"]:checked').value;
+        
+        const resultElement = document.getElementById('significant-result');
+        const resultText = document.getElementById('significant-result-text');
+        
+        if (resultElement && resultText) {
+          if (!input) {
+            resultText.textContent = '请输入数字';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          if (type === 'format' && (isNaN(digits) || digits < 1 || digits > 15)) {
+            resultText.textContent = '请输入有效的有效数字位数（1-15）';
+            resultElement.classList.remove('hidden');
+            return;
+          }
+          
+          try {
+            const number = parseFloat(input);
+            
+            if (isNaN(number)) {
+              throw new Error('输入的不是有效数字');
+            }
+            
+            if (type === 'count') {
+              // 计算有效数字位数
+              const significantDigits = countSignificantDigits(input);
+              resultText.textContent = `数字 ${input} 有 ${significantDigits} 位有效数字`;
+            } else {
+              // 格式化为指定有效数字位数
+              const formattedNumber = formatToSignificantDigits(number, digits);
+              resultText.textContent = `数字 ${input} 格式化为 ${digits} 位有效数字为: ${formattedNumber}`;
+            }
+            
+            resultElement.classList.remove('hidden');
+          } catch (error) {
+            resultText.textContent = `计算错误: ${error.message}`;
+            resultElement.classList.remove('hidden');
+          }
+        }
+      });
+    }
+
+    // 计算有效数字位数的函数
+    function countSignificantDigits(str) {
+      // 去除前导零
+      let trimmed = str.replace(/^0+/, '');
+      
+      // 如果是科学计数法
+      if (trimmed.includes('e') || trimmed.includes('E')) {
+        const parts = trimmed.split(/[eE]/);
+        return countSignificantDigits(parts[0]);
+      }
+      
+      // 去除小数点
+      trimmed = trimmed.replace('.', '');
+      
+      // 去除尾随零（如果原始数字有小数点）
+      if (str.includes('.')) {
+        trimmed = trimmed.replace(/0+$/, '');
+      }
+      
+      return trimmed.length;
+    }
+
+    // 格式化为指定有效数字位数的函数
+    function formatToSignificantDigits(num, digits) {
+      if (num === 0) return '0';
+      
+      const exponent = Math.floor(Math.log10(Math.abs(num)));
+      const mantissa = num / Math.pow(10, exponent);
+      const roundedMantissa = Math.round(mantissa * Math.pow(10, digits - 1)) / Math.pow(10, digits - 1);
+      
+      if (exponent >= 0 && exponent < digits - 1) {
+        // 对于整数部分位数小于有效数字位数的情况
+        return roundedMantissa.toFixed(digits - exponent - 1);
+      } else {
+        // 使用科学计数法
+        return roundedMantissa.toExponential(digits - 1);
+      }
+    }
+
+    // pH值计算器功能
+    const calculatePhBtn = document.getElementById('calculate-ph');
+    if (calculatePhBtn) {
+      // 移动端优化：添加触摸反馈
+      calculatePhBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      calculatePhBtn.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      calculatePhBtn.addEventListener('click', () => {
+        const type = document.querySelector('input[name="ph-type"]:checked').value;
+        const hConcentration = parseFloat(document.getElementById('h-concentration').value);
+        const phValue = parseFloat(document.getElementById('ph-value').value);
+        const acidConcentration = parseFloat(document.getElementById('acid-concentration').value);
+        const acidKa = parseFloat(document.getElementById('acid-ka').value);
+        const temperature = parseFloat(document.getElementById('temperature').value);
+        
+        const resultElement = document.getElementById('ph-result');
+        const resultText = document.getElementById('ph-result-text');
+        const phIndicator = document.getElementById('ph-indicator');
+        
+        if (resultElement && resultText && phIndicator) {
+          let result = 0;
+          let resultTextContent = '';
+          
+          try {
+            if (type === 'concentration') {
+              if (isNaN(hConcentration) || hConcentration <= 0) {
+                throw new Error('请输入有效的氢离子浓度（大于0）');
+              }
+              
+              result = -Math.log10(hConcentration);
+              resultTextContent = `氢离子浓度 ${hConcentration.toExponential(2)} mol/L 的 pH 值为: ${result.toFixed(2)}`;
+              
+              // 更新pH指示器位置
+              const position = Math.min(Math.max(result / 14 * 100, 0), 100);
+              phIndicator.style.left = `${position}%`;
+            } else if (type === 'ph') {
+              if (isNaN(phValue) || phValue < 0 || phValue > 14) {
+                throw new Error('请输入有效的pH值（0-14）');
+              }
+              
+              result = Math.pow(10, -phValue);
+              resultTextContent = `pH值 ${phValue.toFixed(2)} 对应的氢离子浓度为: ${result.toExponential(2)} mol/L`;
+              
+              // 更新pH指示器位置
+              const position = Math.min(Math.max(phValue / 14 * 100, 0), 100);
+              phIndicator.style.left = `${position}%`;
+            } else if (type === 'weak-acid') {
+              if (isNaN(acidConcentration) || acidConcentration <= 0) {
+                throw new Error('请输入有效的酸浓度（大于0）');
+              }
+              
+              if (isNaN(acidKa) || acidKa <= 0) {
+                throw new Error('请输入有效的酸解离常数（大于0）');
+              }
+              
+              // 计算弱酸pH值
+              // 对于弱酸 HA ⇌ H+ + A-，Ka = [H+][A-]/[HA]
+              // 假设 [H+] = [A-] = x，[HA] = C - x
+              // Ka = x²/(C - x)
+              // 解这个方程: x² + Ka·x - Ka·C = 0
+              // 使用二次方程求根公式: x = (-Ka + sqrt(Ka² + 4·Ka·C))/2
+              
+              const discriminant = acidKa * acidKa + 4 * acidKa * acidConcentration;
+              const hConc = (-acidKa + Math.sqrt(discriminant)) / 2;
+              const ph = -Math.log10(hConc);
+              
+              resultTextContent = `酸浓度 ${acidConcentration.toFixed(4)} mol/L，酸解离常数 ${acidKa.toExponential(2)} 的 pH 值为: ${ph.toFixed(2)}`;
+              
+              // 更新pH指示器位置
+              const position = Math.min(Math.max(ph / 14 * 100, 0), 100);
+              phIndicator.style.left = `${position}%`;
+            }
+            
+            resultText.textContent = resultTextContent;
+            resultElement.classList.remove('hidden');
+          } catch (error) {
+            resultText.textContent = `计算错误: ${error.message}`;
+            resultElement.classList.remove('hidden');
+          }
+        }
+      });
+    }
+
+    // pH值类型切换
+    const phTypeRadios = document.querySelectorAll('input[name="ph-type"]');
+    if (phTypeRadios.length > 0) {
+      phTypeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          const type = radio.value;
+          const concentrationInput = document.getElementById('ph-concentration-input');
+          const phValueInput = document.getElementById('ph-value-input');
+          const weakAcidInput = document.getElementById('weak-acid-input');
+          
+          if (concentrationInput && phValueInput && weakAcidInput) {
+            concentrationInput.classList.add('hidden');
+            phValueInput.classList.add('hidden');
+            weakAcidInput.classList.add('hidden');
+            
+            if (type === 'concentration') {
+              concentrationInput.classList.remove('hidden');
+            } else if (type === 'ph') {
+              phValueInput.classList.remove('hidden');
+            } else if (type === 'weak-acid') {
+              weakAcidInput.classList.remove('hidden');
+            }
+          }
+        });
+      });
+    }
+
+    // 有效数字类型切换
+    const significantTypeRadios = document.querySelectorAll('input[name="significant-type"]');
+    if (significantTypeRadios.length > 0) {
+      significantTypeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          const type = radio.value;
+          const formatOptions = document.getElementById('significant-format-options');
+          
+          if (formatOptions) {
+            if (type === 'format') {
+              formatOptions.classList.remove('hidden');
+            } else {
+              formatOptions.classList.add('hidden');
+            }
+          }
+        });
+      });
+    }
+
+    // 主题切换功能
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const body = document.body;
+    
+    // 检查本地存储的主题设置，默认浅色模式
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+      body.classList.add('dark-mode');
+      themeIcon.classList.remove('fa-sun');
+      themeIcon.classList.add('fa-moon');
+    }
+    
+    if (themeToggle && themeIcon) {
+      // 移动端优化：添加触摸反馈
+      themeToggle.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      themeToggle.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+          localStorage.setItem('theme', 'light');
+        }
+      });
+    }
+
+    // 教程对话框功能
+    const tutorialButton = document.getElementById('tutorial-button');
+    const tutorialModal = document.getElementById('tutorial-modal');
+    const closeTutorial = document.getElementById('close-tutorial');
+    
+    if (tutorialButton && tutorialModal) {
+      // 移动端优化：添加触摸反馈
+      tutorialButton.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      tutorialButton.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      tutorialButton.addEventListener('click', () => {
+        tutorialModal.classList.remove('hidden');
+      });
+    }
+    
+    if (closeTutorial && tutorialModal) {
+      // 移动端优化：添加触摸反馈
+      closeTutorial.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      closeTutorial.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      closeTutorial.addEventListener('click', () => {
+        tutorialModal.classList.add('hidden');
+      });
+    }
+    
+    // 点击模态框外部关闭
+    if (tutorialModal) {
+      tutorialModal.addEventListener('click', (e) => {
+        if (e.target === tutorialModal) {
+          tutorialModal.classList.add('hidden');
+        }
+      });
+    }
+
+    // 移动端优化：输入框焦点处理
+    const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
+    inputs.forEach(input => {
+      // 移动端优化：添加触摸反馈
+      input.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.98)';
+      }, { passive: true });
+      
+      input.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+      
+      // 移动端优化：输入框聚焦时滚动到视图
+      input.addEventListener('focus', () => {
+        setTimeout(() => {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      });
+    });
+
+    // 移动端优化：按钮触摸反馈
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      // 移动端优化：添加触摸反馈
+      button.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
+      button.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      }, { passive: true });
+    });
+
+    // 注册Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker 注册成功:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Service Worker 注册失败:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>

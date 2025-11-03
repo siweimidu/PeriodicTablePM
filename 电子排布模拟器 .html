@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子排布模拟器</title>
+    <style>
+        /* 苹果UI基础样式 - 严格遵循苹果设计语言 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            height: auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        /* 深色模式基础样式 */
+        body.dark-mode {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /* 导航栏 - 苹果风格优化 */
+        .navbar {
+            background-color: #ffffff;
+            border-radius: 18px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .navbar h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+        }
+        /* 返回主页按钮 - 苹果风格蓝色圆形按钮 */
+        .home-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #0071e3;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-left: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.3);
+        }
+        .home-button:hover {
+            background-color: #0077ed;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.4);
+        }
+        .home-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 4px rgba(0, 113, 227, 0.4);
+        }
+        .home-button svg {
+            width: 18px;
+            height: 18px;
+            color: #ffffff;
+        }
+        /* 深色模式下的返回主页按钮 */
+        body.dark-mode .home-button {
+            background-color: #0071e3;
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.3);
+        }
+        body.dark-mode .home-button:hover {
+            background-color: #0077ed;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.4);
+        }
+        body.dark-mode .home-button svg {
+            color: #ffffff;
+        }
+        /* 响应式设计 - 手机端、平板端和电脑端适配 */
+        @media (max-width: 767px) {
+            .home-button {
+                width: 32px;
+                height: 32px;
+            }
+            .home-button svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .home-button {
+                width: 34px;
+                height: 34px;
+            }
+            .home-button svg {
+                width: 17px;
+                height: 17px;
+            }
+        }
+        .search-box {
+            width: 240px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input-container {
+            position: relative;
+            flex: 1;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 44px;
+            border-radius: 14px;
+            border: 1px solid #e6e6e6;
+            background-color: #f5f5f7;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .search-box input:focus {
+            border-color: #0071e3;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+        .search-box svg.search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #86868b;
+        }
+        /* 深色/浅色模式切换按钮 */
+        .theme-toggle {
+            margin-left: 12px;
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background-color: #e6e6e6;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            overflow: hidden;
+        }
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .theme-toggle svg {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 4px;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .theme-toggle svg.sun {
+            left: 4px;
+            color: #f9d71c;
+            opacity: 1;
+            transform: scale(1);
+        }
+        .theme-toggle svg.moon {
+            right: 4px;
+            color: #ffffff;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        .theme-toggle.active {
+            background-color: #0071e3;
+        }
+        .theme-toggle.active::before {
+            transform: translateX(20px);
+        }
+        .theme-toggle.active svg.sun {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        .theme-toggle.active svg.moon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        /* 深色模式下的导航栏样式 */
+        body.dark-mode .navbar {
+            background-color: #1c1c1e;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        body.dark-mode .navbar h1 {
+            color: #ffffff;
+        }
+        body.dark-mode .search-box input {
+            border-color: #3a3a3c;
+            background-color: #2c2c2e;
+            color: #ffffff;
+        }
+        body.dark-mode .search-box input:focus {
+            border-color: #0071e3;
+            background-color: #3a3a3c;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+        }
+        body.dark-mode .search-box svg.search-icon {
+            color: #8e8e93;
+        }
+        /* 主内容区 - 更合理的间距 */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            height: auto;
+            min-height: calc(100vh - 140px);
+            overflow-y: visible;
+        }
+        /* 元素列表 - 更清晰的视觉层次 */
+        .elements-list {
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            max-height: 300px;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+        .elements-list h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .element-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .element-item:hover {
+            background-color: #f0f0f2;
+            transform: translateX(4px);
+        }
+        .element-item.active {
+            background-color: #e1f0fe;
+            border: 1px solid #0071e3;
+        }
+        .element-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #0071e3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .element-info {
+            flex: 1;
+        }
+        .element-symbol {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .element-name {
+            font-size: 12px;
+            color: #86868b;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* 深色模式下的元素列表样式 */
+        body.dark-mode .elements-list {
+            background-color: #1c1c1e;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        body.dark-mode .elements-list h2 {
+            color: #ffffff;
+        }
+        body.dark-mode .element-item:hover {
+            background-color: #2c2c2e;
+        }
+        body.dark-mode .element-item.active {
+            background-color: rgba(0, 113, 227, 0.2);
+            border: 1px solid #0071e3;
+        }
+        body.dark-mode .element-symbol {
+            color: #ffffff;
+        }
+        body.dark-mode .element-name {
+            color: #8e8e93;
+        }
+        /* 模拟器区域 - 确保子元素自适应 */
+        .simulator-area {
+            flex: 1;
+            background-color: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            min-width: 0;
+            overflow: visible;
+            min-height: 400px;
+        }
+        .element-detail {
+            text-align: center;
+            padding: 16px;
+            background-color: #f9f9fb;
+            border-radius: 14px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            white-space: normal;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        .detail-number {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 4px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .detail-symbol {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .detail-name {
+            font-size: 20px;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .detail-electron {
+            font-size: 14px;
+            color: #0071e3;
+            font-weight: 500;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            white-space: normal;
+            width: 100%;
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+        /* 深色模式下的模拟器区域样式 */
+        body.dark-mode .simulator-area {
+            background-color: #1c1c1e;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        body.dark-mode .element-detail {
+            background-color: #2c2c2e;
+        }
+        body.dark-mode .detail-number {
+            color: #8e8e93;
+        }
+        body.dark-mode .detail-symbol {
+            color: #ffffff;
+        }
+        body.dark-mode .detail-name {
+            color: #ffffff;
+        }
+        /* 电子排布可视化 - 确保自适应父容器 */
+        .electron-visualization {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9f9fb;
+            border-radius: 14px;
+            overflow-x: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y;
+            min-height: 280px;
+            padding: 20px;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+        /* 全屏按钮 - 苹果风格设计 */
+        .fullscreen-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e6e6e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+        .fullscreen-button:hover {
+            background-color: white;
+            border-color: #0071e3;
+            transform: scale(1.05);
+        }
+        .fullscreen-button:active {
+            transform: scale(0.95);
+        }
+        .fullscreen-button svg {
+            width: 18px;
+            height: 18px;
+            color: #1d1d1f;
+        }
+        /* 深色模式下的电子可视化区域样式 */
+        body.dark-mode .electron-visualization {
+            background-color: #2c2c2e;
+        }
+        body.dark-mode .fullscreen-button {
+            background-color: rgba(28, 28, 30, 0.8);
+            border: 1px solid #3a3a3c;
+        }
+        body.dark-mode .fullscreen-button:hover {
+            background-color: #3a3a3c;
+            border-color: #0071e3;
+        }
+        body.dark-mode .fullscreen-button svg {
+            color: #ffffff;
+        }
+        body.dark-mode .fullscreen-button:hover svg {
+            color: #ffffff;
+        }
+        /* 深色模式下的全屏状态样式 */
+        body.dark-mode .electron-visualization.fullscreen {
+            background-color: #000000;
+        }
+        /* 全屏状态样式 */
+        .electron-visualization.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            padding: 40px;
+            z-index: 1000;
+            background-color: #ffffff;
+        }
+        /* 移动端适配全屏按钮 */
+        @media (max-width: 767px) {
+            .fullscreen-button {
+                width: 32px;
+                height: 32px;
+                border-radius: 16px;
+                top: 8px;
+                right: 8px;
+            }
+            .fullscreen-button svg {
+                width: 16px;
+                height: 16px;
+            }
+            .electron-visualization.fullscreen {
+                padding: 20px;
+            }
+        }
+        .nucleus {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #ff3b30;
+            box-shadow: 0 0 20px rgba(255, 59, 48, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .orbit {
+            position: absolute;
+            border: 1px solid #e1e1e1;
+            border-radius: 50%;
+            transition: all 0.6s ease-in-out;
+        }
+        .electron {
+            position: absolute;
+            border-radius: 50%;
+            background-color: #0071e3;
+            box-shadow: 0 0 8px rgba(0, 113, 227, 0.9);
+            transform-origin: center;
+            transition: all 0.6s ease-in-out;
+        }
+        /* 深色模式下的轨道和电子样式 */
+        body.dark-mode .orbit {
+            border: 1px solid #3a3a3c;
+        }
+        body.dark-mode .electron {
+            background-color: #34c759;
+            box-shadow: 0 0 8px rgba(52, 199, 89, 0.9);
+        }
+        /* 底部信息面板 - 确保自适应父容器 */
+        .info-panel {
+            padding: 16px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            overflow-wrap: break-word;
+            white-space: normal;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            flex-shrink: 0;
+        }
+        .info-panel h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1d1d1f;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .electron-config {
+            font-size: 13px;
+            color: #333333;
+            line-height: 1.7;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 0;
+            margin: 0;
+            max-height: none;
+            display: block;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* 深色模式下的信息面板样式 */
+        body.dark-mode .info-panel {
+            background-color: rgba(30, 30, 30, 0.95);
+            border: 1px solid #3a3a3c;
+        }
+        body.dark-mode .info-panel h3 {
+            color: #ffffff;
+        }
+        body.dark-mode .electron-config {
+            color: #d1d1d6;
+        }
+        
+                /* 元素详情区域 */
+        .element-details {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            min-height: 150px;
+            overflow-wrap: break-word;
+            white-space: normal;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* 深色模式下的元素详情区域样式 */
+        body.dark-mode .element-details {
+            background-color: rgba(28, 28, 30, 0.95);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        /* 滚动条样式（苹果风格优化） */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        /* 深色模式下的滚动条样式 */
+        body.dark-mode ::-webkit-scrollbar-track {
+            background: #1c1c1e;
+        }
+        body.dark-mode ::-webkit-scrollbar-thumb {
+            background: #3a3a3c;
+        }
+        body.dark-mode ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4c;
+        }
+        /* 动画关键帧 - 平滑的轨道运行 */
+        @keyframes orbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* 响应式设计 - 严格适配多端 */
+        /* 移动端 */
+        @media (max-width: 767px) {
+            .container {
+                padding: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+            }
+            .navbar {
+                border-radius: 16px;
+                padding: 12px 14px;
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+            }
+            .navbar h1 {
+                font-size: 18px;
+                margin-bottom: 4px;
+                width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .search-box {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            .search-box input {
+                font-size: 14px;
+                padding: 8px 12px 8px 36px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .main-content {
+                gap: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 150px);
+            }
+            /* 确保所有主要div在移动端保持相同宽度，长度改为原来的一半 */
+            .elements-list {
+                border-radius: 16px;
+                padding: 12px;
+                max-height: 260px;
+                overflow-y: auto;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+            }
+            /* 元素列表容器改为网格布局，确保自适应不同屏幕宽度 */
+            #elements-container {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr); /* 每行三个元素 */
+                gap: 8px;
+                width: 100%;
+                box-sizing: border-box;
+                overflow: visible;
+            }
+            .element-item {
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                padding: 8px;
+                margin-bottom: 0;
+                text-align: center;
+                min-height: 70px;
+                justify-content: center;
+                width: 100%;
+                box-sizing: border-box;
+                overflow: visible;
+            }
+            .element-number {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+            .element-info {
+                text-align: center;
+            }
+            .element-symbol {
+                font-size: 16px;
+                font-weight: 700;
+            }
+            .element-name {
+                font-size: 10px;
+            }
+            /* 确保simulator-area及其子元素在移动端完全自适应 */
+            .simulator-area {
+                padding: 12px;
+                border-radius: 16px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                overflow: hidden;
+            }
+            .element-detail {
+                padding: 12px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+                margin: 0;
+            }
+            .detail-symbol {
+                font-size: 32px;
+            }
+            .detail-name {
+                font-size: 16px;
+            }
+            .electron-visualization {
+                min-height: 200px;
+                padding: 12px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+            }
+            .info-panel {
+                padding: 12px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+                margin: 0;
+            }
+            .nucleus {
+                width: 45px;
+                height: 45px;
+                font-size: 11px;
+            }
+        }
+        /* 平板端 - 与电脑端布局一致 */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 0;
+            }
+            .main-content {
+                flex-direction: row;
+                height: calc(100vh - 100px);
+                width: 100%;
+                box-sizing: border-box;
+                gap: 0;
+                overflow: auto;
+            }
+            .elements-list {
+                width: 250px;
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                border-right: 1px solid #e0e0e0;
+            }
+            .simulator-area {
+                flex: 1;
+                padding: 16px 20px;
+                min-width: 0;
+                box-sizing: border-box;
+                min-height: calc(100vh - 100px);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            .element-detail {
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            .electron-visualization {
+                min-height: 380px;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            .info-panel {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 10px 15px;
+                border-top: 1px solid #e0e0e0;
+                margin-top: auto;
+                font-size: 14px;
+                transform: translateY(5px);
+            }
+        }
+        /* 电脑端 */
+        @media (min-width: 1024px) {
+            .container {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 0;
+            }
+            .main-content {
+                flex-direction: row;
+                height: calc(100vh - 100px);
+                width: 100%;
+                box-sizing: border-box;
+                gap: 0;
+                overflow: visible;
+            }
+            .elements-list {
+                width: 250px;
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                border-right: 1px solid #e0e0e0;
+            }
+            .simulator-area {
+                flex: 1;
+                padding: 16px 20px;
+                min-width: 0;
+                box-sizing: border-box;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            .element-detail {
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            .electron-visualization {
+                min-height: 380px;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 10px;
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-x pan-y;
+            }
+            .info-panel {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 10px 15px;
+                border-top: 1px solid #e0e0e0;
+                margin-top: auto;
+                font-size: 14px;
+              }
+          }
+      </style>
+</head>
+<body>
+    <!-- 主容器 - 整个页面的根容器 -->
+    <div class="container">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <h1>
+                电子排布模拟器
+                <!-- 返回主页按钮 -->
+                <button class="home-button" id="homeButton" title="返回主页">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                </button>
+            </h1>
+            <div class="search-box">
+                <div class="search-input-container">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <input type="text" placeholder="搜索元素">
+                </div>
+                <!-- 深色/浅色模式切换按钮 -->
+                <button class="theme-toggle" id="themeToggle">
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <circle cx="12" cy="12" r="4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                    </svg>
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主内容区 - 包含左侧元素列表和右侧模拟器区域 -->
+        <div class="main-content">
+            <!-- 左侧元素列表 - 显示所有元素供选择 -->
+            <div class="elements-list">
+                <h2>元素列表</h2>
+                <div id="elements-container"></div>
+            </div>
+
+            <!-- 右侧模拟器区域 - 包含元素详情、电子可视化和信息面板 -->
+            <div class="simulator-area">
+                <!-- 元素详情区域 - 显示当前选中元素的基本信息 -->
+                <div class="element-detail">
+                    <div class="detail-number">#1</div>
+                    <div class="detail-symbol">H</div>
+                    <div class="detail-name">氢</div>
+                    <div class="detail-electron">电子排布: 1s¹</div>
+                </div>
+
+                <!-- 电子可视化区域 - 图形化展示电子排布 -->
+                <div class="electron-visualization">
+                    <div class="nucleus">原子核</div>
+                </div>
+
+                <!-- 信息面板 - 显示电子排布的详细文本说明 -->
+                <div class="info-panel">
+                    <h3>电子排布详情</h3>
+                    <div class="electron-config">1s¹（K层：1个电子）</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 118种元素数据（修正113号元素layers数据）
+        const elementsData = [
+            { num: 1, symbol: 'H', name: '氢', electron: '1s¹', layers: [1] },
+            { num: 2, symbol: 'He', name: '氦', electron: '1s²', layers: [2] },
+            { num: 3, symbol: 'Li', name: '锂', electron: '1s² 2s¹', layers: [2, 1] },
+            { num: 4, symbol: 'Be', name: '铍', electron: '1s² 2s²', layers: [2, 2] },
+            { num: 5, symbol: 'B', name: '硼', electron: '1s² 2s² 2p¹', layers: [2, 3] },
+            { num: 6, symbol: 'C', name: '碳', electron: '1s² 2s² 2p²', layers: [2, 4] },
+            { num: 7, symbol: 'N', name: '氮', electron: '1s² 2s² 2p³', layers: [2, 5] },
+            { num: 8, symbol: 'O', name: '氧', electron: '1s² 2s² 2p⁴', layers: [2, 6] },
+            { num: 9, symbol: 'F', name: '氟', electron: '1s² 2s² 2p⁵', layers: [2, 7] },
+            { num: 10, symbol: 'Ne', name: '氖', electron: '1s² 2s² 2p⁶', layers: [2, 8] },
+            { num: 11, symbol: 'Na', name: '钠', electron: '1s² 2s² 2p⁶ 3s¹', layers: [2, 8, 1] },
+            { num: 12, symbol: 'Mg', name: '镁', electron: '1s² 2s² 2p⁶ 3s²', layers: [2, 8, 2] },
+            { num: 13, symbol: 'Al', name: '铝', electron: '1s² 2s² 2p⁶ 3s² 3p¹', layers: [2, 8, 3] },
+            { num: 14, symbol: 'Si', name: '硅', electron: '1s² 2s² 2p⁶ 3s² 3p²', layers: [2, 8, 4] },
+            { num: 15, symbol: 'P', name: '磷', electron: '1s² 2s² 2p⁶ 3s² 3p³', layers: [2, 8, 5] },
+            { num: 16, symbol: 'S', name: '硫', electron: '1s² 2s² 2p⁶ 3s² 3p⁴', layers: [2, 8, 6] },
+            { num: 17, symbol: 'Cl', name: '氯', electron: '1s² 2s² 2p⁶ 3s² 3p⁵', layers: [2, 8, 7] },
+            { num: 18, symbol: 'Ar', name: '氩', electron: '1s² 2s² 2p⁶ 3s² 3p⁶', layers: [2, 8, 8] },
+            { num: 19, symbol: 'K', name: '钾', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹', layers: [2, 8, 8, 1] },
+            { num: 20, symbol: 'Ca', name: '钙', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²', layers: [2, 8, 8, 2] },
+            { num: 21, symbol: 'Sc', name: '钪', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹ 4s²', layers: [2, 8, 9, 2] },
+            { num: 22, symbol: 'Ti', name: '钛', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d² 4s²', layers: [2, 8, 10, 2] },
+            { num: 23, symbol: 'V', name: '钒', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d³ 4s²', layers: [2, 8, 11, 2] },
+            { num: 24, symbol: 'Cr', name: '铬', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁵ 4s¹', layers: [2, 8, 13, 1] },
+            { num: 25, symbol: 'Mn', name: '锰', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁵ 4s²', layers: [2, 8, 13, 2] },
+            { num: 26, symbol: 'Fe', name: '铁', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁶ 4s²', layers: [2, 8, 14, 2] },
+            { num: 27, symbol: 'Co', name: '钴', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁷ 4s²', layers: [2, 8, 15, 2] },
+            { num: 28, symbol: 'Ni', name: '镍', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁸ 4s²', layers: [2, 8, 16, 2] },
+            { num: 29, symbol: 'Cu', name: '铜', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s¹', layers: [2, 8, 18, 1] },
+            { num: 30, symbol: 'Zn', name: '锌', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s²', layers: [2, 8, 18, 2] },
+            { num: 31, symbol: 'Ga', name: '镓', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p¹', layers: [2, 8, 18, 3] },
+            { num: 32, symbol: 'Ge', name: '锗', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p²', layers: [2, 8, 18, 4] },
+            { num: 33, symbol: 'As', name: '砷', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p³', layers: [2, 8, 18, 5] },
+            { num: 34, symbol: 'Se', name: '硒', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁴', layers: [2, 8, 18, 6] },
+            { num: 35, symbol: 'Br', name: '溴', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁵', layers: [2, 8, 18, 7] },
+            { num: 36, symbol: 'Kr', name: '氪', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶', layers: [2, 8, 18, 8] },
+            { num: 37, symbol: 'Rb', name: '铷', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 5s¹', layers: [2, 8, 18, 8, 1] },
+            { num: 38, symbol: 'Sr', name: '锶', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 5s²', layers: [2, 8, 18, 8, 2] },
+            { num: 39, symbol: 'Y', name: '钇', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹ 5s²', layers: [2, 8, 18, 9, 2] },
+            { num: 40, symbol: 'Zr', name: '锆', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d² 5s²', layers: [2, 8, 18, 10, 2] },
+            { num: 41, symbol: 'Nb', name: '铌', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d⁴ 5s¹', layers: [2, 8, 18, 12, 1] },
+            { num: 42, symbol: 'Mo', name: '钼', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d⁵ 5s¹', layers: [2, 8, 18, 13, 1] },
+            { num: 43, symbol: 'Tc', name: '锝', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d⁵ 5s²', layers: [2, 8, 18, 13, 2] },
+            { num: 44, symbol: 'Ru', name: '钌', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d⁷ 5s¹', layers: [2, 8, 18, 15, 1] },
+            { num: 45, symbol: 'Rh', name: '铑', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d⁸ 5s¹', layers: [2, 8, 18, 16, 1] },
+            { num: 46, symbol: 'Pd', name: '钯', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰', layers: [2, 8, 18, 18, 0] },
+            { num: 47, symbol: 'Ag', name: '银', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s¹', layers: [2, 8, 18, 18, 1] },
+            { num: 48, symbol: 'Cd', name: '镉', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s²', layers: [2, 8, 18, 18, 2] },
+            { num: 49, symbol: 'In', name: '铟', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p¹', layers: [2, 8, 18, 18, 3] },
+            { num: 50, symbol: 'Sn', name: '锡', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p²', layers: [2, 8, 18, 18, 4] },
+            { num: 51, symbol: 'Sb', name: '锑', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p³', layers: [2, 8, 18, 18, 5] },
+            { num: 52, symbol: 'Te', name: '碲', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p⁴', layers: [2, 8, 18, 18, 6] },
+            { num: 53, symbol: 'I', name: '碘', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p⁵', layers: [2, 8, 18, 18, 7] },
+            { num: 54, symbol: 'Xe', name: '氙', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p⁶', layers: [2, 8, 18, 18, 8] },
+            { num: 55, symbol: 'Cs', name: '铯', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p⁶ 6s¹', layers: [2, 8, 18, 18, 8, 1] },
+            { num: 56, symbol: 'Ba', name: '钡', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p⁶ 6s²', layers: [2, 8, 18, 18, 8, 2] },
+            { num: 57, symbol: 'La', name: '镧', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 5s² 5p⁶ 5d¹ 6s²', layers: [2, 8, 18, 18, 9, 2] },
+            { num: 58, symbol: 'Ce', name: '铈', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹ 5d¹ 6s²', layers: [2, 8, 18, 19, 9, 2] },
+            { num: 59, symbol: 'Pr', name: '镨', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f³ 6s²', layers: [2, 8, 18, 21, 8, 2] },
+            { num: 60, symbol: 'Nd', name: '钕', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f⁴ 6s²', layers: [2, 8, 18, 22, 8, 2] },
+            { num: 61, symbol: 'Pm', name: '钷', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f⁵ 6s²', layers: [2, 8, 18, 23, 8, 2] },
+            { num: 62, symbol: 'Sm', name: '钐', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f⁶ 6s²', layers: [2, 8, 18, 24, 8, 2] },
+            { num: 63, symbol: 'Eu', name: '铕', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f⁷ 6s²', layers: [2, 8, 18, 25, 8, 2] },
+            { num: 64, symbol: 'Gd', name: '钆', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f⁷ 5d¹ 6s²', layers: [2, 8, 18, 25, 9, 2] },
+            { num: 65, symbol: 'Tb', name: '铽', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f⁹ 6s²', layers: [2, 8, 18, 27, 8, 2] },
+            { num: 66, symbol: 'Dy', name: '镝', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁰ 6s²', layers: [2, 8, 18, 28, 8, 2] },
+            { num: 67, symbol: 'Ho', name: '钬', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹¹ 6s²', layers: [2, 8, 18, 29, 8, 2] },
+            { num: 68, symbol: 'Er', name: '铒', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹² 6s²', layers: [2, 8, 18, 30, 8, 2] },
+            { num: 69, symbol: 'Tm', name: '铥', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹³ 6s²', layers: [2, 8, 18, 31, 8, 2] },
+            { num: 70, symbol: 'Yb', name: '镱', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 6s²', layers: [2, 8, 18, 32, 8, 2] },
+            { num: 71, symbol: 'Lu', name: '镥', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹ 6s²', layers: [2, 8, 18, 32, 9, 2] },
+            { num: 72, symbol: 'Hf', name: '铪', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d² 6s²', layers: [2, 8, 18, 32, 10, 2] },
+            { num: 73, symbol: 'Ta', name: '钽', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d³ 6s²', layers: [2, 8, 18, 32, 11, 2] },
+            { num: 74, symbol: 'W', name: '钨', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d⁴ 6s²', layers: [2, 8, 18, 32, 12, 2] },
+            { num: 75, symbol: 'Re', name: '铼', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d⁵ 6s²', layers: [2, 8, 18, 32, 13, 2] },
+            { num: 76, symbol: 'Os', name: '锇', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d⁶ 6s²', layers: [2, 8, 18, 32, 14, 2] },
+            { num: 77, symbol: 'Ir', name: '铱', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d⁷ 6s²', layers: [2, 8, 18, 32, 15, 2] },
+            { num: 78, symbol: 'Pt', name: '铂', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d⁹ 6s¹', layers: [2, 8, 18, 32, 17, 1] },
+            { num: 79, symbol: 'Au', name: '金', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s¹', layers: [2, 8, 18, 32, 18, 1] },
+            { num: 80, symbol: 'Hg', name: '汞', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s²', layers: [2, 8, 18, 32, 18, 2] },
+            { num: 81, symbol: 'Tl', name: '铊', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p¹', layers: [2, 8, 18, 32, 18, 3] },
+            { num: 82, symbol: 'Pb', name: '铅', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p²', layers: [2, 8, 18, 32, 18, 4] },
+            { num: 83, symbol: 'Bi', name: '铋', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p³', layers: [2, 8, 18, 32, 18, 5] },
+            { num: 84, symbol: 'Po', name: '钋', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁴', layers: [2, 8, 18, 32, 18, 6] },
+            { num: 85, symbol: 'At', name: '砹', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁵', layers: [2, 8, 18, 32, 18, 7] },
+            { num: 86, symbol: 'Rn', name: '氡', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶', layers: [2, 8, 18, 32, 18, 8] },
+            { num: 87, symbol: 'Fr', name: '钫', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 7s¹', layers: [2, 8, 18, 32, 18, 8, 1] },
+            { num: 88, symbol: 'Ra', name: '镭', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 7s²', layers: [2, 8, 18, 32, 18, 8, 2] },
+            { num: 89, symbol: 'Ac', name: '锕', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 6d¹ 7s²', layers: [2, 8, 18, 32, 18, 9, 2] },
+            { num: 90, symbol: 'Th', name: '钍', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 6d² 7s²', layers: [2, 8, 18, 32, 18, 10, 2] },
+            { num: 91, symbol: 'Pa', name: '镤', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f² 6d¹ 7s²', layers: [2, 8, 18, 32, 20, 9, 2] },
+            { num: 92, symbol: 'U', name: '铀', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f³ 6d¹ 7s²', layers: [2, 8, 18, 32, 21, 9, 2] },
+            { num: 93, symbol: 'Np', name: '镎', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f⁴ 6d¹ 7s²', layers: [2, 8, 18, 32, 22, 9, 2] },
+            { num: 94, symbol: 'Pu', name: '钚', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f⁶ 7s²', layers: [2, 8, 18, 32, 24, 8, 2] },
+            { num: 95, symbol: 'Am', name: '镅', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f⁷ 7s²', layers: [2, 8, 18, 32, 25, 8, 2] },
+            { num: 96, symbol: 'Cm', name: '锔', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f⁷ 6d¹ 7s²', layers: [2, 8, 18, 32, 25, 9, 2] },
+            { num: 97, symbol: 'Bk', name: '锫', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f⁹ 7s²', layers: [2, 8, 18, 32, 27, 8, 2] },
+            { num: 98, symbol: 'Cf', name: '锎', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁰ 7s²', layers: [2, 8, 18, 32, 28, 8, 2] },
+            { num: 99, symbol: 'Es', name: '锿', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹¹ 7s²', layers: [2, 8, 18, 32, 29, 8, 2] },
+            { num: 100, symbol: 'Fm', name: '镄', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹² 7s²', layers: [2, 8, 18, 32, 30, 8, 2] },
+            { num: 101, symbol: 'Md', name: '钔', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹³ 7s²', layers: [2, 8, 18, 32, 31, 8, 2] },
+            { num: 102, symbol: 'No', name: '锘', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 7s²', layers: [2, 8, 18, 32, 32, 8, 2] },
+            { num: 103, symbol: 'Lr', name: '铹', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹ 7s²', layers: [2, 8, 18, 32, 32, 9, 2] },
+            { num: 104, symbol: 'Rf', name: '𬬻', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d² 7s²', layers: [2, 8, 18, 32, 32, 10, 2] },
+            { num: 105, symbol: 'Db', name: '𬭊', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d³ 7s²', layers: [2, 8, 18, 32, 32, 11, 2] },
+            { num: 106, symbol: 'Sg', name: '𬭳', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d⁴ 7s²', layers: [2, 8, 18, 32, 32, 12, 2] },
+            { num: 107, symbol: 'Bh', name: '𬭛', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d⁵ 7s²', layers: [2, 8, 18, 32, 32, 13, 2] },
+            { num: 108, symbol: 'Hs', name: '𬭶', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d⁶ 7s²', layers: [2, 8, 18, 32, 32, 14, 2] },
+            { num: 109, symbol: 'Mt', name: '鿏', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d⁷ 7s²', layers: [2, 8, 18, 32, 32, 15, 2] },
+            { num: 110, symbol: 'Ds', name: '𫟼', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d⁸ 7s²', layers: [2, 8, 18, 32, 32, 16, 2] },
+            { num: 111, symbol: 'Rg', name: '𬬭', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d⁹ 7s²', layers: [2, 8, 18, 32, 32, 17, 2] },
+            { num: 112, symbol: 'Cn', name: '鿔', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s²', layers: [2, 8, 18, 32, 32, 18, 2] },
+            { num: 113, symbol: 'Nh', name: '鿭', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s² 7p¹', layers: [2, 8, 18, 32, 32, 18, 3] },
+            { num: 114, symbol: 'Fl', name: '𫓧', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s² 7p²', layers: [2, 8, 18, 32, 32, 18, 4] },
+            { num: 115, symbol: 'Mc', name: '镆', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s² 7p³', layers: [2, 8, 18, 32, 32, 18, 5] },
+            { num: 116, symbol: 'Lv', name: '𫟷', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s² 7p⁴', layers: [2, 8, 18, 32, 32, 18, 6] },
+            { num: 117, symbol: 'Ts', name: '鿬', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s² 7p⁵', layers: [2, 8, 18, 32, 32, 18, 7] },
+            { num: 118, symbol: 'Og', name: '鿫', electron: '1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5d¹⁰ 6s² 6p⁶ 5f¹⁴ 6d¹⁰ 7s² 7p⁶', layers: [2, 8, 18, 32, 32, 18, 8] }
+        ];
+
+        // DOM元素
+        const elementsContainer = document.getElementById('elements-container');
+        const searchInput = document.querySelector('.search-box input');
+        const detailNumber = document.querySelector('.detail-number');
+        const detailSymbol = document.querySelector('.detail-symbol');
+        const detailName = document.querySelector('.detail-name');
+        const detailElectron = document.querySelector('.detail-electron');
+        const electronVisualization = document.querySelector('.electron-visualization');
+        const electronConfig = document.querySelector('.electron-config');
+
+        // 初始化元素列表
+        function renderElementsList(elements = elementsData) {
+            elementsContainer.innerHTML = '';
+            elements.forEach(element => {
+                const elementItem = document.createElement('div');
+                elementItem.className = 'element-item';
+                elementItem.dataset.num = element.num;
+                elementItem.innerHTML = `
+                    <div class="element-number">${element.num}</div>
+                    <div class="element-info">
+                        <div class="element-symbol">${element.symbol}</div>
+                        <div class="element-name">${element.name}</div>
+                    </div>
+                `;
+                elementItem.addEventListener('click', () => {
+                    document.querySelectorAll('.element-item').forEach(item => item.classList.remove('active'));
+                    elementItem.classList.add('active');
+                    renderElementDetail(element);
+                });
+                elementsContainer.appendChild(elementItem);
+            });
+            if (elements.length > 0) {
+                document.querySelector('.element-item').classList.add('active');
+                renderElementDetail(elements[0]);
+            }
+        }
+
+        // 渲染元素详情
+        function renderElementDetail(element) {
+            detailNumber.textContent = `#${element.num}`;
+            detailSymbol.textContent = element.symbol;
+            detailName.textContent = element.name;
+            detailElectron.textContent = `电子排布: ${element.electron}`;
+            
+            const layersText = element.layers.map((count, index) => {
+                const layerName = ['K', 'L', 'M', 'N', 'O', 'P', 'Q'][index];
+                return `${layerName}层：${count}个电子`;
+            }).join('，');
+            electronConfig.textContent = `${element.electron}（${layersText}）`;
+            
+            renderElectronVisualization(element.layers);
+        }
+
+        // 优化电子可视化：增强轨道间距和电子分布，严格适配多端显示
+        function renderElectronVisualization(layers) {
+            // 清空现有内容
+            electronVisualization.innerHTML = `
+                <div class="nucleus">原子核</div>
+                <button class="fullscreen-button" id="fullscreenBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </button>
+            `;
+            
+            // 添加全屏功能
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            // 修复全屏模式下的尺寸计算问题
+            let containerWidth, containerHeight;
+            if (document.fullscreenElement) {
+                // 全屏模式下使用视口尺寸
+                containerWidth = window.innerWidth;
+                containerHeight = window.innerHeight;
+            } else {
+                // 非全屏模式下使用容器尺寸
+                containerWidth = electronVisualization.offsetWidth;
+                containerHeight = electronVisualization.offsetHeight;
+            }
+            
+            const centerX = containerWidth / 2;
+            const centerY = containerHeight / 2;
+            
+            // 修复定位：确保原子核和电子都使用相同的中心点定位
+            const nucleusSize = window.innerWidth < 768 ? 50 : 70; // 在移动端使用更小的原子核
+            const margin = 20; // 适当增加边距以确保完整显示
+            const maxRadius = Math.min(containerWidth, containerHeight) / 2 - margin;
+            
+            // 获取有效轨道层数
+            const validLayers = layers.filter(count => count > 0);
+            const layerCount = validLayers.length;
+            
+            // 动态计算轨道间距，确保所有轨道都能显示且与原子核保持正确比例
+            let orbitRadii = [];
+            if (layerCount > 0) {
+                // 使用更合理的分布，确保内层轨道不会太靠近原子核
+                const availableRadius = maxRadius - (nucleusSize / 2);
+                const baseSpacing = availableRadius / (layerCount + 1); // 增加一个单位以确保间距合理
+                
+                let currentRadius = baseSpacing; // 从更合理的起始半径开始
+                for (let i = 0; i < layers.length; i++) {
+                    if (layers[i] > 0) {
+                        orbitRadii[i] = currentRadius;
+                        currentRadius += baseSpacing;
+                    } else {
+                        orbitRadii[i] = 0;
+                    }
+                }
+            }
+
+            // 根据屏幕尺寸和轨道数量动态调整电子大小 - 更激进地减小
+            let electronSize;
+            if (window.innerWidth < 768) {
+                // 移动端：极小的电子，确保能容纳所有电子
+                electronSize = Math.max(2, 6 - layerCount * 0.8);
+            } else if (window.innerWidth < 1024) {
+                // 平板端
+                electronSize = Math.max(3, 8 - layerCount * 0.5);
+            } else {
+                // 电脑端
+                electronSize = Math.max(4, 10 - layerCount * 0.3);
+            }
+            
+            layers.forEach((electronCount, layerIndex) => {
+                if (electronCount <= 0 || !orbitRadii[layerIndex]) return;
+                
+                const orbitRadius = orbitRadii[layerIndex];
+                
+                // 创建轨道
+                const orbit = document.createElement('div');
+                orbit.className = 'orbit';
+                orbit.style.width = `${orbitRadius * 2}px`;
+                orbit.style.height = `${orbitRadius * 2}px`;
+                orbit.style.left = `${centerX - orbitRadius}px`;
+                orbit.style.top = `${centerY - orbitRadius}px`;
+                electronVisualization.appendChild(orbit);
+                
+                // 计算电子分布角度
+                const angleStep = (2 * Math.PI) / electronCount;
+                const phaseOffset = layerIndex * 0.1; // 添加相位差使分布更自然
+                
+                // 在轨道上分布电子，确保所有电子都可见
+                for (let i = 0; i < electronCount; i++) {
+                    const angle = i * angleStep + phaseOffset;
+                    
+                    // 计算电子位置
+                    const electronX = centerX + orbitRadius * Math.cos(angle) - electronSize / 2;
+                    const electronY = centerY + orbitRadius * Math.sin(angle) - electronSize / 2;
+                    
+                    // 创建电子
+                    const electron = document.createElement('div');
+                    electron.className = 'electron';
+                    
+                    // 设置电子大小
+                    electron.style.width = `${electronSize}px`;
+                    electron.style.height = `${electronSize}px`;
+                    
+                    // 设置电子位置
+                    electron.style.left = `${electronX}px`;
+                    electron.style.top = `${electronY}px`;
+                    
+                    // 内层轨道转速快，外层轨道转速慢
+            const animationDuration = 2 + layerIndex * 1.0; // 动画速度适中
+            electron.style.animation = `orbit ${animationDuration}s linear infinite`;
+                    
+                    // 为相邻电子设置相反的旋转方向
+                    if (i % 2 === 1) {
+                        electron.style.animationDirection = 'reverse';
+                    }
+                    
+                    electronVisualization.appendChild(electron);
+                }
+            });
+        }
+
+        // 搜索功能
+        searchInput.addEventListener('input', (e) => {
+            const searchText = e.target.value.trim().toLowerCase();
+            const filteredElements = searchText 
+                ? elementsData.filter(element => 
+                    element.num.toString().includes(searchText) ||
+                    element.symbol.toLowerCase().includes(searchText) ||
+                    element.name.toLowerCase().includes(searchText)
+                  )
+                : elementsData;
+            renderElementsList(filteredElements);
+        });
+
+        // 窗口 resize 时重新渲染可视化（适配屏幕变化）
+        window.addEventListener('resize', () => {
+            const activeElement = elementsData.find(el => el.num == document.querySelector('.element-item.active')?.dataset.num);
+            if (activeElement) renderElectronVisualization(activeElement.layers);
+        });
+
+        // 全屏切换功能
+        function toggleFullscreen() {
+            const container = electronVisualization;
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const icon = fullscreenBtn.querySelector('svg');
+            
+            if (!document.fullscreenElement) {
+                // 进入全屏模式
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().then(() => {
+                        container.classList.add('fullscreen');
+                        // 更换图标为退出全屏
+                        icon.innerHTML = `
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                            <line x1="22" y1="12" x2="2" y2="12"></line>
+                        `;
+                    }).catch(err => {
+                        console.error(`全屏请求错误: ${err.message}`);
+                    });
+                }
+            } else {
+                // 退出全屏模式
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        container.classList.remove('fullscreen');
+                        // 恢复图标为进入全屏
+                        icon.innerHTML = `
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <polyline points="9 21 3 21 3 15"></polyline>
+                            <line x1="21" y1="3" x2="14" y2="10"></line>
+                            <line x1="3" y1="21" x2="10" y2="14"></line>
+                        `;
+                    }).catch(err => {
+                        console.error(`退出全屏错误: ${err.message}`);
+                    });
+                }
+            }
+        }
+        
+        // 监听全屏状态变化
+        document.addEventListener('fullscreenchange', () => {
+            const container = electronVisualization;
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const icon = fullscreenBtn?.querySelector('svg');
+            
+            if (document.fullscreenElement) {
+                container.classList.add('fullscreen');
+                if (icon) {
+                    icon.innerHTML = `
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                        <line x1="22" y1="12" x2="2" y2="12"></line>
+                    `;
+                }
+                // 全屏模式下重新渲染，确保正确定位
+                setTimeout(() => {
+                    const activeElement = elementsData.find(el => el.num == document.querySelector('.element-item.active')?.dataset.num);
+                    if (activeElement) renderElectronVisualization(activeElement.layers);
+                }, 100);
+            } else {
+                container.classList.remove('fullscreen');
+                if (icon) {
+                    icon.innerHTML = `
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    `;
+                }
+                // 退出全屏时也重新渲染
+                setTimeout(() => {
+                    const activeElement = elementsData.find(el => el.num == document.querySelector('.element-item.active')?.dataset.num);
+                    if (activeElement) renderElectronVisualization(activeElement.layers);
+                }, 100);
+            }
+        });
+        
+        // 深色/浅色模式切换功能 - 与主页面保持一致的全局主题设置
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // 检查本地存储中的主题偏好，默认浅色模式
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.classList.add('active');
+        }
+        
+        // 主题切换事件处理
+        themeToggle.addEventListener('click', () => {
+            // 添加动画类以增强视觉效果
+            themeToggle.classList.add('animating');
+            
+            // 延迟一点时间执行主题切换，让动画效果更明显
+            setTimeout(() => {
+                // 切换深色/浅色模式
+                document.body.classList.toggle('dark-mode');
+                themeToggle.classList.toggle('active');
+                
+                // 保存主题偏好到本地存储
+                const newTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                
+                // 移除动画类
+                setTimeout(() => {
+                    themeToggle.classList.remove('animating');
+                }, 300);
+            }, 100);
+        });
+        
+        // 返回主页按钮功能
+        const homeButton = document.getElementById('homeButton');
+        homeButton.addEventListener('click', () => {
+            // 添加点击动画效果
+            homeButton.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                homeButton.style.transform = '';
+                // 跳转到主页
+                window.location.href = 'index.html';
+            }, 150);
+        });
+        
+        // 监听系统主题变化
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        prefersDarkScheme.addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                if (e.matches) {
+                    document.body.classList.add('dark-mode');
+                    themeToggle.classList.add('active');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeToggle.classList.remove('active');
+                }
+            }
+        });
+        
+        // 初始化
+        renderElementsList();
+    </script>
+</body>
+</html>

@@ -6,10 +6,11 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)
 [![Responsive Design](https://img.shields.io/badge/Responsive-Design-green.svg)](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/siweimidu/PeriodicTablePM/main/icon.png" alt="元素周期表 PM" width="200" height="200">
-  <h3>🎯 一款功能强大、界面精美的元素周期表工具，为学生、教师和化学爱好者提供全方位的学习和研究支持</h3>
-</div>
+<p align="center">
+  <img src="icon.png" alt="元素周期表 PM" width="200" height="200">
+</p>
+
+<h3 align="center">🎯 一款功能强大、界面精美的元素周期表工具，为学生、教师和化学爱好者提供全方位的学习和研究支持</h3>
 
 ## 📖 项目介绍
 

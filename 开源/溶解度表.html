@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>溶解度表-化学小工具</title>
+    <!-- 已移除Font Awesome，使用SVG图标 -->
+    <style>
+        /* Reset & 基础设置 - 符合苹果设计规范 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* 使用苹果系统字体 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+            background-color: #f2f2f7;
+            color: #1c1c1e;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* 容器设置 */
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        /* 主题变量 */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f2f2f7;
+            --text-primary: #1c1c1e;
+            --text-secondary: #6e6e73;
+            --accent-color: #007aff;
+            --card-bg: #ffffff;
+            --card-border: #e5e5ea;
+        }
+        
+        /* 深色主题 */
+        body.dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8e93;
+            --accent-color: #0a84ff;
+            --card-bg: #2c2c2e;
+            --card-border: #3a3a3c;
+        }
+        
+        body.dark-theme {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        body.dark-theme .container {
+            background-color: var(--bg-primary);
+        }
+        
+        body.dark-theme .info-item,
+        body.dark-theme .table-container {
+            background-color: var(--card-bg);
+            border-color: var(--card-border);
+        }
+        
+        body.dark-theme .info-item h3 {
+            color: var(--accent-color);
+        }
+        
+        body.dark-theme .info-item p,
+        body.dark-theme #searchInput::placeholder,
+        body.dark-theme .search-container::before {
+            color: var(--text-secondary);
+        }
+        
+        body.dark-theme #searchInput {
+            background-color: var(--bg-secondary);
+            border-color: var(--card-border);
+        }
+        
+        body.dark-theme .filters {
+            background-color: var(--bg-secondary);
+        }
+        
+        body.dark-theme .filter-btn {
+            color: var(--text-secondary);
+        }
+        
+        body.dark-theme th {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        
+        body.dark-theme td {
+            border-color: var(--card-border);
+        }
+        
+        /* 顶部导航栏 - iOS风格 */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 20px 30px;
+            background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        /* 标题容器 */
+        .header-content {
+            text-align: center;
+            flex: 1;
+            margin-left: 44px; /* 为左侧按钮留出空间 */
+            margin-right: 44px; /* 为右侧按钮留出空间 */
+        }
+        
+        /* 顶部按钮样式 - iOS风格 */
+        .header-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .header-button:active {
+            transform: scale(0.95);
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* 主题切换按钮样式 */
+        #themeToggle {
+            transition: transform 0.3s ease;
+        }
+        
+        #themeToggle.animating {
+            transform: rotate(360deg);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        #themeToggle i, #themeToggle span {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        opacity 0.3s ease, 
+                        color 0.3s ease;
+        }
+        
+        #themeToggle.sun i.sun, #themeToggle.sun span.sun {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            color: #ffd700;
+        }
+        
+        #themeToggle.sun i.moon, #themeToggle.sun span.moon {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(-90deg) scale(0.8);
+            color: #e0e0e0;
+        }
+        
+        #themeToggle.moon i.moon, #themeToggle.moon span.moon {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            color: #f5f5f5;
+        }
+        
+        #themeToggle.moon i.sun, #themeToggle.moon span.sun {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(90deg) scale(0.8);
+            color: #ffd700;
+        }
+        
+        /* 太阳和月亮图标额外的装饰效果 */
+        .icon-container {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-container::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, transparent 60%, rgba(255, 255, 255, 0.1) 100%);
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        /* 返回按钮样式 */
+        #homeButton {
+            transition: transform 0.3s ease;
+        }
+        
+        #homeButton:hover {
+            transform: translateX(-2px);
+        }
+        
+        /* 标题样式 */
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+        
+        header p {
+            font-size: 17px;
+            opacity: 0.9;
+            font-weight: 400;
+            white-space: nowrap;
+        }
+        
+        /* 图标容器，用于叠加显示太阳和月亮 */
+        .icon-container {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-container i, .icon-container span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        }
+        
+        /* 深色主题下的header样式 */
+        body.dark-theme header {
+            background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+        }
+        
+        /* 主要内容区域 */
+        .content-wrapper {
+            padding: 0 20px;
+        }
+        
+        /* 溶解度信息卡片 - iOS卡片设计 */
+        .solubility-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-item {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e5ea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .info-item h3 {
+            margin-bottom: 8px;
+            color: #007aff;
+            font-size: 17px;
+            font-weight: 600;
+        }
+        
+        .info-item p {
+            font-size: 15px;
+            color: #6e6e73;
+            line-height: 1.4;
+        }
+        
+        /* 搜索框 - iOS风格 */
+        .search-container {
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        #searchInput {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 1px solid #e5e5ea;
+            border-radius: 12px;
+            font-size: 17px;
+            background-color: #f2f2f7;
+            transition: all 0.2s;
+        }
+        
+        #searchInput:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        #searchInput::placeholder {
+            color: #8e8e93;
+        }
+        
+        /* 搜索图标 */
+        .search-container::before {
+            content: "🔍";
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e8e93;
+            font-size: 18px;
+            pointer-events: none;
+        }
+        
+        /* 筛选按钮 - iOS分段控件风格 */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding: 8px;
+            background-color: #f2f2f7;
+            border-radius: 12px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #6e6e73;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 500;
+            min-width: 80px;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-btn.active {
+            background: #007aff;
+            color: white;
+        }
+        
+        /* 表格容器 - iOS列表风格 */
+        .table-container {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow-x: auto; /* 确保水平滚动 */
+            /* 移除overflow-y: hidden，允许垂直滚动 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e5ea;
+            -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+            scrollbar-width: none; /* Firefox隐藏滚动条 */
+            -ms-overflow-style: none; /* IE隐藏滚动条 */
+            touch-action: auto; /* 允许所有触摸操作 */
+            will-change: transform; /* 优化性能 */
+        }
+        
+        /* 隐藏WebKit滚动条 */
+        .table-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+        
+        /* 表头 - iOS分组标题风格 */
+        th {
+            background-color: #f2f2f7;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #8e8e93;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        /* 表格单元格 - iOS列表项风格 */
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f2f2f7;
+            transition: background-color 0.2s;
+        }
+        
+        /* 最后一行不显示底边框 */
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* 悬停效果 - 轻触反馈 */
+        tr:hover td {
+            background-color: #f9f9f9;
+        }
+        
+        /* 溶解度状态颜色 - 使用iOS系统颜色 */
+        .soluble {
+            color: #34c759;
+            font-weight: 600;
+        }
+        
+        .slightly-soluble {
+            color: #ff9500;
+            font-weight: 600;
+        }
+        
+        .insoluble {
+            color: #ff3b30;
+            font-weight: 600;
+        }
+        
+        .other {
+            color: #8e8e93;
+            font-weight: 600;
+        }
+        
+        .unknown {
+            color: #5ac8fa;
+            font-weight: 600;
+        }
+        
+        /* 响应式设计 - 适配iOS设备 */
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 16px 24px; /* 减少顶部内边距，适合手机状态栏 */
+                border-radius: 0 0 24px 24px;
+            }
+            
+            h1 {
+                font-size: 24px; /* 进一步减小标题大小 */
+            }
+            
+            header p {
+                font-size: 15px; /* 减小副标题大小 */
+                white-space: normal; /* 允许换行 */
+                max-width: 100%; /* 不限制宽度 */
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+            }
+            
+            .header-content {
+                margin-left: 40px; /* 调整边距 */
+                margin-right: 40px;
+            }
+            
+            .header-button {
+                width: 32px; /* 减小按钮尺寸 */
+                height: 32px;
+                font-size: 16px;
+            }
+            
+            .content-wrapper {
+                padding: 0 16px;
+            }
+            
+            .solubility-info {
+                flex-direction: column; /* 强制垂直布局 */
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .info-item {
+                min-width: 100%;
+                padding: 16px;
+                margin-bottom: 0;
+            }
+            
+            /* 优化筛选按钮容器，确保在小屏幕上能滚动 */
+            .filters {
+                display: flex;
+                gap: 8px;
+                padding: 6px;
+                overflow-x: auto;
+                scrollbar-width: none; /* 隐藏滚动条 */
+                -ms-overflow-style: none;
+                white-space: nowrap;
+                margin-bottom: 20px;
+            }
+            
+            .filters::-webkit-scrollbar {
+                display: none; /* 隐藏WebKit滚动条 */
+            }
+            
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                min-width: auto;
+                white-space: nowrap; /* 防止按钮文字换行 */
+                flex-shrink: 0; /* 防止按钮被压缩 */
+            }
+            
+            /* 改进表格容器，确保滚动顺畅 */
+            .table-container {
+                border-radius: 12px;
+                overflow-x: auto;
+                /* 移除overflow-y: hidden，允许垂直滚动 */
+                -webkit-overflow-scrolling: touch; /* 启用iOS平滑滚动 */
+                margin-bottom: 20px;
+                touch-action: auto; /* 允许所有触摸操作 */
+                user-select: none; /* 防止滚动时文本选择 */
+                -webkit-user-drag: none; /* 防止拖动行为 */
+                pointer-events: auto; /* 确保可以接收触摸事件 */
+            }
+            
+            /* 增加表格最小宽度，确保有足够空间可以滚动 */
+            table {
+                min-width: 600px;
+                font-size: 14px; /* 减小字体大小 */
+                width: auto; /* 确保表格内容决定宽度 */
+            }
+            
+            /* 确保表格行不会换行 */
+            tr {
+                white-space: nowrap;
+            }
+            
+            /* 确保表格单元格不会换行 */
+            td,
+            th {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                max-width: 150px; /* 限制单元格最大宽度 */
+            }
+            
+            th, td {
+                padding: 12px 10px; /* 减少内边距 */
+                font-size: 14px;
+            }
+            
+            /* 增强触摸目标尺寸，符合iOS人机界面指南 */
+            .header-button,
+            .filter-btn,
+            .info-item {
+                touch-action: manipulation;
+            }
+        }
+        
+        /* 针对超小屏幕的额外优化 */
+        @media (max-width: 375px) {
+            header {
+                padding: 35px 12px 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .header-content {
+                margin-left: 36px;
+                margin-right: 36px;
+            }
+            
+            .content-wrapper {
+                padding: 0 12px;
+            }
+            
+            .info-item h3 {
+                font-size: 16px;
+            }
+            
+            .info-item p {
+                font-size: 14px;
+            }
+            
+            table {
+                font-size: 13px;
+            }
+        }
+        
+        /* iOS风格的滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c7c7cc;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8ad;
+        }
+        
+        /* 触摸反馈动画 */
+        @keyframes tapFeedback {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.97); }
+            100% { transform: scale(1); }
+        }
+        
+        .filter-btn, .info-item {
+            animation-duration: 0.15s;
+        }
+        
+        .filter-btn:active, .info-item:active {
+            animation-name: tapFeedback;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button id="homeButton" class="header-button" title="返回主页">
+                <svg t="1762330888689" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="36386" width="24" height="24"><path d="M458.8 127.1L149.2 345.2c-24 16.9-38.2 44.3-38.2 73.6v416.4c0 22.4 18.3 40.6 40.8 40.6h196.4c31.4 0 56.9-25.4 56.9-56.7v-49.2c0-22.4 18.3-40.6 40.8-40.6h130.3c22.5 0 40.8 18.2 40.8 40.6v49.2c0 31.3 25.5 56.7 56.9 56.7h196.4c22.5 0 40.8-18.2 40.8-40.6V418.7c0-29.3-14.2-56.7-38.2-73.6l-309.7-218c-31.3-22.1-73.1-22.1-104.4 0z" fill="#37AFFA" p-id="36387"></path><path d="M111 773.4v61.7c0 22.4 18.3 40.6 40.8 40.6h37c-30.8-29.9-57-64.4-77.8-102.3zM911 418.7c0-29.3-14.2-56.7-38.2-73.6l-14.9-10.5c23.8 37.6 41.9 79.2 53.2 123.5l-0.1-39.4zM585 142.5l-21.9-15.4c-31.3-22-73.1-22-104.4 0l-10.3 7.3c14-1.4 28.3-2.1 42.7-2.1 32.3 0 63.7 3.5 93.9 10.2zM911 835.1V672.9c-20 78.4-61.3 148.2-117.4 202.9h76.7c22.4-0.1 40.7-18.2 40.7-40.7z" fill="#37AFFA" p-id="36388"></path><path d="M111 640v133.4c20.8 37.9 47.1 72.4 77.8 102.3H298C206.6 827.4 137.7 742.2 111 640zM911 672.9V458.1c-11.3-44.3-29.4-85.8-53.2-123.5L585 142.5c-30.2-6.7-61.7-10.2-93.9-10.2-14.4 0-28.7 0.7-42.7 2.1l-69 48.6c29.8-7.7 61.1-11.7 93.3-11.7 206.5 0 373.9 167.4 373.9 373.9 0 140.7-77.7 263.3-192.6 327.1 6.2 2.3 12.9 3.5 19.8 3.5h119.7C849.7 821 891 751.2 911 672.9zM149.2 345.2c-24 16.9-38.2 44.3-38.2 73.6v31.5c10.9-41.6 28.7-80.4 52.3-115l-14.1 9.9z" fill="#41B6FB" p-id="36389"></path><path d="M846.6 545.1c0-206.5-167.4-373.9-373.9-373.9-32.2 0-63.5 4.1-93.3 11.7L163.2 335.3c-23.5 34.6-41.4 73.4-52.3 115V640c26.7 102.2 95.6 187.4 187 235.7h50.2c25.8 0 47.6-17.2 54.6-40.7-149.2-24.6-263-154.1-263-310.3 0-173.7 140.8-314.5 314.5-314.5S768.7 351 768.7 524.7c0 114.2-60.8 214.1-151.8 269.2V819c0 24.4 15.4 45.1 37 53.1 114.9-63.7 192.7-186.3 192.7-327z" fill="#4CBCFC" p-id="36390"></path><path d="M768.8 524.8c0-173.7-140.8-314.5-314.5-314.5S139.7 351.1 139.7 524.8c0 156.1 113.8 285.7 263 310.3 1.5-5.1 2.3-10.4 2.3-16v-49.2c0-4.2 0.6-8.2 1.8-12-127.3-14.4-226.2-122.4-226.2-253.5 0-140.9 114.2-255.1 255.1-255.1s255.1 114.2 255.1 255.1c0 97.3-54.4 181.8-134.5 224.9H576c22.5 0 40.8 18.2 40.8 40.6V794c91.1-55.1 152-155.1 152-269.2z" fill="#56C3FD" p-id="36391"></path><path d="M690.9 504.4c0-140.9-114.2-255.1-255.1-255.1S180.7 363.5 180.7 504.4c0 131.1 98.9 239.1 226.2 253.5 5.1-16.6 20.6-28.6 39-28.6h110.7c79.9-43.1 134.3-127.6 134.3-224.9zM417.4 679.8c-108.1 0-195.8-87.7-195.8-195.8s87.7-195.8 195.8-195.8S613.1 375.9 613.1 484s-87.6 195.8-195.7 195.8z" fill="#60C9FD" p-id="36392"></path><path d="M417.4 288.3c-108.1 0-195.8 87.7-195.8 195.8s87.7 195.8 195.8 195.8S613.1 592.2 613.1 484s-87.6-195.7-195.7-195.7z m-18.5 311.8c-75.3 0-136.4-61.1-136.4-136.4s61.1-136.4 136.4-136.4 136.4 61.1 136.4 136.4-61 136.4-136.4 136.4z" fill="#6BCFFE" p-id="36393"></path><path d="M398.9 463.7m-136.4 0a136.4 136.4 0 1 0 272.8 0 136.4 136.4 0 1 0-272.8 0Z" fill="#75D6FF" p-id="36394"></path><path d="M511 128.5c15.1 0 29.5 4.6 41.8 13.3l309.6 218.1c19.2 13.5 30.6 35.5 30.6 58.9v416.4c0 12.5-10.2 22.6-22.8 22.6H673.8c-21.4 0-38.9-17.3-38.9-38.7v-49.2c0-32.3-26.4-58.6-58.8-58.6H445.8c-32.4 0-58.8 26.3-58.8 58.6v49.2c0 21.3-17.4 38.7-38.9 38.7H151.8c-12.6 0-22.8-10.2-22.8-22.6V418.7c0-23.4 11.4-45.4 30.6-58.9l309.6-218.1c12.2-8.6 26.7-13.2 41.8-13.2m0-18c-18.3 0-36.6 5.5-52.2 16.5L149.2 345.2c-24 16.9-38.2 44.3-38.2 73.6v416.4c0 22.4 18.3 40.6 40.8 40.6h196.4c31.4 0 56.9-25.4 56.9-56.7v-49.2c0-22.4 18.3-40.6 40.8-40.6h130.3c22.5 0 40.8 18.2 40.8 40.6v49.2c0 31.3 25.5 56.7 56.9 56.7h196.4c22.5 0 40.8-18.2 40.8-40.6V418.7c0-29.3-14.2-56.7-38.2-73.6l-309.7-218c-15.7-11-33.9-16.6-52.2-16.6z" fill="#37AFFA" p-id="36395"></path><path d="M226.5 455.6c-6.2 0-11.1-5-11.1-11.1v-3c0-22.1 10.5-42.7 28.3-55.5l228.8-164.5c23.1-16.6 54.1-16.6 77.2 0L778.4 386c17.7 12.7 28.3 33.4 28.3 55.5v3c0 6.2-5 11.1-11.1 11.1H226.5z" fill="#B9E8FF" p-id="36396"></path><path d="M176 664.1c-9.9 0-18-8-18-18l-0.1-124.1c0-9.9 8-18 18-18 9.9 0 18 8 18 18l0.1 124.1c0 9.9-8.1 18-18 18zM176 734.6c-9.9 0-18-8-18-18v-10.5c0-9.9 8-18 18-18 9.9 0 18 8 18 18v10.5c0 9.9-8 18-18 18z" fill="#FFFFFF" p-id="36397"></path></svg>
+            </button>
+            <div class="header-content">
+                <h1>溶解度表</h1>
+                <p>化学物质在不同溶剂中的溶解特性查询</p>
+            </div>
+            <button id="themeToggle" class="header-button sun" title="切换主题">
+                <div class="icon-container">
+                    <span class="sun">☀️</span>
+                    <span class="moon">🌙</span>
+                </div>
+            </button>
+        </header>
+        
+        <script>
+            // 主题切换功能 - 与主页面保持一致的全局主题设置
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // 检查本地存储中的主题偏好，默认浅色模式
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeToggle.classList.remove('sun');
+                themeToggle.classList.add('moon');
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                // 添加动画类
+                themeToggle.classList.add('animating');
+                
+                // 切换主题
+                const isDarkMode = document.body.classList.toggle('dark-theme');
+                
+                // 更新按钮状态
+                if (isDarkMode) {
+                    setTimeout(() => {
+                        themeToggle.classList.remove('sun');
+                        themeToggle.classList.add('moon');
+                    }, 150);
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    setTimeout(() => {
+                        themeToggle.classList.remove('moon');
+                        themeToggle.classList.add('sun');
+                    }, 150);
+                    localStorage.setItem('theme', 'light');
+                }
+                
+                // 移除动画类
+                setTimeout(() => {
+                    themeToggle.classList.remove('animating');
+                }, 300);
+            });
+            
+            // 返回主页功能
+            document.getElementById('homeButton').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        </script>
+        
+        <div class="content-wrapper">
+            <div class="solubility-info">
+            <div class="info-item">
+                <h3>可溶/易溶</h3>
+                <p>0.01 ~ 100 mL (溶解1g溶质所需要的水)</p>
+            </div>
+            <div class="info-item">
+                <h3>微微溶</h3>
+                <p>100 mL ~ 10 L</p>
+            </div>
+            <div class="info-item">
+                <h3>不溶</h3>
+                <p>10 L及以上</p>
+            </div>
+            <div class="info-item">
+                <h3>其他</h3>
+                <p>与水发生反应</p>
+            </div>
+            <div class="info-item">
+                <h3>未知</h3>
+                <p>溶解度尚未确定</p>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索化学式或名称...">
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="soluble">可溶/易溶</button>
+            <button class="filter-btn" data-filter="slightly-soluble">微微溶</button>
+            <button class="filter-btn" data-filter="insoluble">不溶</button>
+            <button class="filter-btn" data-filter="other">其他</button>
+            <button class="filter-btn" data-filter="unknown">未知</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="solubilityTable">
+                <thead>
+                    <tr>
+                        <th>化学式</th>
+                        <th>名称</th>
+                        <th>溶解度</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 溶解度数据将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+    
+    <script>
+        // 溶解度数据
+        const solubilityData = [
+            { formula: 'AgNO₃', name: '硝酸银', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'AgCl', name: '氯化银', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'AgBr', name: '溴化银', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'AgI', name: '碘化银', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'BaSO₄', name: '硫酸钡', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'BaCO₃', name: '碳酸钡', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CaCO₃', name: '碳酸钙', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CaCl₂', name: '氯化钙', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CaSO₄', name: '硫酸钙', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'CuSO₄', name: '硫酸铜', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Cu(OH)₂', name: '氢氧化铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'FeCl₃', name: '氯化铁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Fe(OH)₃', name: '氢氧化铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'FeSO₄', name: '硫酸亚铁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KCl', name: '氯化钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KNO₃', name: '硝酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'K₂CO₃', name: '碳酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'MgCl₂', name: '氯化镁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Mg(OH)₂', name: '氢氧化镁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'MgCO₃', name: '碳酸镁', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'NaCl', name: '氯化钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂CO₃', name: '碳酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaOH', name: '氢氧化钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂SO₄', name: '硫酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₄Cl', name: '氯化铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: '(NH₄)₂SO₄', name: '硫酸铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'PbCl₂', name: '氯化铅', solubility: 'slightly-soluble', note: '微溶于冷水' },
+            { formula: 'PbSO₄', name: '硫酸铅', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'ZnSO₄', name: '硫酸锌', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'ZnCl₂', name: '氯化锌', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'AlCl₃', name: '氯化铝', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Al(OH)₃', name: '氢氧化铝', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'NaHCO₃', name: '碳酸氢钠', solubility: 'soluble', note: '可溶于水' },
+            { formula: 'Ca(OH)₂', name: '氢氧化钙', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'H₂SO₄', name: '硫酸', solubility: 'soluble', note: '与水互溶' },
+            { formula: 'HCl', name: '盐酸', solubility: 'soluble', note: '与水互溶' },
+            { formula: 'HNO₃', name: '硝酸', solubility: 'soluble', note: '与水互溶' },
+            { formula: 'NaOH', name: '氢氧化钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KOH', name: '氢氧化钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CuCO₃', name: '碳酸铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'FeCO₃', name: '碳酸亚铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'ZnCO₃', name: '碳酸锌', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'PbCO₃', name: '碳酸铅', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Ag₂CO₃', name: '碳酸银', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Ba(OH)₂', name: '氢氧化钡', solubility: 'soluble', note: '可溶于水' },
+            { formula: 'K₂SO₄', name: '硫酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'MgSO₄', name: '硫酸镁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Al₂(SO₄)₃', name: '硫酸铝', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Fe₂(SO₄)₃', name: '硫酸铁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Cu(NO₃)₂', name: '硝酸铜', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Fe(NO₃)₃', name: '硝酸铁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Ag₂SO₄', name: '硫酸银', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'Ca(NO₃)₂', name: '硝酸钙', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Mg(NO₃)₂', name: '硝酸镁', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₄NO₃', name: '硝酸铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaNO₂', name: '亚硝酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KMnO₄', name: '高锰酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaClO', name: '次氯酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Ca(ClO)₂', name: '次氯酸钙', solubility: 'soluble', note: '可溶于水' },
+            { formula: 'Na₂S', name: '硫化钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'K₂S', name: '硫化钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CuS', name: '硫化铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'FeS', name: '硫化亚铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'ZnS', name: '硫化锌', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'PbS', name: '硫化铅', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Ag₂S', name: '硫化银', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'HgS', name: '硫化汞', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Na₂SO₃', name: '亚硫酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂S₂O₃', name: '硫代硫酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KBr', name: '溴化钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KI', name: '碘化钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KClO₃', name: '氯酸钾', solubility: 'soluble', note: '可溶于水' },
+            { formula: 'NH₄OH', name: '氨水', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Ca₃(PO₄)₂', name: '磷酸钙', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CaHPO₄', name: '磷酸氢钙', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Ca(H₂PO₄)₂', name: '磷酸二氢钙', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₃PO₄', name: '磷酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂HPO₄', name: '磷酸氢二钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaH₂PO₄', name: '磷酸二氢钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'K₃PO₄', name: '磷酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: '(NH₄)₃PO₄', name: '磷酸铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂SiO₃', name: '硅酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'K₂SiO₃', name: '硅酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CaSiO₃', name: '硅酸钙', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'MgSiO₃', name: '硅酸镁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Al₂SiO₅', name: '硅酸铝', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Cu(CN)₂', name: '氰化铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'KCN', name: '氰化钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaCN', name: '氰化钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₄CN', name: '氰化铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'HgCl₂', name: '氯化汞', solubility: 'soluble', note: '可溶于水' },
+            { formula: 'Hg₂Cl₂', name: '氯化亚汞', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'SnCl₂', name: '氯化亚锡', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'SnCl₄', name: '氯化锡', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Pb(NO₃)₂', name: '硝酸铅', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Ba(NO₃)₂', name: '硝酸钡', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'SrSO₄', name: '硫酸锶', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'SrCO₃', name: '碳酸锶', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CdS', name: '硫化镉', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CoCl₂', name: '氯化钴', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NiCl₂', name: '氯化镍', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'MnCl₂', name: '氯化锰', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'MnSO₄', name: '硫酸锰', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'MnO', name: '氧化锰', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CuO', name: '氧化铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'FeO', name: '氧化亚铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Fe₂O₃', name: '氧化铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'ZnO', name: '氧化锌', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'MgO', name: '氧化镁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CaO', name: '氧化钙', solubility: 'other', note: '与水反应生成氢氧化钙' },
+            { formula: 'Na₂O', name: '氧化钠', solubility: 'other', note: '与水反应生成氢氧化钠' },
+            { formula: 'K₂O', name: '氧化钾', solubility: 'other', note: '与水反应生成氢氧化钾' },
+            { formula: 'BaO', name: '氧化钡', solubility: 'other', note: '与水反应生成氢氧化钡' },
+            { formula: 'Al₂O₃', name: '氧化铝', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'SiO₂', name: '二氧化硅', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CO₂', name: '二氧化碳', solubility: 'slightly-soluble', note: '可溶于水' },
+            { formula: 'SO₂', name: '二氧化硫', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₃', name: '氨气', solubility: 'soluble', note: '极易溶于水' },
+            { formula: 'H₂S', name: '硫化氢', solubility: 'slightly-soluble', note: '可溶于水' },
+            { formula: 'Cl₂', name: '氯气', solubility: 'slightly-soluble', note: '可溶于水' },
+            { formula: 'Br₂', name: '液溴', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'I₂', name: '碘', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CH₃COOH', name: '乙酸', solubility: 'soluble', note: '与水互溶' },
+            { formula: 'C₂H₅OH', name: '乙醇', solubility: 'soluble', note: '与水互溶' },
+            { formula: 'C₆H₁₂O₆', name: '葡萄糖', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'C₁₂H₂₂O₁₁', name: '蔗糖', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaClO₃', name: '氯酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KClO₄', name: '高氯酸钾', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'NaClO₄', name: '高氯酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaBrO₃', name: '溴酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'KIO₃', name: '碘酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NaIO₃', name: '碘酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂CrO₄', name: '铬酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'K₂CrO₄', name: '铬酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'K₂Cr₂O₇', name: '重铬酸钾', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Na₂Cr₂O₇', name: '重铬酸钠', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CuCrO₄', name: '铬酸铜', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'PbCrO₄', name: '铬酸铅', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Ag₂CrO₄', name: '铬酸银', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'BaCrO₄', name: '铬酸钡', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CaCrO₄', name: '铬酸钙', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'NH₄ClO₄', name: '高氯酸铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₄Br', name: '溴化铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₄I', name: '碘化铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NH₄NO₂', name: '亚硝酸铵', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'LiCl', name: '氯化锂', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Li₂CO₃', name: '碳酸锂', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'LiOH', name: '氢氧化锂', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Li₂SO₄', name: '硫酸锂', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'RbCl', name: '氯化铷', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CsCl', name: '氯化铯', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'FrCl', name: '氯化钫', solubility: 'unknown', note: '放射性元素，数据有限' },
+            { formula: 'BeCl₂', name: '氯化铍', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'BeSO₄', name: '硫酸铍', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Be(OH)₂', name: '氢氧化铍', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'RaCl₂', name: '氯化镭', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'RaSO₄', name: '硫酸镭', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'RaCO₃', name: '碳酸镭', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'ScCl₃', name: '氯化钪', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'YCl₃', name: '氯化钇', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'LaCl₃', name: '氯化镧', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CeCl₃', name: '氯化铈', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'PrCl₃', name: '氯化镨', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NdCl₃', name: '氯化钕', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'PmCl₃', name: '氯化钷', solubility: 'unknown', note: '放射性元素，数据有限' },
+            { formula: 'SmCl₃', name: '氯化钐', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'EuCl₃', name: '氯化铕', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'GdCl₃', name: '氯化钆', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'TbCl₃', name: '氯化铽', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'DyCl₃', name: '氯化镝', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'HoCl₃', name: '氯化钬', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'ErCl₃', name: '氯化铒', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'TmCl₃', name: '氯化铥', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'YbCl₃', name: '氯化镱', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'LuCl₃', name: '氯化镥', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'TiCl₄', name: '四氯化钛', solubility: 'other', note: '与水反应' },
+            { formula: 'TiCl₃', name: '三氯化钛', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'ZrCl₄', name: '四氯化锆', solubility: 'other', note: '与水反应' },
+            { formula: 'HfCl₄', name: '四氯化铪', solubility: 'other', note: '与水反应' },
+            { formula: 'VCl₃', name: '三氯化钒', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'VCl₂', name: '二氯化钒', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'NbCl₅', name: '五氯化铌', solubility: 'other', note: '与水反应' },
+            { formula: 'TaCl₅', name: '五氯化钽', solubility: 'other', note: '与水反应' },
+            { formula: 'CrCl₂', name: '二氯化铬', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CrCl₃', name: '三氯化铬', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Cr₂(SO₄)₃', name: '硫酸铬', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Cr(OH)₃', name: '氢氧化铬', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'MoCl₅', name: '五氯化钼', solubility: 'other', note: '与水反应' },
+            { formula: 'WCl₆', name: '六氯化钨', solubility: 'other', note: '与水反应' },
+            { formula: 'Mn(OH)₂', name: '氢氧化锰', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'MnCO₃', name: '碳酸锰', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Fe(OH)₂', name: '氢氧化亚铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'FeCO₃', name: '碳酸亚铁', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Co(OH)₂', name: '氢氧化钴', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CoCO₃', name: '碳酸钴', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CoSO₄', name: '硫酸钴', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Ni(OH)₂', name: '氢氧化镍', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'NiCO₃', name: '碳酸镍', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'NiSO₄', name: '硫酸镍', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CuCl', name: '氯化亚铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'CuCl₂', name: '氯化铜', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CuBr₂', name: '溴化铜', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CuI₂', name: '碘化铜', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'AgF', name: '氟化银', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'AgBrO₃', name: '溴酸银', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'AgIO₃', name: '碘酸银', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'AgNO₂', name: '亚硝酸银', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'CdCl₂', name: '氯化镉', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'CdSO₄', name: '硫酸镉', solubility: 'soluble', note: '易溶于水' },
+            { formula: 'Cd(OH)₂', name: '氢氧化镉', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'HgBr₂', name: '溴化汞', solubility: 'soluble', note: '可溶于水' },
+            { formula: 'HgI₂', name: '碘化汞', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'HgSO₄', name: '硫酸汞', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'Hg₂SO₄', name: '硫酸亚汞', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'Sn(OH)₂', name: '氢氧化亚锡', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Sn(OH)₄', name: '氢氧化锡', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Pb(OH)₂', name: '氢氧化铅', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'PbBr₂', name: '溴化铅', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'PbI₂', name: '碘化铅', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'BiCl₃', name: '氯化铋', solubility: 'other', note: '与水反应' },
+            { formula: 'Bi₂(SO₄)₃', name: '硫酸铋', solubility: 'slightly-soluble', note: '微溶于水' },
+            { formula: 'Bi(OH)₃', name: '氢氧化铋', solubility: 'insoluble', note: '难溶于水' },
+            { formula: 'Bi₂S₃', name: '硫化铋', solubility: 'insoluble', note: '难溶于水' }
+        ];
+        
+        // 获取DOM元素
+        const tableBody = document.querySelector('#solubilityTable tbody');
+        const searchInput = document.querySelector('#searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        // 渲染表格数据
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.formula}</td>
+                    <td>${item.name}</td>
+                    <td class="${item.solubility}">
+                        ${getSolubilityText(item.solubility)}
+                    </td>
+                    <td>${item.note}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 获取溶解度文本
+        function getSolubilityText(type) {
+            switch(type) {
+                case 'soluble': return '可溶/易溶';
+                case 'slightly-soluble': return '微微溶';
+                case 'insoluble': return '不溶';
+                case 'other': return '其他';
+                case 'unknown': return '未知';
+                default: return '未知';
+            }
+        }
+        
+        // 初始渲染
+        renderTable(solubilityData);
+        
+        // 搜索功能
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredData = solubilityData.filter(item => 
+                item.formula.toLowerCase().includes(searchTerm) || 
+                item.name.toLowerCase().includes(searchTerm) ||
+                item.note.toLowerCase().includes(searchTerm)
+            );
+            renderTable(filteredData);
+        });
+        
+        // 筛选功能
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有按钮的active状态
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // 添加当前按钮的active状态
+                button.classList.add('active');
+                
+                const filter = button.getAttribute('data-filter');
+                let filteredData = solubilityData;
+                
+                if (filter !== 'all') {
+                    filteredData = solubilityData.filter(item => item.solubility === filter);
+                }
+                
+                renderTable(filteredData);
+            });
+        });
+    </script>
+</body>
+</html>

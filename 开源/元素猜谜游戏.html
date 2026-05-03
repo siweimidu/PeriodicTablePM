@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元素猜谜 - 化学趣味游戏</title>
+    <style>
+        /* 苹果 UI 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 日间模式（默认） */
+        :root {
+            --bg-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --container-bg: white;
+            --container-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            --border-color: #e6e6e6;
+            --button-bg: #f5f5f7;
+            --button-active-bg: #0071e3;
+            --button-hover-bg: #ebebeb;
+            --button-text-color: #1d1d1f;
+            --button-active-text-color: white;
+            --question-bg: #f9f9fb;
+            --input-bg: white;
+            --input-border: #e6e6e6;
+            --input-focus-border: #0071e3;
+            --submit-btn-bg: #0071e3;
+            --submit-btn-hover-bg: #0077ed;
+            --submit-btn-disabled-bg: #a8d4ff;
+            --correct-color: #34c759;
+            --wrong-color: #ff3b30;
+            --secondary-text-color: #6e6e73;
+            --theme-toggle-bg: #f5f5f7;
+            --theme-toggle-border: #e6e6e6;
+            --sun-color: #f5a623;
+            --moon-color: #4a4a4a;
+            /* 新增变量 */
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --secondary-color: #5856d6;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+            --disabled-color: #a8d4ff;
+            --card-bg: white;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            /* 圆角 */
+            --border-radius: 12px;
+            --border-radius-large: 16px;
+            /* 间距 */
+            --spacing-small: 8px;
+            --spacing-medium: 16px;
+            --spacing-large: 24px;
+        }
+        
+        /* 夜间模式 */
+        [data-theme="dark"] {
+            --bg-color: #1c1c1e;
+            --text-color: #f5f5f7;
+            --container-bg: #2c2c2e;
+            --container-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            --border-color: #38383a;
+            --button-bg: #38383a;
+            --button-active-bg: #0a84ff;
+            --button-hover-bg: #48484a;
+            --button-text-color: #f5f5f7;
+            --button-active-text-color: white;
+            --question-bg: #38383a;
+            --input-bg: #1c1c1e;
+            --input-border: #48484a;
+            --input-focus-border: #0a84ff;
+            --submit-btn-bg: #0a84ff;
+            --submit-btn-hover-bg: #409cff;
+            --submit-btn-disabled-bg: #545458;
+            --correct-color: #30d158;
+            --wrong-color: #ff453a;
+            --secondary-text-color: #98989d;
+            --theme-toggle-bg: #38383a;
+            --theme-toggle-border: #48484a;
+            --sun-color: #f5a623;
+            --moon-color: #f5f5f7;
+            /* 新增变量 */
+            --primary-color: #0a84ff;
+            --primary-hover: #409cff;
+            --secondary-color: #5e5ce6;
+            --success-color: #30d158;
+            --warning-color: #ff9f0a;
+            --error-color: #ff453a;
+            --disabled-color: #545458;
+            --card-bg: #2c2c2e;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--container-shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* 标题样式 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            transition: border-color 0.3s ease;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* 苹果风格主页按钮 */
+        .home-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+        
+        .home-button:hover {
+            background-color: rgba(0, 113, 227, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .home-button:active {
+            transform: scale(0.95);
+            background-color: rgba(0, 113, 227, 0.3);
+        }
+        
+        [data-theme="dark"] .home-button {
+            background-color: rgba(10, 132, 255, 0.15);
+        }
+        
+        [data-theme="dark"] .home-button:hover {
+            background-color: rgba(10, 132, 255, 0.25);
+        }
+        
+        [data-theme="dark"] .home-button:active {
+            background-color: rgba(10, 132, 255, 0.35);
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+        .stats {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            transition: color 0.3s ease;
+        }
+        
+        /* 主题切换按钮 */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background-color: var(--theme-toggle-bg);
+            border: 1px solid var(--theme-toggle-border);
+            border-radius: 15px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .theme-toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background-color: var(--button-active-bg);
+            border-radius: 50%;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle-slider::before {
+            content: "☀️";
+            font-size: 14px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        [data-theme="dark"] .theme-toggle-slider {
+            transform: translateX(30px);
+        }
+        
+        [data-theme="dark"] .theme-toggle-slider::before {
+            content: "🌙";
+        }
+        
+        /* 难度选择 */
+        .difficulty {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .diff-btn {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            border-radius: 12px;
+            background: var(--button-bg);
+            color: var(--button-text-color);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .diff-btn.active {
+            background: var(--button-active-bg);
+            color: var(--button-active-text-color);
+        }
+        .diff-btn:hover:not(.active) {
+            background: var(--button-hover-bg);
+        }
+        
+        /* 题目区域 */
+        .question {
+            background: var(--question-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: background-color 0.3s ease;
+        }
+        .question-text {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+        .hint {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            margin-top: 10px;
+            transition: color 0.3s ease;
+        }
+        
+        /* 输入区域 */
+        .input-area {
+            margin-bottom: 25px;
+        }
+        input {
+            width: 100%;
+            padding: 18px;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            font-size: 18px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            transition: border 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--input-focus-border);
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            background: var(--submit-btn-bg);
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 15px;
+        }
+        .submit-btn:hover {
+            background: var(--submit-btn-hover-bg);
+        }
+        .submit-btn:disabled {
+            background: var(--submit-btn-disabled-bg);
+            cursor: not-allowed;
+        }
+        
+        /* 反馈区域 */
+        .feedback {
+            height: 30px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .correct {
+            color: var(--correct-color);
+        }
+        .wrong {
+            color: var(--wrong-color);
+        }
+        
+        /* 导航按钮区域 */
+        .navigation-area {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 14px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .nav-btn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-btn:disabled {
+            background: var(--disabled-color);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* 答题卡区域 */
+        .answer-sheet {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .answer-sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .answer-sheet-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .answer-sheet-stats {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        
+        .answer-sheet-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        
+        .answer-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .answer-item:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .answer-item.current {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        
+        .answer-item.answered {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+        
+        .answer-item.answered::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 0 10px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .question-text {
+                font-size: 19px;
+            }
+            input, .submit-btn {
+                padding: 16px;
+                font-size: 17px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            input, .submit-btn {
+                padding: 15px;
+                font-size: 16px;
+            }
+            .difficulty {
+                gap: 8px;
+            }
+            .diff-btn {
+                padding: 10px 0;
+                font-size: 15px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 700px;
+                padding: 35px;
+            }
+            h1 {
+                font-size: 30px;
+            }
+            .question-text {
+                font-size: 22px;
+            }
+            input, .submit-btn {
+                padding: 20px;
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部：标题 + 统计 + 主题切换 -->
+        <div class="header">
+            <h1>猜谜</h1>
+            <div class="header-right">
+                <button class="home-button" onclick="window.location.href='index.html'">
+                    <svg t="1762337280011" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="21618" width="20" height="20">
+                        <path d="M900.745478 430.904767l-330.418307-308.008394c-16.679524-19.033077-40.82902-29.982212-66.411112-29.982212-25.172779 0-49.322274 10.846807-65.2855 28.8566L120.491656 430.802438c-15.860897 16.270211-20.465674 39.805736-11.665434 60.783052 8.80024 20.977316 29.163585 34.075347 51.880484 34.075347l28.651944 0 0 314.148096c0 48.708304 38.987109 88.309383 87.695413 88.309383l136.608374 0c17.702808 0 33.461377-14.325972 33.461377-32.02878L447.123813 687.032677c0-8.902568 5.832717-16.781853 14.735285-16.781853l96.393325 0c8.902568 0 15.656241 7.981613 15.656241 16.781853l0 208.954532c0 17.805136 14.837614 32.02878 32.540422 32.02878l136.608374 0c48.708304 0 88.616369-39.498751 88.616369-88.309383l0-314.148096 28.549615 0c22.61457 0 42.977915-13.098031 51.778155-33.973019C921.006495 470.812831 916.504047 447.174978 900.745478 430.904767L900.745478 430.904767 900.745478 430.904767z" p-id="21619" fill="#007aff"></path>
+                    </svg>
+                </button>
+                <div class="stats">正确率: <span id="accuracy">0%</span> (0/0)</div>
+                <div class="theme-toggle" id="theme-toggle">
+                    <div class="theme-toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 难度选择 -->
+        <div class="difficulty">
+            <button class="diff-btn active" data-diff="highschool">高中</button>
+            <button class="diff-btn" data-diff="university">大学</button>
+            <button class="diff-btn" data-diff="professional">专业</button>
+        </div>
+
+        <!-- 反馈区域 -->
+        <div class="feedback" id="feedback"></div>
+
+        <!-- 题目区域 -->
+        <div class="question">
+            <div class="question-text" id="question-text">请选择难度开始游戏</div>
+            <div class="hint" id="hint">提示：答案为元素符号（如 H、O）</div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <input type="text" id="answer-input" placeholder="请输入元素符号" disabled>
+            <button class="submit-btn" id="submit-btn" disabled style="display: none;">提交答案</button>
+        </div>
+
+        <!-- 导航按钮区域 -->
+        <div class="navigation-area">
+            <button class="nav-btn" id="prev-btn" disabled>上一题</button>
+            <button class="nav-btn" id="next-btn" disabled>下一题</button>
+        </div>
+
+        <!-- 答题卡区域 -->
+        <div class="answer-sheet" id="answer-sheet">
+            <div class="answer-sheet-header">
+                <h3>答题卡</h3>
+                <div class="answer-sheet-stats">
+                    <span id="answered-count">0</span>/10 已完成
+                </div>
+            </div>
+            <div class="answer-sheet-grid" id="answer-sheet-grid">
+                <!-- 答题卡格子将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 元素题库（按难度分级）
+            const elementBank = {
+            highschool: [
+                { desc: "最轻的元素，宇宙中含量最高，是水的组成成分之一，原子序数为1", symbol: "H", hint: "符号为单个字母，原子序数为1" },
+                { desc: "惰性气体元素，用于填充气球和飞艇，原子序数为2", symbol: "He", hint: "符号由两个字母组成，原子序数为2" },
+                { desc: "碱金属元素，最轻的金属，密度比水小，常用于电池制造，原子序数为3", symbol: "Li", hint: "符号由两个字母组成，首字母L，原子序数为3" },
+                { desc: "非金属元素，是玻璃和陶瓷的主要成分之一，原子序数为4", symbol: "Be", hint: "符号由两个字母组成，原子序数为4" },
+                { desc: "非金属元素，用于制造铅笔芯的非金属元素，同素异形体有金刚石，原子序数为5", symbol: "B", hint: "符号为单个字母，原子序数为5" },
+                { desc: "非金属元素，有机化合物的基础，同素异形体有金刚石和石墨，原子序数为6", symbol: "C", hint: "符号为单个字母，原子序数为6" },
+                { desc: "非金属元素，生命呼吸必需气体，地壳中含量最高的元素，原子序数为7", symbol: "N", hint: "符号为单个字母，原子序数为7" },
+                { desc: "非金属元素，地壳中含量第二高的元素，生命呼吸必需气体，原子序数为8", symbol: "O", hint: "符号为单个字母，原子序数为8" },
+                { desc: "非金属元素，卤族元素，黄绿色气体，有刺激性气味，常用于自来水消毒，原子序数为9", symbol: "F", hint: "符号为单个字母，原子序数为9" },
+                { desc: "稀有气体元素，常用于霓虹灯填充气，化学性质极不活泼，原子序数为10", symbol: "Ne", hint: "符号由两个字母组成，原子序数为10" },
+                { desc: "碱金属元素，化学性质活泼，与水反应剧烈，原子序数为11", symbol: "Na", hint: "符号由两个字母组成，原子序数为11" },
+                { desc: "碱土金属元素，是骨骼和牙齿的主要成分，原子序数为12", symbol: "Mg", hint: "符号由两个字母组成，原子序数为12" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为13", symbol: "Al", hint: "符号由两个字母组成，原子序数为13" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为14", symbol: "Si", hint: "符号由两个字母组成，原子序数为14" },
+                { desc: "非金属元素，是火柴的主要成分之一，原子序数为15", symbol: "P", hint: "符号为单个字母，原子序数为15" },
+                { desc: "非金属元素，黄色非金属单质，俗称硫磺，可用于制造火药，原子序数为16", symbol: "S", hint: "符号为单个字母，原子序数为16" },
+                { desc: "非金属元素，卤族元素，黄绿色气体，有刺激性气味，常用于自来水消毒，原子序数为17", symbol: "Cl", hint: "符号由两个字母组成，原子序数为17" },
+                { desc: "稀有气体元素，常用于白炽灯泡填充气，化学性质不活泼，原子序数为18", symbol: "Ar", hint: "符号由两个字母组成，原子序数为18" },
+                { desc: "碱金属元素，化学性质比钠更活泼，原子序数为19", symbol: "K", hint: "符号为单个字母，原子序数为19" },
+                { desc: "碱土金属元素，是骨骼和牙齿的主要成分，原子序数为20", symbol: "Ca", hint: "符号由两个字母组成，原子序数为20" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为21", symbol: "Sc", hint: "符号由两个字母组成，原子序数为21" },
+                { desc: "过渡金属元素，银白色金属，常用于制造钛合金，强度高重量轻，原子序数为22", symbol: "Ti", hint: "符号由两个字母组成，原子序数为22" },
+                { desc: "过渡金属元素，银白色金属，常用于制造硬质合金，原子序数为23", symbol: "V", hint: "符号为单个字母，原子序数为23" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为24", symbol: "Cr", hint: "符号由两个字母组成，原子序数为24" },
+                { desc: "过渡金属元素，银白色金属，常用于制造锰钢，提高硬度和耐磨性，原子序数为25", symbol: "Mn", hint: "符号由两个字母组成，原子序数为25" },
+                { desc: "过渡金属元素，银白色金属，人体必需的微量元素，缺乏会导致贫血，原子序数为26", symbol: "Fe", hint: "符号由两个字母组成，原子序数为26" },
+                { desc: "过渡金属元素，银白色金属，常用于制造钴合金，用于永磁材料，原子序数为27", symbol: "Co", hint: "符号由两个字母组成，原子序数为27" },
+                { desc: "过渡金属元素，银白色金属，常用于制造镍氢电池，原子序数为28", symbol: "Ni", hint: "符号由两个字母组成，原子序数为28" },
+                { desc: "过渡金属元素，紫红色金属，导电性极佳，常用于制作导线，原子序数为29", symbol: "Cu", hint: "符号由两个字母组成，原子序数为29" },
+                { desc: "过渡金属元素，银白色金属，常用于镀锌防止铁生锈，原子序数为30", symbol: "Zn", hint: "符号由两个字母组成，原子序数为30" },
+                { desc: "非金属元素，卤族元素，深红棕色液体，可用于消毒，原子序数为31", symbol: "Ga", hint: "符号由两个字母组成，原子序数为31" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为32", symbol: "Ge", hint: "符号由两个字母组成，原子序数为32" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为33", symbol: "As", hint: "符号由两个字母组成，原子序数为33" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为34", symbol: "Se", hint: "符号由两个字母组成，原子序数为34" },
+                { desc: "非金属元素，卤族元素，深红棕色液体，可用于消毒，原子序数为35", symbol: "Br", hint: "符号由两个字母组成，原子序数为35" },
+                { desc: "稀有气体元素，常用于制造激光，原子序数为36", symbol: "Kr", hint: "符号由两个字母组成，原子序数为36" }
+            ],
+            university: [
+                { desc: "过渡金属元素，熔点最高，常用于制造灯丝，原子序数为74", symbol: "W", hint: "符号为单个字母，原子序数为74" },
+                { desc: "贵金属，常用于制造催化转换器，原子序数为78", symbol: "Pt", hint: "符号由两个字母组成，原子序数为78" },
+                { desc: "贵金属，常用于制造耐腐蚀设备，原子序数为77", symbol: "Ir", hint: "符号由两个字母组成，原子序数为77" },
+                { desc: "密度最大的金属，常用于制造砝码，原子序数为76", symbol: "Os", hint: "符号由两个字母组成，原子序数为76" },
+                { desc: "过渡金属元素，常用于制造不锈钢，原子序数为42", symbol: "Mo", hint: "符号由两个字母组成，原子序数为42" },
+                { desc: "过渡金属元素，常用于制造硬质合金，原子序数为23", symbol: "V", hint: "符号为单个字母，原子序数为23" },
+                { desc: "过渡金属元素，常用于制造钛合金，原子序数为22", symbol: "Ti", hint: "符号由两个字母组成，原子序数为22" },
+                { desc: "过渡金属元素，常用于制造磁性材料，原子序数为27", symbol: "Co", hint: "符号由两个字母组成，原子序数为27" },
+                { desc: "过渡金属元素，常用于制造电池，原子序数为28", symbol: "Ni", hint: "符号由两个字母组成，原子序数为28" },
+                { desc: "过渡金属元素，常用于制造催化剂，原子序数为46", symbol: "Pd", hint: "符号由两个字母组成，原子序数为46" },
+                { desc: "过渡金属元素，常用于制造电镀材料，原子序数为45", symbol: "Rh", hint: "符号由两个字母组成，原子序数为45" },
+                { desc: "过渡金属元素，常用于制造高温合金，原子序数为44", symbol: "Ru", hint: "符号由两个字母组成，原子序数为44" },
+                { desc: "过渡金属元素，常用于制造硬质合金，原子序数为75", symbol: "Re", hint: "符号由两个字母组成，原子序数为75" },
+                { desc: "镧系元素，常用于制造永磁材料，原子序数为60", symbol: "Nd", hint: "符号由两个字母组成，原子序数为60" },
+                { desc: "镧系元素，常用于制造激光材料，原子序数为39", symbol: "Y", hint: "符号为单个字母，原子序数为39" },
+                { desc: "镧系元素，常用于制造荧光粉，原子序数为63", symbol: "Eu", hint: "符号由两个字母组成，原子序数为63" },
+                { desc: "镧系元素，常用于制造核反应堆控制棒，原子序数为64", symbol: "Gd", hint: "符号由两个字母组成，原子序数为64" },
+                { desc: "镧系元素，常用于制造磁性材料，原子序数为66", symbol: "Dy", hint: "符号由两个字母组成，原子序数为66" },
+                { desc: "镧系元素，常用于制造激光材料，原子序数为68", symbol: "Er", hint: "符号由两个字母组成，原子序数为68" },
+                { desc: "镧系元素，常用于制造特种玻璃，原子序数为57", symbol: "La", hint: "符号由两个字母组成，原子序数为57" },
+                { desc: "镧系元素，常用于制造抛光粉，原子序数为58", symbol: "Ce", hint: "符号由两个字母组成，原子序数为58" },
+                { desc: "镧系元素，常用于制造永磁材料，原子序数为62", symbol: "Sm", hint: "符号由两个字母组成，原子序数为62" },
+                { desc: "镧系元素，原子序数为59，符号以P开头", symbol: "Pr", hint: "符号由两个字母组成，原子序数为59" },
+                { desc: "镧系元素，原子序数为61，符号以P开头", symbol: "Pm", hint: "符号由两个字母组成，原子序数为61" },
+                { desc: "镧系元素，原子序数为65，符号以T开头", symbol: "Tb", hint: "符号由两个字母组成，原子序数为65" },
+                { desc: "镧系元素，原子序数为67，符号以H开头", symbol: "Ho", hint: "符号由两个字母组成，原子序数为67" },
+                { desc: "镧系元素，原子序数为69，符号以T开头", symbol: "Tm", hint: "符号由两个字母组成，原子序数为69" },
+                { desc: "镧系元素，原子序数为70，符号以Y开头", symbol: "Yb", hint: "符号由两个字母组成，原子序数为70" },
+                { desc: "镧系元素，原子序数为71，符号以L开头", symbol: "Lu", hint: "符号由两个字母组成，原子序数为71" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为90", symbol: "Th", hint: "符号由两个字母组成，原子序数为90" },
+                { desc: "锕系元素，常用于制造核武器，原子序数为94", symbol: "Pu", hint: "符号由两个字母组成，原子序数为94" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为93", symbol: "Np", hint: "符号由两个字母组成，原子序数为93" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为95", symbol: "Am", hint: "符号由两个字母组成，原子序数为95" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为96", symbol: "Cm", hint: "符号由两个字母组成，原子序数为96" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为97", symbol: "Bk", hint: "符号由两个字母组成，原子序数为97" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为98", symbol: "Cf", hint: "符号由两个字母组成，原子序数为98" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为99", symbol: "Es", hint: "符号由两个字母组成，原子序数为99" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为100", symbol: "Fm", hint: "符号由两个字母组成，原子序数为100" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为101", symbol: "Md", hint: "符号由两个字母组成，原子序数为101" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为102", symbol: "No", hint: "符号由两个字母组成，原子序数为102" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为103", symbol: "Lr", hint: "符号由两个字母组成，原子序数为103" },
+                { desc: "锕系元素，原子序数为89，符号以A开头", symbol: "Ac", hint: "符号由两个字母组成，原子序数为89" },
+                { desc: "锕系元素，原子序数为91，符号以P开头", symbol: "Pa", hint: "符号由两个字母组成，原子序数为91" },
+                { desc: "过渡金属，原子序数为40，符号以Z开头", symbol: "Zr", hint: "符号由两个字母组成，原子序数为40" },
+                { desc: "过渡金属，原子序数为41，符号以N开头", symbol: "Nb", hint: "符号由两个字母组成，原子序数为41" },
+                { desc: "过渡金属，原子序数为43，符号以T开头", symbol: "Tc", hint: "符号由两个字母组成，原子序数为43" },
+                { desc: "过渡金属，原子序数为47，符号以A开头", symbol: "Ag", hint: "符号由两个字母组成，原子序数为47" },
+                { desc: "过渡金属，原子序数为48，符号以C开头", symbol: "Cd", hint: "符号由两个字母组成，原子序数为48" },
+                { desc: "过渡金属，原子序数为72，符号以H开头", symbol: "Hf", hint: "符号由两个字母组成，原子序数为72" },
+                { desc: "过渡金属，原子序数为73，符号以T开头", symbol: "Ta", hint: "符号由两个字母组成，原子序数为73" },
+                { desc: "过渡金属，原子序数为79，符号以A开头", symbol: "Au", hint: "符号由两个字母组成，原子序数为79" },
+                { desc: "过渡金属，原子序数为80，符号以H开头", symbol: "Hg", hint: "符号由两个字母组成，原子序数为80" },
+                { desc: "稀有气体，常用于制造霓虹灯，原子序数为54", symbol: "Xe", hint: "符号由两个字母组成，原子序数为54" },
+                { desc: "稀有气体，常用于制造激光，原子序数为36", symbol: "Kr", hint: "符号由两个字母组成，原子序数为36" },
+                { desc: "卤族元素，常用于制造消毒剂，原子序数为9", symbol: "F", hint: "符号为单个字母，原子序数为9" },
+                { desc: "卤族元素，常用于制造漂白剂，原子序数为17", symbol: "Cl", hint: "符号由两个字母组成，原子序数为17" },
+                { desc: "卤族元素，常用于制造药物，原子序数为35", symbol: "Br", hint: "符号由两个字母组成，原子序数为35" },
+                { desc: "卤族元素，常用于制造造影剂，原子序数为53", symbol: "I", hint: "符号为单个字母，原子序数为53" },
+                { desc: "非金属元素，常用于制造半导体，原子序数为32", symbol: "Ge", hint: "符号由两个字母组成，原子序数为32" },
+                { desc: "非金属元素，常用于制造半导体，原子序数为33", symbol: "As", hint: "符号由两个字母组成，原子序数为33" },
+                { desc: "非金属元素，常用于制造半导体，原子序数为34", symbol: "Se", hint: "符号由两个字母组成，原子序数为34" },
+                { desc: "非金属元素，常用于制造半导体，原子序数为52", symbol: "Te", hint: "符号由两个字母组成，原子序数为52" },
+                { desc: "金属元素，常用于制造合金，原子序数为31", symbol: "Ga", hint: "符号由两个字母组成，原子序数为31" },
+                { desc: "金属元素，常用于制造合金，原子序数为49", symbol: "In", hint: "符号由两个字母组成，原子序数为49" },
+                { desc: "金属元素，常用于制造合金，原子序数为81", symbol: "Tl", hint: "符号由两个字母组成，原子序数为81" },
+                { desc: "金属元素，常用于制造合金，原子序数为83", symbol: "Bi", hint: "符号由两个字母组成，原子序数为83" },
+                { desc: "金属元素，常用于制造合金，原子序数为51", symbol: "Sb", hint: "符号由两个字母组成，原子序数为51" }
+            ],
+            professional: [
+                { desc: "最轻的元素，宇宙中含量最高，是水的组成成分之一，原子序数为1", symbol: "H", hint: "符号为单个字母，原子序数为1" },
+                { desc: "惰性气体元素，用于填充气球和飞艇，原子序数为2", symbol: "He", hint: "符号由两个字母组成，原子序数为2" },
+                { desc: "碱金属元素，最轻的金属，密度比水小，常用于电池制造，原子序数为3", symbol: "Li", hint: "符号由两个字母组成，首字母L，原子序数为3" },
+                { desc: "非金属元素，是玻璃和陶瓷的主要成分之一，原子序数为4", symbol: "Be", hint: "符号由两个字母组成，原子序数为4" },
+                { desc: "非金属元素，用于制造铅笔芯的非金属元素，同素异形体有金刚石，原子序数为5", symbol: "B", hint: "符号为单个字母，原子序数为5" },
+                { desc: "非金属元素，有机化合物的基础，同素异形体有金刚石和石墨，原子序数为6", symbol: "C", hint: "符号为单个字母，原子序数为6" },
+                { desc: "非金属元素，生命呼吸必需气体，地壳中含量最高的元素，原子序数为7", symbol: "N", hint: "符号为单个字母，原子序数为7" },
+                { desc: "非金属元素，地壳中含量第二高的元素，生命呼吸必需气体，原子序数为8", symbol: "O", hint: "符号为单个字母，原子序数为8" },
+                { desc: "非金属元素，卤族元素，黄绿色气体，有刺激性气味，常用于自来水消毒，原子序数为9", symbol: "F", hint: "符号为单个字母，原子序数为9" },
+                { desc: "稀有气体元素，常用于霓虹灯填充气，化学性质极不活泼，原子序数为10", symbol: "Ne", hint: "符号由两个字母组成，原子序数为10" },
+                { desc: "碱金属元素，化学性质活泼，与水反应剧烈，原子序数为11", symbol: "Na", hint: "符号由两个字母组成，原子序数为11" },
+                { desc: "碱土金属元素，是骨骼和牙齿的主要成分，原子序数为12", symbol: "Mg", hint: "符号由两个字母组成，原子序数为12" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为13", symbol: "Al", hint: "符号由两个字母组成，原子序数为13" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为14", symbol: "Si", hint: "符号由两个字母组成，原子序数为14" },
+                { desc: "非金属元素，是火柴的主要成分之一，原子序数为15", symbol: "P", hint: "符号为单个字母，原子序数为15" },
+                { desc: "非金属元素，黄色非金属单质，俗称硫磺，可用于制造火药，原子序数为16", symbol: "S", hint: "符号为单个字母，原子序数为16" },
+                { desc: "非金属元素，卤族元素，黄绿色气体，有刺激性气味，常用于自来水消毒，原子序数为17", symbol: "Cl", hint: "符号由两个字母组成，原子序数为17" },
+                { desc: "稀有气体元素，常用于白炽灯泡填充气，化学性质不活泼，原子序数为18", symbol: "Ar", hint: "符号由两个字母组成，原子序数为18" },
+                { desc: "碱金属元素，化学性质比钠更活泼，原子序数为19", symbol: "K", hint: "符号为单个字母，原子序数为19" },
+                { desc: "碱土金属元素，是骨骼和牙齿的主要成分，原子序数为20", symbol: "Ca", hint: "符号由两个字母组成，原子序数为20" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为21", symbol: "Sc", hint: "符号由两个字母组成，原子序数为21" },
+                { desc: "过渡金属元素，银白色金属，常用于制造钛合金，强度高重量轻，原子序数为22", symbol: "Ti", hint: "符号由两个字母组成，原子序数为22" },
+                { desc: "过渡金属元素，银白色金属，常用于制造硬质合金，原子序数为23", symbol: "V", hint: "符号为单个字母，原子序数为23" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为24", symbol: "Cr", hint: "符号由两个字母组成，原子序数为24" },
+                { desc: "过渡金属元素，银白色金属，常用于制造锰钢，提高硬度和耐磨性，原子序数为25", symbol: "Mn", hint: "符号由两个字母组成，原子序数为25" },
+                { desc: "过渡金属元素，银白色金属，人体必需的微量元素，缺乏会导致贫血，原子序数为26", symbol: "Fe", hint: "符号由两个字母组成，原子序数为26" },
+                { desc: "过渡金属元素，银白色金属，常用于制造钴合金，用于永磁材料，原子序数为27", symbol: "Co", hint: "符号由两个字母组成，原子序数为27" },
+                { desc: "过渡金属元素，银白色金属，常用于制造镍氢电池，原子序数为28", symbol: "Ni", hint: "符号由两个字母组成，原子序数为28" },
+                { desc: "过渡金属元素，紫红色金属，导电性极佳，常用于制作导线，原子序数为29", symbol: "Cu", hint: "符号由两个字母组成，原子序数为29" },
+                { desc: "过渡金属元素，银白色金属，常用于镀锌防止铁生锈，原子序数为30", symbol: "Zn", hint: "符号由两个字母组成，原子序数为30" },
+                { desc: "非金属元素，卤族元素，深红棕色液体，可用于消毒，原子序数为31", symbol: "Ga", hint: "符号由两个字母组成，原子序数为31" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为32", symbol: "Ge", hint: "符号由两个字母组成，原子序数为32" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为33", symbol: "As", hint: "符号由两个字母组成，原子序数为33" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为34", symbol: "Se", hint: "符号由两个字母组成，原子序数为34" },
+                { desc: "非金属元素，卤族元素，深红棕色液体，可用于消毒，原子序数为35", symbol: "Br", hint: "符号由两个字母组成，原子序数为35" },
+                { desc: "稀有气体元素，常用于制造激光，原子序数为36", symbol: "Kr", hint: "符号由两个字母组成，原子序数为36" },
+                { desc: "碱金属元素，化学性质比钾更活泼，原子序数为37", symbol: "Rb", hint: "符号由两个字母组成，原子序数为37" },
+                { desc: "碱土金属元素，常用于制造烟花，产生红色火焰，原子序数为38", symbol: "Sr", hint: "符号由两个字母组成，原子序数为38" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为39", symbol: "Y", hint: "符号为单个字母，原子序数为39" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为40", symbol: "Zr", hint: "符号由两个字母组成，原子序数为40" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为41", symbol: "Nb", hint: "符号由两个字母组成，原子序数为41" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为42", symbol: "Mo", hint: "符号由两个字母组成，原子序数为42" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为43", symbol: "Tc", hint: "符号由两个字母组成，原子序数为43" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为44", symbol: "Ru", hint: "符号由两个字母组成，原子序数为44" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为45", symbol: "Rh", hint: "符号由两个字母组成，原子序数为45" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为46", symbol: "Pd", hint: "符号由两个字母组成，原子序数为46" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为47", symbol: "Ag", hint: "符号由两个字母组成，原子序数为47" },
+                { desc: "过渡金属元素，银白色金属，常用于制造不锈钢，原子序数为48", symbol: "Cd", hint: "符号由两个字母组成，原子序数为48" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为49", symbol: "In", hint: "符号由两个字母组成，原子序数为49" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为50", symbol: "Sn", hint: "符号由两个字母组成，原子序数为50" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为51", symbol: "Sb", hint: "符号由两个字母组成，原子序数为51" },
+                { desc: "非金属元素，半导体材料，是计算机芯片的主要成分，原子序数为52", symbol: "Te", hint: "符号由两个字母组成，原子序数为52" },
+                { desc: "非金属元素，卤族元素，紫黑色固体，升华后呈紫色蒸气，原子序数为53", symbol: "I", hint: "符号为单个字母，原子序数为53" },
+                { desc: "稀有气体元素，常用于制造霓虹灯，原子序数为54", symbol: "Xe", hint: "符号由两个字母组成，原子序数为54" },
+                { desc: "碱金属元素，化学性质比铷更活泼，原子序数为55", symbol: "Cs", hint: "符号由两个字母组成，原子序数为55" },
+                { desc: "碱土金属元素，常用于制造烟花，产生绿色火焰，原子序数为56", symbol: "Ba", hint: "符号由两个字母组成，原子序数为56" },
+                { desc: "镧系元素，常用于制造特种玻璃，原子序数为57", symbol: "La", hint: "符号由两个字母组成，原子序数为57" },
+                { desc: "镧系元素，常用于制造抛光粉，原子序数为58", symbol: "Ce", hint: "符号由两个字母组成，原子序数为58" },
+                { desc: "镧系元素，原子序数为59，符号以P开头", symbol: "Pr", hint: "符号由两个字母组成，原子序数为59" },
+                { desc: "镧系元素，原子序数为60，符号以N开头", symbol: "Nd", hint: "符号由两个字母组成，原子序数为60" },
+                { desc: "镧系元素，原子序数为61，符号以P开头", symbol: "Pm", hint: "符号由两个字母组成，原子序数为61" },
+                { desc: "镧系元素，常用于制造永磁材料，原子序数为62", symbol: "Sm", hint: "符号由两个字母组成，原子序数为62" },
+                { desc: "镧系元素，常用于制造荧光粉，原子序数为63", symbol: "Eu", hint: "符号由两个字母组成，原子序数为63" },
+                { desc: "镧系元素，常用于制造核反应堆控制棒，原子序数为64", symbol: "Gd", hint: "符号由两个字母组成，原子序数为64" },
+                { desc: "镧系元素，原子序数为65，符号以T开头", symbol: "Tb", hint: "符号由两个字母组成，原子序数为65" },
+                { desc: "镧系元素，常用于制造磁性材料，原子序数为66", symbol: "Dy", hint: "符号由两个字母组成，原子序数为66" },
+                { desc: "镧系元素，原子序数为67，符号以H开头", symbol: "Ho", hint: "符号由两个字母组成，原子序数为67" },
+                { desc: "镧系元素，常用于制造激光材料，原子序数为68", symbol: "Er", hint: "符号由两个字母组成，原子序数为68" },
+                { desc: "镧系元素，原子序数为69，符号以T开头", symbol: "Tm", hint: "符号由两个字母组成，原子序数为69" },
+                { desc: "镧系元素，原子序数为70，符号以Y开头", symbol: "Yb", hint: "符号由两个字母组成，原子序数为70" },
+                { desc: "镧系元素，原子序数为71，符号以L开头", symbol: "Lu", hint: "符号由两个字母组成，原子序数为71" },
+                { desc: "过渡金属，原子序数为72，符号以H开头", symbol: "Hf", hint: "符号由两个字母组成，原子序数为72" },
+                { desc: "过渡金属，原子序数为73，符号以T开头", symbol: "Ta", hint: "符号由两个字母组成，原子序数为73" },
+                { desc: "过渡金属元素，熔点最高，常用于制造灯丝，原子序数为74", symbol: "W", hint: "符号为单个字母，原子序数为74" },
+                { desc: "贵金属，常用于制造耐腐蚀设备，原子序数为75", symbol: "Re", hint: "符号由两个字母组成，原子序数为75" },
+                { desc: "密度最大的金属，常用于制造砝码，原子序数为76", symbol: "Os", hint: "符号由两个字母组成，原子序数为76" },
+                { desc: "贵金属，常用于制造耐腐蚀设备，原子序数为77", symbol: "Ir", hint: "符号由两个字母组成，原子序数为77" },
+                { desc: "贵金属，常用于制造催化转换器，原子序数为78", symbol: "Pt", hint: "符号由两个字母组成，原子序数为78" },
+                { desc: "过渡金属，原子序数为79，符号以A开头", symbol: "Au", hint: "符号由两个字母组成，原子序数为79" },
+                { desc: "过渡金属，原子序数为80，符号以H开头", symbol: "Hg", hint: "符号由两个字母组成，原子序数为80" },
+                { desc: "金属元素，常用于制造合金，原子序数为81", symbol: "Tl", hint: "符号由两个字母组成，原子序数为81" },
+                { desc: "金属元素，常用于制造合金，原子序数为82", symbol: "Pb", hint: "符号由两个字母组成，原子序数为82" },
+                { desc: "金属元素，常用于制造合金，原子序数为83", symbol: "Bi", hint: "符号由两个字母组成，原子序数为83" },
+                { desc: "非金属元素，半导体材料，原子序数为84", symbol: "Po", hint: "符号由两个字母组成，原子序数为84" },
+                { desc: "非金属元素，卤族元素，原子序数为85", symbol: "At", hint: "符号由两个字母组成，原子序数为85" },
+                { desc: "稀有气体元素，原子序数为86", symbol: "Rn", hint: "符号由两个字母组成，原子序数为86" },
+                { desc: "碱金属元素，原子序数为87", symbol: "Fr", hint: "符号由两个字母组成，原子序数为87" },
+                { desc: "碱土金属元素，原子序数为88", symbol: "Ra", hint: "符号由两个字母组成，原子序数为88" },
+                { desc: "锕系元素，原子序数为89，符号以A开头", symbol: "Ac", hint: "符号由两个字母组成，原子序数为89" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为90", symbol: "Th", hint: "符号由两个字母组成，原子序数为90" },
+                { desc: "锕系元素，原子序数为91，符号以P开头", symbol: "Pa", hint: "符号由两个字母组成，原子序数为91" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为92", symbol: "U", hint: "符号为单个字母，原子序数为92" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为93", symbol: "Np", hint: "符号由两个字母组成，原子序数为93" },
+                { desc: "锕系元素，常用于制造核武器，原子序数为94", symbol: "Pu", hint: "符号由两个字母组成，原子序数为94" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为95", symbol: "Am", hint: "符号由两个字母组成，原子序数为95" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为96", symbol: "Cm", hint: "符号由两个字母组成，原子序数为96" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为97", symbol: "Bk", hint: "符号由两个字母组成，原子序数为97" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为98", symbol: "Cf", hint: "符号由两个字母组成，原子序数为98" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为99", symbol: "Es", hint: "符号由两个字母组成，原子序数为99" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为100", symbol: "Fm", hint: "符号由两个字母组成，原子序数为100" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为101", symbol: "Md", hint: "符号由两个字母组成，原子序数为101" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为102", symbol: "No", hint: "符号由两个字母组成，原子序数为102" },
+                { desc: "锕系元素，常用于制造核反应堆，原子序数为103", symbol: "Lr", hint: "符号由两个字母组成，原子序数为103" },
+                { desc: "超重元素，原子序数为104，符号以R开头", symbol: "Rf", hint: "符号由两个字母组成，原子序数为104" },
+                { desc: "超重元素，原子序数为105，符号以D开头", symbol: "Db", hint: "符号由两个字母组成，原子序数为105" },
+                { desc: "超重元素，原子序数为106，符号以S开头", symbol: "Sg", hint: "符号由两个字母组成，原子序数为106" },
+                { desc: "超重元素，原子序数为107，符号以B开头", symbol: "Bh", hint: "符号由两个字母组成，原子序数为107" },
+                { desc: "超重元素，原子序数为108，符号以H开头", symbol: "Hs", hint: "符号由两个字母组成，原子序数为108" },
+                { desc: "超重元素，原子序数为109，符号以M开头", symbol: "Mt", hint: "符号由两个字母组成，原子序数为109" },
+                { desc: "超重元素，原子序数为110，符号以D开头", symbol: "Ds", hint: "符号由两个字母组成，原子序数为110" },
+                { desc: "超重元素，原子序数为111，符号以R开头", symbol: "Rg", hint: "符号由两个字母组成，原子序数为111" },
+                { desc: "超重元素，原子序数为112，符号以C开头", symbol: "Cn", hint: "符号由两个字母组成，原子序数为112" },
+                { desc: "超重元素，原子序数为113，符号以N开头", symbol: "Nh", hint: "符号由两个字母组成，原子序数为113" },
+                { desc: "超重元素，原子序数为114，符号以F开头", symbol: "Fl", hint: "符号由两个字母组成，原子序数为114" },
+                { desc: "超重元素，原子序数为115，符号以M开头", symbol: "Mc", hint: "符号由两个字母组成，原子序数为115" },
+                { desc: "超重元素，原子序数为116，符号以L开头", symbol: "Lv", hint: "符号由两个字母组成，原子序数为116" },
+                { desc: "超重元素，原子序数为117，符号以T开头", symbol: "Ts", hint: "符号由两个字母组成，原子序数为117" },
+                { desc: "超重元素，原子序数为118，符号以O开头", symbol: "Og", hint: "符号由两个字母组成，原子序数为118" }
+            ]
+        };
+
+        // DOM 元素
+        const diffBtns = document.querySelectorAll('.diff-btn');
+        const questionText = document.getElementById('question-text');
+        const hintText = document.getElementById('hint');
+        const answerInput = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const feedback = document.getElementById('feedback');
+        const accuracySpan = document.getElementById('accuracy');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const answerSheetGrid = document.getElementById('answer-sheet-grid');
+        const answeredCountSpan = document.getElementById('answered-count');
+
+        // 游戏状态
+        let currentDifficulty = 'highschool';
+        let currentQuestionIndex = 0;
+        let questionSet = [];
+        let userAnswers = [];
+        let totalAnswers = 0;
+        let correctAnswers = 0;
+        let isGameActive = false;
+
+        // 难度选择事件
+        diffBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 更新按钮状态
+                diffBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentDifficulty = btn.dataset.diff;
+                
+                // 重置游戏状态
+                isGameActive = true;
+                currentQuestionIndex = 0;
+                userAnswers = new Array(10).fill(null);
+                totalAnswers = 0;
+                correctAnswers = 0;
+                
+                // 重置反馈
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+                
+                // 启用输入和提交按钮
+                answerInput.disabled = false;
+                submitBtn.disabled = false;
+                answerInput.focus();
+                
+                // 初始化题目集和答题卡
+                initializeQuestionSet();
+                initializeAnswerSheet();
+                
+                // 加载第一道题
+                loadQuestion(0);
+            });
+        });
+
+        // 初始化题目集（随机抽取10道题）
+        function initializeQuestionSet() {
+            const bank = elementBank[currentDifficulty];
+            const shuffled = [...bank].sort(() => 0.5 - Math.random());
+            questionSet = shuffled.slice(0, 10);
+        }
+
+        // 初始化答题卡
+        function initializeAnswerSheet() {
+            answerSheetGrid.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                const answerItem = document.createElement('div');
+                answerItem.className = 'answer-item';
+                answerItem.textContent = i + 1;
+                answerItem.dataset.index = i;
+                
+                // 设置当前题目高亮
+                if (i === currentQuestionIndex) {
+                    answerItem.classList.add('current');
+                }
+                
+                // 添加点击事件
+                answerItem.addEventListener('click', () => {
+                    if (isGameActive) {
+                        loadQuestion(i);
+                    }
+                });
+                
+                answerSheetGrid.appendChild(answerItem);
+            }
+            
+            updateAnsweredCount();
+        }
+
+        // 加载指定索引的题目
+        function loadQuestion(index) {
+            if (!isGameActive || index < 0 || index >= questionSet.length) return;
+            
+            // 保存当前题目的答案（如果有）
+            const currentInput = answerInput.value.trim().toUpperCase();
+            if (currentInput) {
+                userAnswers[currentQuestionIndex] = currentInput;
+                
+                // 更新答题卡状态
+                const answerItems = answerSheetGrid.querySelectorAll('.answer-item');
+                answerItems[currentQuestionIndex].classList.add('answered');
+                updateAnsweredCount();
+            }
+            
+            currentQuestionIndex = index;
+            const currentQuestion = questionSet[currentQuestionIndex];
+            
+            // 更新题目和提示
+            questionText.textContent = currentQuestion.desc;
+            hintText.textContent = `提示：${currentQuestion.hint}`;
+            
+            // 如果已经回答过，显示之前的答案
+            if (userAnswers[currentQuestionIndex] !== null) {
+                answerInput.value = userAnswers[currentQuestionIndex];
+            } else {
+                answerInput.value = '';
+            }
+            
+            // 清空反馈信息
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+            
+            // 更新答题卡高亮
+            updateAnswerSheetHighlight();
+            
+            // 更新导航按钮状态
+            updateNavigationButtons();
+            
+            // 只在最后一题显示提交按钮
+            if (currentQuestionIndex === questionSet.length - 1) {
+                submitBtn.style.display = 'block';
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        // 更新答题卡高亮
+        function updateAnswerSheetHighlight() {
+            const answerItems = answerSheetGrid.querySelectorAll('.answer-item');
+            answerItems.forEach((item, index) => {
+                item.classList.remove('current');
+                
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                }
+            });
+        }
+
+        // 更新导航按钮状态
+        function updateNavigationButtons() {
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.disabled = currentQuestionIndex === questionSet.length - 1;
+        }
+
+        // 更新已答题数
+        function updateAnsweredCount() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            answeredCountSpan.textContent = answeredCount;
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            if (!isGameActive) return;
+            
+            const userAnswer = answerInput.value.trim().toUpperCase();
+            if (!userAnswer) return; // 如果答案为空，不提交
+            
+            const currentQuestion = questionSet[currentQuestionIndex];
+            
+            // 保存用户答案
+            userAnswers[currentQuestionIndex] = userAnswer;
+            
+            // 更新答题卡状态
+            const answerItems = answerSheetGrid.querySelectorAll('.answer-item');
+            answerItems[currentQuestionIndex].classList.add('answered');
+            updateAnsweredCount();
+            
+            // 检查答案是否正确
+            let isCorrect = false;
+            if (userAnswer === currentQuestion.symbol) {
+                isCorrect = true;
+                correctAnswers++;
+            }
+            
+            // 只在不是最后一题时显示反馈信息
+            if (currentQuestionIndex < questionSet.length - 1) {
+                if (isCorrect) {
+                    feedback.textContent = `正确！答案是 ${currentQuestion.symbol}`;
+                    feedback.className = 'feedback correct';
+                } else {
+                    feedback.textContent = `错误，正确答案是 ${currentQuestion.symbol}`;
+                    feedback.className = 'feedback wrong';
+                }
+            }
+            
+            // 更新总答题数
+            totalAnswers++;
+            
+            // 更新正确率
+            const accuracy = Math.round((correctAnswers / totalAnswers) * 100);
+            accuracySpan.textContent = `${accuracy}%`;
+            const statsElement = document.querySelector('.stats');
+            if (statsElement) {
+                statsElement.textContent = `正确率: ${accuracy}% (${correctAnswers}/${totalAnswers})`;
+            }
+            
+            // 不再自动跳转到下一题，让用户自行选择
+        }
+
+        // 提交答案事件
+        submitBtn.addEventListener('click', () => {
+            // 保存最后一题的答案
+            const currentInput = answerInput.value.trim().toUpperCase();
+            if (currentInput) {
+                userAnswers[currentQuestionIndex] = currentInput;
+                
+                // 更新答题卡状态
+                const answerItems = answerSheetGrid.querySelectorAll('.answer-item');
+                answerItems[currentQuestionIndex].classList.add('answered');
+                updateAnsweredCount();
+            }
+            
+            // 重新计算正确答案数
+            correctAnswers = 0;
+            totalAnswers = 0;
+            
+            for (let i = 0; i < questionSet.length; i++) {
+                if (userAnswers[i] !== null && userAnswers[i] !== '') {
+                    totalAnswers++;
+                    if (userAnswers[i] === questionSet[i].symbol) {
+                        correctAnswers++;
+                    }
+                }
+            }
+            
+            // 创建苹果风格的模态对话框
+            const modal = document.createElement('div');
+            modal.className = 'apple-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>答题结果</h2>
+                        <button class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-summary">
+                            <div class="accuracy-circle">
+                                <div class="accuracy-value">${Math.round((correctAnswers / totalAnswers) * 100)}%</div>
+                                <div class="accuracy-label">正确率</div>
+                            </div>
+                            <div class="result-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${correctAnswers}</div>
+                                    <div class="stat-label">正确</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${totalAnswers - correctAnswers}</div>
+                                    <div class="stat-label">错误</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${totalAnswers}</div>
+                                    <div class="stat-label">总题数</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="result-details">
+                            <h3>答题详情</h3>
+                            <div class="questions-list">
+                                ${questionSet.map((question, index) => {
+                                    const userAnswer = userAnswers[index];
+                                    const isCorrect = userAnswer === question.symbol;
+                                    return `
+                                        <div class="question-item ${isCorrect ? 'correct' : 'wrong'}">
+                                            <div class="question-number">题目 ${index + 1}</div>
+                                            <div class="question-desc">${question.desc}</div>
+                                            <div class="answer-comparison">
+                                                <div class="user-answer">
+                                                    <span class="answer-label">你的答案:</span>
+                                                    <span class="answer-value">${userAnswer || '未回答'}</span>
+                                                </div>
+                                                <div class="correct-answer">
+                                                    <span class="answer-label">正确答案:</span>
+                                                    <span class="answer-value">${question.symbol}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="restart-btn">重新开始</button>
+                    </div>
+                </div>
+            `;
+            
+            // 添加苹果风格的样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .apple-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    animation: fadeIn 0.3s ease;
+                }
+                
+                .modal-backdrop {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.4);
+                    z-index: 9999;
+                    pointer-events: all;
+                }
+                
+                .modal-content {
+                    position: relative;
+                    background-color: var(--card-bg);
+                    border-radius: 20px;
+                    width: 95%;
+                    max-width: none;
+                    max-height: 95vh;
+                    overflow-y: auto;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                    animation: slideUp 0.4s ease;
+                    display: flex;
+                    flex-direction: column;
+                    z-index: 10000;
+                    pointer-events: all;
+                }
+                
+                .modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px;
+                    border-bottom: 1px solid var(--border-color);
+                }
+                
+                .modal-header h2 {
+                    margin: 0;
+                    font-size: 22px;
+                    font-weight: 600;
+                    color: var(--text-color);
+                }
+                
+                .close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    color: var(--secondary-color);
+                    cursor: pointer;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background-color 0.2s;
+                    pointer-events: auto;
+                    z-index: 10001;
+                }
+                
+                .close-btn:hover {
+                    background-color: var(--hover-color);
+                }
+                
+                .modal-body {
+                    padding: 20px;
+                    overflow-y: auto;
+                    flex: 1;
+                }
+                
+                .result-summary {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                
+                .accuracy-circle {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    background: conic-gradient(var(--primary-color) 0deg, var(--primary-color) ${Math.round((correctAnswers / totalAnswers) * 360)}deg, var(--border-color) ${Math.round((correctAnswers / totalAnswers) * 360)}deg);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                    position: relative;
+                }
+                
+                .accuracy-circle::before {
+                    content: '';
+                    position: absolute;
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    background-color: var(--card-bg);
+                }
+                
+                .accuracy-value {
+                    font-size: 28px;
+                    font-weight: bold;
+                    color: var(--text-color);
+                    z-index: 1;
+                }
+                
+                .accuracy-label {
+                    font-size: 14px;
+                    color: var(--secondary-color);
+                    z-index: 1;
+                }
+                
+                .result-stats {
+                    display: flex;
+                    justify-content: space-around;
+                    width: 100%;
+                }
+                
+                .stat-item {
+                    text-align: center;
+                }
+                
+                .stat-value {
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: var(--text-color);
+                }
+                
+                .stat-label {
+                    font-size: 14px;
+                    color: var(--secondary-color);
+                }
+                
+                .result-details h3 {
+                    margin: 0 0 15px 0;
+                    font-size: 18px;
+                    color: var(--text-color);
+                }
+                
+                .questions-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                
+                .question-item {
+                    padding: 15px;
+                    border-radius: 12px;
+                    border-left: 4px solid;
+                }
+                
+                .question-item.correct {
+                    background-color: rgba(76, 175, 80, 0.1);
+                    border-left-color: #4CAF50;
+                }
+                
+                .question-item.wrong {
+                    background-color: rgba(244, 67, 54, 0.1);
+                    border-left-color: #F44336;
+                }
+                
+                .question-number {
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                    color: var(--text-color);
+                }
+                
+                .question-desc {
+                    font-size: 14px;
+                    margin-bottom: 10px;
+                    color: var(--text-color);
+                }
+                
+                .answer-comparison {
+                    display: flex;
+                    justify-content: space-between;
+                }
+                
+                .user-answer, .correct-answer {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+                
+                .answer-label {
+                    font-size: 12px;
+                    color: var(--secondary-color);
+                    margin-bottom: 3px;
+                }
+                
+                .answer-value {
+                    font-weight: bold;
+                    font-size: 16px;
+                }
+                
+                .user-answer .answer-value {
+                    color: var(--text-color);
+                }
+                
+                .correct-answer .answer-value {
+                    color: #4CAF50;
+                }
+                
+                .modal-footer {
+                    padding: 15px 20px;
+                    border-top: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: center;
+                }
+                
+                .restart-btn {
+                    padding: 10px 20px;
+                    background-color: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 16px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                    pointer-events: auto;
+                    z-index: 10001;
+                }
+                
+                .restart-btn:hover {
+                    background-color: var(--primary-hover);
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                
+                @keyframes slideUp {
+                    from { 
+                        transform: translateY(50px);
+                        opacity: 0;
+                    }
+                    to { 
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 添加到页面
+            document.body.appendChild(modal);
+            
+            // 防止背景页面滚动
+            document.body.style.overflow = 'hidden';
+            
+            // 获取按钮元素
+            const closeBtn = modal.querySelector('.close-btn');
+            const restartBtn = modal.querySelector('.restart-btn');
+            const backdrop = modal.querySelector('.modal-backdrop');
+            const content = modal.querySelector('.modal-content');
+            
+            // 关闭按钮事件
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.body.removeChild(modal);
+                document.body.style.overflow = 'auto';
+            });
+            
+            // 重新开始按钮事件
+            restartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.body.removeChild(modal);
+                document.body.style.overflow = 'auto';
+                // 重置游戏状态
+                isGameActive = false;
+                answerInput.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.style.display = 'none';
+                questionText.textContent = '请选择难度开始游戏';
+                hintText.textContent = '提示：答案为元素符号（如 H、O）';
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+                answerSheetGrid.innerHTML = '';
+                answeredCountSpan.textContent = '0';
+                accuracySpan.textContent = '0%';
+                document.querySelector('.stats').textContent = '正确率: 0% (0/0)';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                
+                // 重置游戏变量
+                currentQuestionIndex = 0;
+                questionSet = [];
+                userAnswers = [];
+                correctAnswers = 0;
+                totalAnswers = 0;
+            });
+            
+            // 点击背景关闭
+            backdrop.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.body.removeChild(modal);
+                document.body.style.overflow = 'auto';
+            });
+            
+            // 阻止模态内容区域的点击事件冒泡到背景层
+            content.addEventListener('click', (e) => {
+                // 检查点击的是否是按钮
+                if (e.target.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        // 导航按钮事件
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < questionSet.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            }
+        });
+
+        // 主题切换功能 - 与主页面保持一致的全局主题设置
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // 从本地存储获取主题偏好，默认浅色模式
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        
+        // 主题切换事件
+        themeToggle.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            
+            // 添加切换动画类
+            themeToggle.classList.add('toggling');
+            
+            // 设置新主题
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // 动画结束后移除类
+            setTimeout(() => {
+                themeToggle.classList.remove('toggling');
+            }, 300);
+        });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活化能计算器 | Activation Energy Calculator</title>
+    <!-- 已移除Font Awesome，使用SVG图标 -->
+    <style>
+        /* CSS变量定义 - 浅色模式 */
+        :root {
+            --bg-primary: #F5F5F7;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #1D1D1F;
+            --text-secondary: #6E6E73;
+            --text-tertiary: #8E8E93;
+            --accent: #007AFF;
+            --accent-hover: #0051D5;
+            --border: #E6E6E8;
+            --border-focus: var(--accent);
+            --error: #FF3B30;
+            --success: #34C759;
+            --shadow-light: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-medium: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-heavy: 0 8px 24px rgba(0,0,0,0.1);
+            --radius-small: 8px;
+            --radius-medium: 10px;
+            --radius-large: 16px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "HarmonyOS Sans", sans-serif;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        /* 深色模式变量 */
+        [data-theme="dark"] {
+            --bg-primary: #1C1C1E;
+            --bg-secondary: #2C2C2E;
+            --text-primary: #F5F5F7;
+            --text-secondary: #98989D;
+            --text-tertiary: #636366;
+            --accent: #0A84FF;
+            --accent-hover: #409CFF;
+            --border: #38383A;
+            --border-focus: var(--accent);
+            --error: #FF453A;
+            --success: #30D158;
+            --shadow-light: 0 2px 4px rgba(0,0,0,0.2);
+            --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        /* 深色主题适配 - 详细计算过程卡片 */
+        [data-theme="dark"] .step-formula {
+            background: #2a2a2a;
+            color: #f0f0f0;
+        }
+
+        [data-theme="dark"] .calculation-summary {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-color: #0f3460;
+        }
+
+        [data-theme="dark"] .detailed-calculation-content {
+            background: #1e1e1e;
+        }
+
+        [data-theme="dark"] .step-content {
+            background: #1e1e1e;
+        }
+
+        [data-theme="dark"] .calculation-step {
+            border-color: #333;
+        }
+
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 16px;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-md);
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        /* 头部区域 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--accent);
+            border-radius: var(--radius-small);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 头部操作区域 */
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        /* 返回主页按钮 - 苹果风格 */
+        .ios-circle-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 24px;
+            transition: var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .ios-circle-button:hover {
+            background-color: var(--border);
+        }
+
+        .ios-circle-button:active {
+            background-color: var(--border-focus);
+            transform: scale(0.95);
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--border);
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* 表单模式 - 两种模式同时显示 */
+        .form-mode {
+            display: block;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-large);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition);
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-small);
+            border: 2px solid transparent;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: var(--transition);
+            font-family: var(--font-family);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        input.error {
+            border-color: var(--error);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 14px;
+            margin-top: var(--spacing-xs);
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: var(--spacing-xs);
+            color: var(--text-tertiary);
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: var(--radius-small);
+            padding: var(--spacing-sm);
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: var(--shadow-medium);
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-medium);
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        /* 结果展示区域 */
+        .result-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent);
+            margin: var(--spacing-md) 0;
+        }
+
+        .result-details {
+            margin-top: var(--spacing-md);
+            border-top: 1px solid var(--border);
+            padding-top: var(--spacing-md);
+        }
+
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .collapsible:hover {
+            color: var(--text-primary);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.show {
+            max-height: 500px;
+        }
+
+        /* 历史记录 */
+        .history-container {
+            margin-top: var(--spacing-lg);
+        }
+
+        .history-item {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        /* 详细计算过程卡片 */
+        .detailed-calculation-container {
+            margin-top: var(--spacing-lg);
+            border-radius: var(--radius-medium);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .detailed-calculation-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .detailed-calculation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: linear-gradient(135deg, var(--accent), #096dd9);
+            color: white;
+        }
+
+        .detailed-calculation-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .detailed-calculation-content {
+            padding: var(--spacing-lg);
+            max-height: 600px;
+            overflow-y: auto;
+            background: var(--card-bg, #ffffff);
+        }
+
+        .calculation-step {
+            margin-bottom: var(--spacing-lg);
+            border-radius: var(--radius-medium);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .calculation-step:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, var(--accent), #096dd9);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .step-content {
+            padding: var(--spacing-md);
+            background: var(--card-bg, #ffffff);
+        }
+
+        .step-content p {
+            margin: 0 0 var(--spacing-sm) 0;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .step-content ul {
+            margin: var(--spacing-sm) 0;
+            padding-left: 20px;
+        }
+
+        .step-content li {
+            margin-bottom: var(--spacing-xs);
+            line-height: 1.5;
+        }
+
+        .step-formula {
+            background: var(--bg-secondary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-small);
+            margin: var(--spacing-sm) 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 16px;
+            text-align: center;
+            border-left: 4px solid var(--accent);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .step-result {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .calculation-summary {
+            margin-top: var(--spacing-lg);
+            border-radius: var(--radius-medium);
+            background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
+            border: 1px solid #91d5ff;
+            overflow: hidden;
+        }
+
+        .summary-title {
+            background: linear-gradient(135deg, var(--accent), #096dd9);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .summary-content {
+            padding: var(--spacing-md);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .summary-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* 单位选择器 */
+        .unit-selector {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-medium);
+            padding: 4px;
+            margin-top: var(--spacing-xs);
+            border: 1px solid var(--border);
+        }
+
+        .unit-option {
+            flex: 1;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-small);
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border: none;
+            background: none;
+        }
+
+        .unit-option.active {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .unit-option:hover:not(.active) {
+            background-color: var(--bg-secondary);
+        }
+
+        .input-with-unit {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-lg) var(--spacing-md);
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .result-value {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--spacing-md) var(--spacing-sm);
+            }
+
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0;
+            }
+
+            .logo {
+                flex: 1;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+        }
+
+        /* 计算器容器 - 电脑端和平板端并排显示 */
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .result-container {
+            grid-column: span 2;
+        }
+
+        /* 响应式设计 - 计算器容器 */
+        @media (max-width: 768px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-container {
+                grid-column: span 1;
+            }
+            
+            .detailed-calculation-content {
+                padding: var(--spacing-md);
+            }
+            
+            .step-content {
+                padding: var(--spacing-sm);
+            }
+            
+            .summary-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 精度选择器 */
+        .precision-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        select {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-small);
+            border: 1px solid var(--border);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 隐藏元素 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">Ea</div>
+                <h1>活化能计算器</h1>
+            </div>
+            <div class="header-actions">
+                <button id="backToHome" class="ios-circle-button" title="返回主页" onclick="window.location.href='index.html'">
+                    <svg t="1762337280011" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="21618" width="20" height="20">
+                        <path d="M900.745478 430.904767l-330.418307-308.008394c-16.679524-19.033077-40.82902-29.982212-66.411112-29.982212-25.172779 0-49.322274 10.846807-65.2855 28.8566L120.491656 430.802438c-15.860897 16.270211-20.465674 39.805736-11.665434 60.783052 8.80024 20.977316 29.163585 34.075347 51.880484 34.075347l28.651944 0 0 314.148096c0 48.708304 38.987109 88.309383 87.695413 88.309383l136.608374 0c17.702808 0 33.461377-14.325972 33.461377-32.02878L447.123813 687.032677c0-8.902568 5.832717-16.781853 14.735285-16.781853l96.393325 0c8.902568 0 15.656241 7.981613 15.656241 16.781853l0 208.954532c0 17.805136 14.837614 32.02878 32.540422 32.02878l136.608374 0c48.708304 0 88.616369-39.498751 88.616369-88.309383l0-314.148096 28.549615 0c22.61457 0 42.977915-13.098031 51.778155-33.973019C921.006495 470.812831 916.504047 447.174978 900.745478 430.904767L900.745478 430.904767 900.745478 430.904767z" p-id="21619" fill="#007aff"></path>
+                    </svg>
+                </button>
+                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <svg class="moon-icon hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="calculator-container">
+                <div class="card">
+                    <h2>模式 1: 单点计算</h2>
+                    <div class="form-mode active" id="mode1">
+                        <div class="form-group">
+                            <label for="k">
+                                速率常数 (k)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">反应速率常数，单位通常为 s⁻¹</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="k" placeholder="输入速率常数" step="any" min="0">
+                                    <div class="error-message" id="k-error">请输入有效的速率常数（正数）</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="A">
+                                指前因子 (A)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">频率因子，单位与k相同</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="A" placeholder="输入指前因子" step="any" min="0">
+                                    <div class="error-message" id="A-error">请输入有效的指前因子（正数）</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="T">
+                                温度 (T)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">反应温度</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="T" placeholder="输入温度" step="any">
+                                    <div class="error-message" id="T-error">请输入有效的温度（非零数值）</div>
+                                </div>
+                                <div class="unit-selector" id="tempUnitSelector1">
+                                    <button class="unit-option active" data-unit="K">开尔文 (K)</button>
+                                    <button class="unit-option" data-unit="C">摄氏度 (°C)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="calculate1">
+                                计算活化能
+                            </button>
+                            <button class="btn btn-secondary" id="reset1">
+                                重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>模式 2: 双点计算</h2>
+                    <div class="form-mode active" id="mode2">
+                        <div class="form-group">
+                            <label for="k1">
+                                速率常数 1 (k₁)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">第一温度下的反应速率常数</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="k1" placeholder="输入速率常数 k₁" step="any" min="0">
+                                    <div class="error-message" id="k1-error">请输入有效的速率常数（正数）</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="T1">
+                                温度 1 (T₁)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">第一个温度点</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="T1" placeholder="输入温度 T₁" step="any">
+                                    <div class="error-message" id="T1-error">请输入有效的温度（非零数值）</div>
+                                </div>
+                                <div class="unit-selector" id="tempUnitSelector2">
+                                    <button class="unit-option active" data-unit="K">开尔文 (K)</button>
+                                    <button class="unit-option" data-unit="C">摄氏度 (°C)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="k2">
+                                速率常数 2 (k₂)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">第二温度下的反应速率常数</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="k2" placeholder="输入速率常数 k₂" step="any" min="0">
+                                    <div class="error-message" id="k2-error">请输入有效的速率常数（正数）</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="T2">
+                                温度 2 (T₂)
+                                <span class="tooltip">ℹ️
+                                    <span class="tooltiptext">第二个温度点</span>
+                                </span>
+                            </label>
+                            <div class="input-with-unit">
+                                <div class="input-wrapper">
+                                    <input type="number" id="T2" placeholder="输入温度 T₂" step="any">
+                                    <div class="error-message" id="T2-error">请输入有效的温度（非零数值）</div>
+                                </div>
+                                <div class="unit-selector" id="tempUnitSelector3">
+                                    <button class="unit-option active" data-unit="K">开尔文 (K)</button>
+                                    <button class="unit-option" data-unit="C">摄氏度 (°C)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="calculate2">
+                                计算活化能
+                            </button>
+                            <button class="btn btn-secondary" id="reset2">
+                                重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card result-container" id="resultContainer">
+                    <h2>计算结果</h2>
+                    <div class="result-value" id="resultValue">--</div>
+                    <div class="unit-selector" id="energyUnitSelector">
+                        <button class="unit-option active" data-unit="J">焦耳/摩尔 (J/mol)</button>
+                        <button class="unit-option" data-unit="kJ">千焦/摩尔 (kJ/mol)</button>
+                    </div>
+                    <div class="precision-selector">
+                        <label for="precision">小数位数：</label>
+                        <select id="precision">
+                            <option value="2">2位</option>
+                            <option value="3" selected>3位</option>
+                            <option value="4">4位</option>
+                            <option value="5">5位</option>
+                            <option value="6">6位</option>
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" id="copyResult">
+                            复制结果
+                        </button>
+                    </div>
+                    
+                    <div class="result-details">
+                        <div class="collapsible" id="toggleDetails">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            查看计算过程
+                        </div>
+                        <div class="collapsible-content" id="detailsContent">
+                            <div id="calculationSteps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card history-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                    <h2>历史记录</h2>
+                    <button class="btn btn-secondary" id="clearHistory">清空历史</button>
+                </div>
+                <div id="historyList">
+                    <p style="color: var(--text-secondary); text-align: center; padding: var(--spacing-md) 0;">暂无历史记录</p>
+                </div>
+            </div>
+
+            <div class="card detailed-calculation-container" id="detailedCalculationContainer" style="display: none;">
+                <div class="detailed-calculation-header">
+                    <h3>详细计算过程</h3>
+                    <button class="close-btn" id="closeDetailedCalculation">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="detailed-calculation-content" id="detailedCalculationContent">
+                    <!-- 详细计算过程将在这里动态生成 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 全局变量
+        const R = 8.314; // 气体常数 J/(mol·K)
+        let calculationHistory = [];
+        let currentTheme = 'light';
+
+        // DOM元素
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.querySelector('.sun-icon');
+        const moonIcon = document.querySelector('.moon-icon');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultValue = document.getElementById('resultValue');
+        const precisionSelect = document.getElementById('precision');
+        const toggleDetails = document.getElementById('toggleDetails');
+        const detailsContent = document.getElementById('detailsContent');
+        const calculationSteps = document.getElementById('calculationSteps');
+        const historyList = document.getElementById('historyList');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            loadHistory();
+            attachEventListeners();
+            initUnitSelectors();
+        });
+
+        // 主题切换
+        function initTheme() {
+            // 检测系统主题偏好
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // 检查本地存储的主题设置
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme) {
+                currentTheme = savedTheme;
+            } else if (prefersDarkScheme.matches) {
+                currentTheme = 'dark';
+            }
+            
+            applyTheme(currentTheme);
+            
+            // 监听系统主题变化
+            prefersDarkScheme.addEventListener('change', (e) => {
+                if (!localStorage.getItem('theme')) {
+                    currentTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(currentTheme);
+                }
+            });
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        // 事件监听器
+        function attachEventListeners() {
+            // 主题切换
+            themeToggle.addEventListener('click', () => {
+                currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(currentTheme);
+            });
+
+            // 计算按钮
+            document.getElementById('calculate1').addEventListener('click', () => calculateMode1());
+            document.getElementById('calculate2').addEventListener('click', () => calculateMode2());
+
+            // 重置按钮
+            document.getElementById('reset1').addEventListener('click', () => resetForm('mode1'));
+            document.getElementById('reset2').addEventListener('click', () => resetForm('mode2'));
+
+            // 精度选择
+            precisionSelect.addEventListener('change', updateResultPrecision);
+
+            // 复制结果
+            document.getElementById('copyResult').addEventListener('click', copyResult);
+
+            // 查看计算过程
+            toggleDetails.addEventListener('click', () => {
+                detailsContent.classList.toggle('show');
+                const icon = toggleDetails.querySelector('svg');
+                icon.style.transform = detailsContent.classList.contains('show') ? 'rotate(180deg)' : '';
+            });
+
+            // 清空历史
+            document.getElementById('clearHistory').addEventListener('click', clearHistory);
+
+            // 关闭详细计算过程
+            document.getElementById('closeDetailedCalculation').addEventListener('click', closeDetailedCalculation);
+
+            // 输入验证
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => validateInput(input));
+                input.addEventListener('blur', () => validateInput(input));
+            });
+        }
+
+        // 初始化单位选择器
+        function initUnitSelectors() {
+            // 温度单位选择器
+            const tempUnitSelectors = [
+                document.getElementById('tempUnitSelector1'),
+                document.getElementById('tempUnitSelector2'),
+                document.getElementById('tempUnitSelector3')
+            ];
+            
+            tempUnitSelectors.forEach(selector => {
+                if (!selector) return;
+                
+                const unitOptions = selector.querySelectorAll('.unit-option');
+                unitOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        // 移除所有active类
+                        unitOptions.forEach(opt => opt.classList.remove('active'));
+                        // 添加active类到当前选项
+                        option.classList.add('active');
+                        
+                        // 获取关联的输入框
+                        const inputId = selector.id.replace('tempUnitSelector', 'T');
+                        const input = document.getElementById(inputId);
+                        
+                        // 如果输入框有值，则进行单位转换
+                        if (input.value && input.value !== '') {
+                            const currentUnit = selector.querySelector('.unit-option.active').dataset.unit;
+                            const previousUnit = option.dataset.unit === 'K' ? 'C' : 'K';
+                            
+                            if (currentUnit !== previousUnit) {
+                                const value = parseFloat(input.value);
+                                if (currentUnit === 'K') {
+                                    // 从摄氏度转换为开尔文
+                                    input.value = (value + 273.15).toFixed(2);
+                                } else {
+                                    // 从开尔文转换为摄氏度
+                                    input.value = (value - 273.15).toFixed(2);
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+            
+            // 能量单位选择器
+            const energyUnitSelector = document.getElementById('energyUnitSelector');
+            if (energyUnitSelector) {
+                const energyUnitOptions = energyUnitSelector.querySelectorAll('.unit-option');
+                energyUnitOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        // 移除所有active类
+                        energyUnitOptions.forEach(opt => opt.classList.remove('active'));
+                        // 添加active类到当前选项
+                        option.classList.add('active');
+                        
+                        // 更新结果显示
+                        updateEnergyUnit();
+                    });
+                });
+            }
+        }
+
+        // 更新能量单位显示
+        function updateEnergyUnit() {
+            const energyUnitSelector = document.getElementById('energyUnitSelector');
+            const activeUnit = energyUnitSelector.querySelector('.unit-option.active').dataset.unit;
+            const resultValue = document.getElementById('resultValue');
+            
+            // 获取当前显示的数值
+            const resultSpan = resultValue.querySelector('span:first-child');
+            const currentText = resultSpan ? resultSpan.textContent : resultValue.textContent;
+            
+            if (currentText !== '--') {
+                // 从当前文本中提取数值部分
+                const currentValue = parseFloat(currentText.split(' ')[0]);
+                
+                // 检查是否为有效数字
+                if (isNaN(currentValue)) {
+                    return; // 如果不是有效数字，则不更新
+                }
+                
+                // 获取模式标题
+                const modeTitleElement = resultValue.querySelector('span:last-child');
+                const modeTitle = modeTitleElement ? modeTitleElement.textContent : '';
+                
+                let convertedValue;
+                let unitText;
+                
+                if (activeUnit === 'J') {
+                    // 转换为焦耳/摩尔
+                    convertedValue = currentValue * 1000;
+                    unitText = 'J/mol';
+                } else {
+                    // 转换为千焦/摩尔
+                    convertedValue = currentValue / 1000;
+                    unitText = 'kJ/mol';
+                }
+                
+                const precisionSelect = document.getElementById('precision');
+                const precision = parseInt(precisionSelect.value);
+                
+                resultValue.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>${convertedValue.toFixed(precision)} ${unitText}</span>
+                        <span style="font-size: 14px; color: var(--text-secondary);">${modeTitle}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // 初始化函数
+        function init() {
+            initTheme();
+            loadHistory();
+            attachEventListeners();
+            initUnitSelectors();
+        }
+
+        // 输入验证
+        function validateInput(input) {
+            const errorElement = document.getElementById(`${input.id}-error`);
+            let isValid = true;
+
+            if (input.value === '') {
+                input.classList.remove('error');
+                errorElement.classList.remove('show');
+                return true; // 空值不显示错误
+            }
+
+            const value = parseFloat(input.value);
+            
+            // 检查是否为有效数字
+            if (isNaN(value)) {
+                isValid = false;
+            }
+            // 检查是否为非负数（k, A, k1, k2）
+            else if ((input.id === 'k' || input.id === 'A' || input.id === 'k1' || input.id === 'k2') && value <= 0) {
+                isValid = false;
+            }
+            // 检查是否为非零（T, T1, T2）
+            else if ((input.id === 'T' || input.id === 'T1' || input.id === 'T2') && value === 0) {
+                isValid = false;
+            }
+
+            if (isValid) {
+                input.classList.remove('error');
+                errorElement.classList.remove('show');
+            } else {
+                input.classList.add('error');
+                errorElement.classList.add('show');
+            }
+
+            return isValid;
+        }
+
+        // 模式1计算：k = A·e^(-Eₐ/(R·T))
+        function calculateMode1() {
+            const kInput = document.getElementById('k');
+            const AInput = document.getElementById('A');
+            const TInput = document.getElementById('T');
+            const tempUnitSelector1 = document.getElementById('tempUnitSelector1');
+
+            // 验证输入
+            const isKValid = validateInput(kInput);
+            const isAValid = validateInput(AInput);
+            const isTValid = validateInput(TInput);
+
+            if (!isKValid || !isAValid || !isTValid) {
+                return;
+            }
+
+            const k = parseFloat(kInput.value);
+            const A = parseFloat(AInput.value);
+            let T = parseFloat(TInput.value);
+
+            // 根据选择的单位进行温度转换
+            const selectedUnit = tempUnitSelector1.querySelector('.unit-option.active').dataset.unit;
+            if (selectedUnit === 'C') {
+                // 摄氏度转换为开尔文
+                T = T + 273.15;
+            }
+
+            // 计算活化能 Eₐ = -R·T·ln(k/A)
+            const Ea = -R * T * Math.log(k / A);
+            const EaKJ = Ea / 1000; // 转换为kJ/mol
+
+            // 显示结果
+            displayResult(EaKJ, 'mode1', { k, A, T });
+        }
+
+        // 模式2计算：ln(k₂/k₁) = Eₐ/R·(1/T₁ - 1/T₂)
+        function calculateMode2() {
+            const k1Input = document.getElementById('k1');
+            const T1Input = document.getElementById('T1');
+            const k2Input = document.getElementById('k2');
+            const T2Input = document.getElementById('T2');
+            const tempUnitSelector2 = document.getElementById('tempUnitSelector2');
+            const tempUnitSelector3 = document.getElementById('tempUnitSelector3');
+
+            // 验证输入
+            const isK1Valid = validateInput(k1Input);
+            const isT1Valid = validateInput(T1Input);
+            const isK2Valid = validateInput(k2Input);
+            const isT2Valid = validateInput(T2Input);
+
+            if (!isK1Valid || !isT1Valid || !isK2Valid || !isT2Valid) {
+                return;
+            }
+
+            const k1 = parseFloat(k1Input.value);
+            let T1 = parseFloat(T1Input.value);
+            const k2 = parseFloat(k2Input.value);
+            let T2 = parseFloat(T2Input.value);
+
+            // 根据选择的单位进行温度转换
+            const selectedUnit1 = tempUnitSelector2.querySelector('.unit-option.active').dataset.unit;
+            if (selectedUnit1 === 'C') {
+                // 摄氏度转换为开尔文
+                T1 = T1 + 273.15;
+            }
+
+            const selectedUnit2 = tempUnitSelector3.querySelector('.unit-option.active').dataset.unit;
+            if (selectedUnit2 === 'C') {
+                // 摄氏度转换为开尔文
+                T2 = T2 + 273.15;
+            }
+
+            // 计算活化能 Eₐ = R·ln(k₂/k₁)/(1/T₁ - 1/T₂)
+            const Ea = R * Math.log(k2 / k1) / ((1 / T1) - (1 / T2));
+            const EaKJ = Ea / 1000; // 转换为kJ/mol
+
+            // 显示结果
+            displayResult(EaKJ, 'mode2', { k1, T1, k2, T2 });
+        }
+
+        // 显示结果
+        function displayResult(EaKJ, mode, params) {
+            const precision = parseInt(precisionSelect.value);
+            const energyUnitSelector = document.getElementById('energyUnitSelector');
+            const activeUnit = energyUnitSelector.querySelector('.unit-option.active').dataset.unit;
+            
+            let formattedEa;
+            let unitText;
+            
+            if (activeUnit === 'J') {
+                // 转换为焦耳/摩尔
+                formattedEa = (EaKJ * 1000).toFixed(precision);
+                unitText = 'J/mol';
+            } else {
+                // 保持千焦/摩尔
+                formattedEa = EaKJ.toFixed(precision);
+                unitText = 'kJ/mol';
+            }
+            
+            // 创建结果标题，显示是哪种计算模式
+            const modeTitle = mode === 'mode1' ? '单点计算结果' : '双点计算结果';
+            
+            resultValue.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${formattedEa} ${unitText}</span>
+                    <span style="font-size: 14px; color: var(--text-secondary);">${modeTitle}</span>
+                </div>
+            `;
+            resultContainer.classList.add('show');
+            
+            // 自动滚动到结果区域
+            setTimeout(() => {
+                resultContainer.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 自动展开计算过程
+                setTimeout(() => {
+                    detailsContent.classList.add('show');
+                    const icon = toggleDetails.querySelector('svg');
+                    icon.style.transform = 'rotate(180deg)';
+                }, 500); // 等待滚动完成后再展开，提供更好的用户体验
+            }, 100); // 小延迟确保元素已显示
+
+            // 生成计算步骤
+            generateCalculationSteps(EaKJ, mode, params, precision);
+
+            // 添加到历史记录
+            addToHistory(EaKJ, mode, params);
+        }
+
+        // 生成计算步骤
+        function generateCalculationSteps(EaKJ, mode, params, precision) {
+            const energyUnitSelector = document.getElementById('energyUnitSelector');
+            const activeUnit = energyUnitSelector.querySelector('.unit-option.active').dataset.unit;
+            
+            let stepsHTML = '';
+            
+            if (mode === 'mode1') {
+                stepsHTML = `
+                    <h3>阿伦尼乌斯方程计算</h3>
+                    <p>已知参数：</p>
+                    <ul>
+                        <li>速率常数 k = ${params.k}</li>
+                        <li>指前因子 A = ${params.A}</li>
+                        <li>温度 T = ${params.T} K</li>
+                    </ul>
+                    <p>计算公式：k = A·e^(-Eₐ/(R·T))</p>
+                    <p>推导过程：</p>
+                    <ol>
+                        <li>对两边取自然对数：ln(k) = ln(A) - Eₐ/(R·T)</li>
+                        <li>移项：Eₐ/(R·T) = ln(A) - ln(k)</li>
+                        <li>整理：Eₐ = R·T·[ln(A) - ln(k)]</li>
+                        <li>进一步整理：Eₐ = -R·T·ln(k/A)</li>
+                    </ol>
+                    <p>代入数值计算：</p>
+                    <p>Eₐ = -8.314 J/(mol·K) × ${params.T} K × ln(${params.k}/${params.A})</p>
+                    <p>Eₐ = ${(EaKJ * 1000).toFixed(2)} J/mol = ${EaKJ.toFixed(precision)} kJ/mol</p>
+                    <p>Eₐ = ${activeUnit === 'J' ? (EaKJ * 1000).toFixed(precision) : EaKJ.toFixed(precision)} ${activeUnit === 'J' ? 'J/mol' : 'kJ/mol'}</p>
+                `;
+            } else {
+                stepsHTML = `
+                    <h3>双温度点活化能计算</h3>
+                    <p>已知参数：</p>
+                    <ul>
+                        <li>温度点1：T₁ = ${params.T1} K，k₁ = ${params.k1}</li>
+                        <li>温度点2：T₂ = ${params.T2} K，k₂ = ${params.k2}</li>
+                    </ul>
+                    <p>计算公式：ln(k₂/k₁) = Eₐ/R·(1/T₁ - 1/T₂)</p>
+                    <p>推导过程：</p>
+                    <ol>
+                        <li>从阿伦尼乌斯方程：ln(k) = ln(A) - Eₐ/(R·T)</li>
+                        <li>对于两个温度点：
+                            <ul>
+                                <li>ln(k₁) = ln(A) - Eₐ/(R·T₁)</li>
+                                <li>ln(k₂) = ln(A) - Eₐ/(R·T₂)</li>
+                            </ul>
+                        </li>
+                        <li>两式相减：ln(k₂) - ln(k₁) = Eₐ/R·(1/T₁ - 1/T₂)</li>
+                        <li>整理：ln(k₂/k₁) = Eₐ/R·(1/T₁ - 1/T₂)</li>
+                        <li>解出Eₐ：Eₐ = R·ln(k₂/k₁)/(1/T₁ - 1/T₂)</li>
+                    </ol>
+                    <p>代入数值计算：</p>
+                    <p>Eₐ = 8.314 J/(mol·K) × ln(${params.k2}/${params.k1}) / (1/${params.T1} - 1/${params.T2})</p>
+                    <p>Eₐ = ${(EaKJ * 1000).toFixed(2)} J/mol = ${EaKJ.toFixed(precision)} kJ/mol</p>
+                    <p>Eₐ = ${activeUnit === 'J' ? (EaKJ * 1000).toFixed(precision) : EaKJ.toFixed(precision)} ${activeUnit === 'J' ? 'J/mol' : 'kJ/mol'}</p>
+                `;
+            }
+            
+            calculationSteps.innerHTML = stepsHTML;
+        }
+
+        // 更新结果精度
+        function updateResultPrecision() {
+            const precisionSelect = document.getElementById('precision');
+            const resultValue = document.getElementById('resultValue');
+            const precision = parseInt(precisionSelect.value);
+            
+            // 获取当前显示的数值
+            const resultSpan = resultValue.querySelector('span:first-child');
+            const currentText = resultSpan ? resultSpan.textContent : resultValue.textContent;
+            
+            if (currentText !== '--') {
+                // 从当前文本中提取数值部分
+                const currentValue = parseFloat(currentText.split(' ')[0]);
+                
+                // 检查是否为有效数字
+                if (isNaN(currentValue)) {
+                    return; // 如果不是有效数字，则不更新
+                }
+                
+                // 获取模式标题
+                const modeTitleElement = resultValue.querySelector('span:last-child');
+                const modeTitle = modeTitleElement ? modeTitleElement.textContent : '';
+                
+                // 获取当前能量单位
+                const energyUnitSelector = document.getElementById('energyUnitSelector');
+                const activeUnit = energyUnitSelector.querySelector('.unit-option.active').dataset.unit;
+                const unitText = activeUnit === 'J' ? 'J/mol' : 'kJ/mol';
+                
+                resultValue.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>${currentValue.toFixed(precision)} ${unitText}</span>
+                        <span style="font-size: 14px; color: var(--text-secondary);">${modeTitle}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // 复制结果
+        function copyResult() {
+            const resultValue = document.getElementById('resultValue');
+            // 从当前结果中提取主要数值部分
+            const resultSpan = resultValue.querySelector('span:first-child');
+            const resultText = resultSpan ? resultSpan.textContent : resultValue.textContent;
+            
+            if (resultText !== '--') {
+                navigator.clipboard.writeText(resultText)
+                    .then(() => {
+                        // 显示复制成功提示
+                        const copyBtn = document.getElementById('copyResult');
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '已复制';
+                        
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('复制失败:', err);
+                    });
+            }
+        }
+
+        // 重置表单
+        function resetForm(mode) {
+            const form = document.getElementById(mode);
+            const inputs = form.querySelectorAll('input');
+            
+            inputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('error');
+            });
+            
+            const errorMessages = form.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => {
+                msg.classList.remove('show');
+            });
+        }
+
+        // 添加到历史记录
+        function addToHistory(EaKJ, mode, params) {
+            const timestamp = new Date().toLocaleString();
+            const precisionSelect = document.getElementById('precision');
+            const precision = parseInt(precisionSelect.value);
+            
+            // 获取当前能量单位
+            const energyUnitSelector = document.getElementById('energyUnitSelector');
+            const activeUnit = energyUnitSelector.querySelector('.unit-option.active').dataset.unit;
+            
+            let formattedEa;
+            let unitText;
+            
+            if (activeUnit === 'J') {
+                // 转换为焦耳/摩尔
+                formattedEa = (EaKJ * 1000).toFixed(precision);
+                unitText = 'J/mol';
+            } else {
+                // 保持千焦/摩尔
+                formattedEa = EaKJ.toFixed(precision);
+                unitText = 'kJ/mol';
+            }
+            
+            let description = '';
+            if (mode === 'mode1') {
+                description = `k=${params.k}, A=${params.A}, T=${params.T}K`;
+            } else {
+                description = `T₁=${params.T1}K, k₁=${params.k1}, T₂=${params.T2}K, k₂=${params.k2}`;
+            }
+            
+            // 生成详细计算过程HTML
+            let detailedCalculationHTML = '';
+            if (mode === 'mode1') {
+                detailedCalculationHTML = `
+                    <div class="calculation-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>参数说明</h4>
+                            <p>阿伦尼乌斯方程描述了化学反应速率常数与温度之间的关系：</p>
+                            <div class="formula-box">k = A·e^(-Eₐ/(R·T))</div>
+                            <p>其中：</p>
+                            <ul>
+                                <li>k = ${params.k} (速率常数)</li>
+                                <li>A = ${params.A} (指前因子)</li>
+                                <li>T = ${params.T} K (绝对温度)</li>
+                                <li>R = 8.314 J/(mol·K) (理想气体常数)</li>
+                                <li>Eₐ = ? (活化能，待求解)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>公式推导</h4>
+                            <p>从阿伦尼乌斯方程求解活化能：</p>
+                            <div class="formula-box">k = A·e^(-Eₐ/(R·T))</div>
+                            <p>对两边取自然对数：</p>
+                            <div class="formula-box">ln(k) = ln(A) - Eₐ/(R·T)</div>
+                            <p>移项整理：</p>
+                            <div class="formula-box">Eₐ/(R·T) = ln(A) - ln(k)</div>
+                            <div class="formula-box">Eₐ = R·T·[ln(A) - ln(k)]</div>
+                            <div class="formula-box">Eₐ = -R·T·ln(k/A)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>数值计算</h4>
+                            <p>将已知参数代入公式：</p>
+                            <div class="formula-box">Eₐ = -8.314 J/(mol·K) × ${params.T} K × ln(${params.k}/${params.A})</div>
+                            <div class="formula-box">Eₐ = -8.314 × ${params.T} × ${Math.log(params.k/params.A).toFixed(6)} J/mol</div>
+                            <div class="formula-box">Eₐ = ${(EaKJ * 1000).toFixed(2)} J/mol</div>
+                            <div class="formula-box">Eₐ = ${EaKJ.toFixed(precision)} kJ/mol</div>
+                            ${activeUnit === 'J' ? `<div class="formula-box">Eₐ = ${(EaKJ * 1000).toFixed(precision)} J/mol</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>结果总结</h4>
+                            <p>通过单点法计算得到的活化能为：</p>
+                            <div class="result-box">${activeUnit === 'J' ? (EaKJ * 1000).toFixed(precision) : EaKJ.toFixed(precision)} ${unitText}</div>
+                            <p>该结果表明，在温度为 ${params.T} K 时，要使反应速率常数达到 ${params.k}，反应物分子需要克服的能量势垒为 ${activeUnit === 'J' ? (EaKJ * 1000).toFixed(precision) : EaKJ.toFixed(precision)} ${unitText}。</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                detailedCalculationHTML = `
+                    <div class="calculation-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>参数说明</h4>
+                            <p>双温度点法利用两个不同温度下的速率常数计算活化能：</p>
+                            <div class="formula-box">ln(k₂/k₁) = Eₐ/R·(1/T₁ - 1/T₂)</div>
+                            <p>其中：</p>
+                            <ul>
+                                <li>T₁ = ${params.T1} K (第一个温度点)</li>
+                                <li>k₁ = ${params.k1} (温度T₁下的速率常数)</li>
+                                <li>T₂ = ${params.T2} K (第二个温度点)</li>
+                                <li>k₂ = ${params.k2} (温度T₂下的速率常数)</li>
+                                <li>R = 8.314 J/(mol·K) (理想气体常数)</li>
+                                <li>Eₐ = ? (活化能，待求解)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>公式推导</h4>
+                            <p>从阿伦尼乌斯方程推导双温度点公式：</p>
+                            <div class="formula-box">ln(k) = ln(A) - Eₐ/(R·T)</div>
+                            <p>对于两个温度点：</p>
+                            <div class="formula-box">ln(k₁) = ln(A) - Eₐ/(R·T₁)</div>
+                            <div class="formula-box">ln(k₂) = ln(A) - Eₐ/(R·T₂)</div>
+                            <p>两式相减：</p>
+                            <div class="formula-box">ln(k₂) - ln(k₁) = Eₐ/R·(1/T₁ - 1/T₂)</div>
+                            <div class="formula-box">ln(k₂/k₁) = Eₐ/R·(1/T₁ - 1/T₂)</div>
+                            <p>解出Eₐ：</p>
+                            <div class="formula-box">Eₐ = R·ln(k₂/k₁)/(1/T₁ - 1/T₂)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>数值计算</h4>
+                            <p>将已知参数代入公式：</p>
+                            <div class="formula-box">Eₐ = 8.314 J/(mol·K) × ln(${params.k2}/${params.k1}) / (1/${params.T1} - 1/${params.T2})</div>
+                            <div class="formula-box">Eₐ = 8.314 × ${Math.log(params.k2/params.k1).toFixed(6)} / ${(1/params.T1 - 1/params.T2).toFixed(6)} J/mol</div>
+                            <div class="formula-box">Eₐ = ${(EaKJ * 1000).toFixed(2)} J/mol</div>
+                            <div class="formula-box">Eₐ = ${EaKJ.toFixed(precision)} kJ/mol</div>
+                            ${activeUnit === 'J' ? `<div class="formula-box">Eₐ = ${(EaKJ * 1000).toFixed(precision)} J/mol</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>结果总结</h4>
+                            <p>通过双温度点法计算得到的活化能为：</p>
+                            <div class="result-box">${activeUnit === 'J' ? (EaKJ * 1000).toFixed(precision) : EaKJ.toFixed(precision)} ${unitText}</div>
+                            <p>该结果表明，当温度从 ${params.T1} K 升高到 ${params.T2} K 时，反应速率常数从 ${params.k1} 增加到 ${params.k2}，对应的活化能为 ${activeUnit === 'J' ? (EaKJ * 1000).toFixed(precision) : EaKJ.toFixed(precision)} ${unitText}。</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const historyItem = {
+                id: Date.now(),
+                timestamp,
+                mode: mode === 'mode1' ? '单点计算' : '双点计算',
+                result: `${formattedEa} ${unitText}`,
+                description,
+                params,
+                energyUnit: activeUnit, // 保存能量单位
+                detailedCalculation: detailedCalculationHTML // 保存详细计算过程
+            };
+            
+            // 添加到历史记录数组
+            calculationHistory.unshift(historyItem);
+            
+            // 限制历史记录数量
+            if (calculationHistory.length > 5) {
+                calculationHistory = calculationHistory.slice(0, 5);
+            }
+            
+            // 保存到本地存储
+            saveHistory();
+            
+            // 更新历史记录显示
+            updateHistoryDisplay();
+        }
+
+        // 保存历史记录到本地存储
+        function saveHistory() {
+            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+        }
+
+        // 从本地存储加载历史记录
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('calculationHistory');
+            if (savedHistory) {
+                calculationHistory = JSON.parse(savedHistory);
+                updateHistoryDisplay();
+            }
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: var(--spacing-md) 0;">暂无历史记录</p>';
+                return;
+            }
+            
+            let historyHTML = '';
+            calculationHistory.forEach(item => {
+                historyHTML += `
+                    <div class="history-item">
+                        <div>
+                            <div style="font-weight: 500; margin-bottom: 4px;">${item.result}</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">${item.mode}: ${item.description}</div>
+                            <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">${item.timestamp}</div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="icon-btn" onclick="showDetailedCalculation(${item.id})" title="查看详情">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="icon-btn" onclick="loadHistoryItem(${item.id})" title="重新加载">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                            </button>
+                            <button class="icon-btn" onclick="deleteHistoryItem(${item.id})" title="删除">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = historyHTML;
+        }
+
+        // 加载历史记录项
+        function loadHistoryItem(id) {
+            const item = calculationHistory.find(item => item.id === id);
+            if (!item) return;
+            
+            // 设置能量单位
+            if (item.energyUnit) {
+                const energyUnitSelector = document.getElementById('energyUnitSelector');
+                const unitOptions = energyUnitSelector.querySelectorAll('.unit-option');
+                
+                // 移除所有active类
+                unitOptions.forEach(option => {
+                    option.classList.remove('active');
+                });
+                
+                // 添加active类到对应的单位选项
+                unitOptions.forEach(option => {
+                    if (option.dataset.unit === item.energyUnit) {
+                        option.classList.add('active');
+                    }
+                });
+            }
+            
+            // 填充表单
+            if (item.mode === '单点计算') {
+                document.getElementById('k').value = item.params.k;
+                document.getElementById('A').value = item.params.A;
+                document.getElementById('T').value = item.params.T;
+                
+                // 重新计算并显示结果
+                setTimeout(() => {
+                    calculateMode1();
+                }, 100);
+            } else {
+                document.getElementById('k1').value = item.params.k1;
+                document.getElementById('T1').value = item.params.T1;
+                document.getElementById('k2').value = item.params.k2;
+                document.getElementById('T2').value = item.params.T2;
+                
+                // 重新计算并显示结果
+                setTimeout(() => {
+                    calculateMode2();
+                }, 100);
+            }
+        }
+
+        // 删除历史记录项
+        function deleteHistoryItem(id) {
+            calculationHistory = calculationHistory.filter(item => item.id !== id);
+            saveHistory();
+            updateHistoryDisplay();
+        }
+
+        // 清空历史记录
+        function clearHistory() {
+            calculationHistory = [];
+            saveHistory();
+            updateHistoryDisplay();
+        }
+
+        // 显示详细计算过程
+        function showDetailedCalculation(id) {
+            const item = calculationHistory.find(item => item.id === id);
+            if (!item) return;
+            
+            const detailedCalculationContainer = document.getElementById('detailedCalculationContainer');
+            const detailedCalculationContent = document.getElementById('detailedCalculationContent');
+            
+            // 计算活化能值（kJ/mol）
+            let EaKJ;
+            if (item.mode === '单点计算') {
+                // 单点计算：Ea = -R * T * ln(k/A)
+                EaKJ = -8.314 * parseFloat(item.params.T) * Math.log(parseFloat(item.params.k) / parseFloat(item.params.A)) / 1000;
+            } else {
+                // 双点计算：Ea = R * ln(k2/k1) / (1/T1 - 1/T2)
+                EaKJ = 8.314 * Math.log(parseFloat(item.params.k2) / parseFloat(item.params.k1)) / (1/parseFloat(item.params.T1) - 1/parseFloat(item.params.T2)) / 1000;
+            }
+            
+            // 获取当前能量单位
+            const energyUnit = item.energyUnit || 'kJ';
+            let EaValue = energyUnit === 'J' ? EaKJ * 1000 : EaKJ;
+            let unitText = energyUnit === 'J' ? 'J/mol' : 'kJ/mol';
+            
+            // 生成详细计算过程HTML
+            let stepsHTML = '';
+            
+            if (item.mode === '单点计算') {
+                stepsHTML = `
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 1: 确定已知参数</div>
+                        <div class="step-content">
+                            <p>根据输入，我们已知以下参数：</p>
+                            <ul>
+                                <li>速率常数 k = ${item.params.k}</li>
+                                <li>指前因子 A = ${item.params.A}</li>
+                                <li>温度 T = ${item.params.T} K</li>
+                                <li>气体常数 R = 8.314 J/(mol·K)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 2: 写出阿伦尼乌斯方程</div>
+                        <div class="step-content">
+                            <p>阿伦尼乌斯方程的基本形式为：</p>
+                            <div class="step-formula">k = A·e^(-Eₐ/(R·T))</div>
+                            <p>其中，k 是速率常数，A 是指前因子，Eₐ 是活化能，R 是气体常数，T 是绝对温度。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 3: 对方程进行数学变换</div>
+                        <div class="step-content">
+                            <p>为了求解活化能Eₐ，我们需要对方程进行变换：</p>
+                            <div class="step-formula">ln(k) = ln(A·e^(-Eₐ/(R·T)))</div>
+                            <div class="step-formula">ln(k) = ln(A) + ln(e^(-Eₐ/(R·T)))</div>
+                            <div class="step-formula">ln(k) = ln(A) - Eₐ/(R·T)</div>
+                            <p>移项整理得到：</p>
+                            <div class="step-formula">Eₐ/(R·T) = ln(A) - ln(k)</div>
+                            <div class="step-formula">Eₐ = R·T·[ln(A) - ln(k)]</div>
+                            <div class="step-formula">Eₐ = -R·T·ln(k/A)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 4: 代入数值计算</div>
+                        <div class="step-content">
+                            <p>将已知数值代入公式：</p>
+                            <div class="step-formula">Eₐ = -8.314 J/(mol·K) × ${item.params.T} K × ln(${item.params.k}/${item.params.A})</div>
+                            <div class="step-formula">Eₐ = -8.314 × ${item.params.T} × ${Math.log(parseFloat(item.params.k) / parseFloat(item.params.A)).toFixed(6)}</div>
+                            <div class="step-formula">Eₐ = ${(8.314 * parseFloat(item.params.T) * Math.log(parseFloat(item.params.k) / parseFloat(item.params.A))).toFixed(2)} J/mol</div>
+                            <div class="step-formula">Eₐ = ${EaKJ.toFixed(6)} kJ/mol</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                stepsHTML = `
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 1: 确定已知参数</div>
+                        <div class="step-content">
+                            <p>根据输入，我们已知以下参数：</p>
+                            <ul>
+                                <li>温度点1：T₁ = ${item.params.T1} K，k₁ = ${item.params.k1}</li>
+                                <li>温度点2：T₂ = ${item.params.T2} K，k₂ = ${item.params.k2}</li>
+                                <li>气体常数 R = 8.314 J/(mol·K)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 2: 写出阿伦尼乌斯方程</div>
+                        <div class="step-content">
+                            <p>阿伦尼乌斯方程的对数形式为：</p>
+                            <div class="step-formula">ln(k) = ln(A) - Eₐ/(R·T)</div>
+                            <p>对于两个温度点，我们有：</p>
+                            <div class="step-formula">ln(k₁) = ln(A) - Eₐ/(R·T₁)</div>
+                            <div class="step-formula">ln(k₂) = ln(A) - Eₐ/(R·T₂)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 3: 消去指前因子A</div>
+                        <div class="step-content">
+                            <p>将两个方程相减，消去指前因子A：</p>
+                            <div class="step-formula">ln(k₂) - ln(k₁) = [ln(A) - Eₐ/(R·T₂)] - [ln(A) - Eₐ/(R·T₁)]</div>
+                            <div class="step-formula">ln(k₂/k₁) = Eₐ/R·(1/T₁ - 1/T₂)</div>
+                            <p>整理得到活化能的表达式：</p>
+                            <div class="step-formula">Eₐ = R·ln(k₂/k₁)/(1/T₁ - 1/T₂)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <div class="step-number">步骤 4: 代入数值计算</div>
+                        <div class="step-content">
+                            <p>将已知数值代入公式：</p>
+                            <div class="step-formula">Eₐ = 8.314 J/(mol·K) × ln(${item.params.k2}/${item.params.k1}) / (1/${item.params.T1} - 1/${item.params.T2})</div>
+                            <div class="step-formula">Eₐ = 8.314 × ${Math.log(parseFloat(item.params.k2) / parseFloat(item.params.k1)).toFixed(6)} / ${(1/parseFloat(item.params.T1) - 1/parseFloat(item.params.T2)).toFixed(6)}</div>
+                            <div class="step-formula">Eₐ = ${(8.314 * Math.log(parseFloat(item.params.k2) / parseFloat(item.params.k1)) / (1/parseFloat(item.params.T1) - 1/parseFloat(item.params.T2))).toFixed(2)} J/mol</div>
+                            <div class="step-formula">Eₐ = ${EaKJ.toFixed(6)} kJ/mol</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 添加计算结果总结
+            stepsHTML += `
+                <div class="calculation-summary">
+                    <div class="summary-title">计算结果总结</div>
+                    <div class="summary-content">
+                        <div class="summary-item">
+                            <div class="summary-label">计算模式</div>
+                            <div class="summary-value">${item.mode}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">活化能</div>
+                            <div class="summary-value">${EaValue.toFixed(6)} ${unitText}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">计算时间</div>
+                            <div class="summary-value">${item.timestamp}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            detailedCalculationContent.innerHTML = stepsHTML;
+            detailedCalculationContainer.style.display = 'block';
+            
+            // 滚动到详细计算过程区域
+            detailedCalculationContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 关闭详细计算过程
+        function closeDetailedCalculation() {
+            const detailedCalculationContainer = document.getElementById('detailedCalculationContainer');
+            detailedCalculationContainer.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

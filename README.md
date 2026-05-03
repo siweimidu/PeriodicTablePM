@@ -7,7 +7,7 @@
 [![Responsive Design](https://img.shields.io/badge/Responsive-Design-green.svg)](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)
 
 <div align="center">
-  <img src="https://github.com/siweimidu/PeriodicTablePM/blob/main/icon.png" alt="元素周期表 PM" width="200" height="200">
+  <img src="./icon.png" alt="元素周期表 PM" width="200" height="200">
   <h3>🎯 一款功能强大、界面精美的元素周期表工具，为学生、教师和化学爱好者提供全方位的学习和研究支持</h3>
 </div>
 
@@ -101,8 +101,6 @@
 **GitHub Pages 在线预览版本：**
 👉 [https://siweimidu.github.io/PeriodicTablePM/](https://siweimidu.github.io/PeriodicTablePM/)
 
-> ⚠️ **如果显示 404，请先在 GitHub 上启用 Pages 功能**（详见下方部署指南）
-
 ### 💻 本地运行
 
 1. **克隆仓库**
@@ -125,21 +123,6 @@
 
 3. **访问应用**
    - 浏览器打开 `http://localhost:8000`
-
-### 📡 部署到 GitHub Pages
-
-**重要提示：** 要让在线预览可用，你需要先在 GitHub 上启用 Pages 功能：
-
-1. 进入仓库 **Settings**（设置）
-2. 在左侧边栏找到并点击 **Pages**
-3. 在 **Source** 部分：
-   - Branch: 选择 **main**
-   - Folder: 保持 **/(root)**
-4. 点击 **Save** 保存
-5. 等待 1-3 分钟，GitHub 会自动部署
-6. 部署成功后会显示在线访问链接
-
-几分钟后即可在 `https://siweimidu.github.io/PeriodicTablePM/` 访问在线版本
 
 ## 📱 浏览器兼容性
 

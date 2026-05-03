@@ -7,7 +7,7 @@
 [![Responsive Design](https://img.shields.io/badge/Responsive-Design-green.svg)](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Responsive_Design)
 
 <div align="center">
-  <img src="https://cdn.magicalapk.com/topic_cover/deal/238875994055541.png" alt="元素周期表 PM" width="200" height="200">
+  <img src="https://cdn.magicalapk.com/topic_cover/deal/239362175285252.png" alt="元素周期表 PM" width="200" height="200">
   <h3>🎯 一款功能强大、界面精美的元素周期表工具，为学生、教师和化学爱好者提供全方位的学习和研究支持</h3>
 </div>
 

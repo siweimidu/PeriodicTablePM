@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>单位换算器</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 已移除Font Awesome，使用SVG图标 -->
     <style>
         /* 苹果设计语言样式 */
         :root {
@@ -36,6 +36,27 @@
             --text-secondary: #8E8E93;
             --border-color: #38383A;
             --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 深色模式下select元素文字颜色 */
+        body.dark-theme .main-category-select,
+        body.dark-theme .select-field {
+            color: white;
+        }
+        
+        /* 深色模式下select元素的小箭头颜色 */
+        body.dark-theme .main-category-select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        }
+        
+        /* 深色模式下输入框字体颜色 */
+        body.dark-theme .input-field {
+            color: white;
+        }
+        
+        /* 深色模式下button中svg图标颜色 */
+        body.dark-theme .ios-circle-button svg path {
+            fill: white;
         }
 
         * {
@@ -78,6 +99,7 @@
             font-weight: 700;
             color: var(--primary-color);
             white-space: nowrap;
+            margin-right: 20px; /* 增加与select之间的间距 */
         }
 
         /* 头部按钮组 */
@@ -189,7 +211,7 @@
         /* 导航栏样式 */
         .nav {
             width: 100%;
-            margin-left: 30px;
+            margin-left: 0; /* 移除左边距，确保select与h1标题左对齐 */
         }
 
         .category-selector {
@@ -387,17 +409,8 @@
         }
 
         /* 响应式设计 */
-        @media (max-width: 992px) {
-            .converter-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .quick-conversions {
-                order: -1;
-            }
-        }
-
-        @media (max-width: 768px) {
+        /* 只针对手机端的媒体查询，平板端保持电脑端布局 */
+        @media (max-width: 767px) {
             .header .container {
                 flex-direction: column;
                 align-items: flex-start;
@@ -416,6 +429,18 @@
             
             .category-selector {
                 max-width: 100%;
+            }
+            
+            .main-category-select {
+                max-width: 280px;
+            }
+            
+            .converter-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-conversions {
+                order: -1;
             }
             
             .converter-inputs {
@@ -438,6 +463,21 @@
                 padding: 0 15px;
             }
             
+            .header .container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .nav {
+                margin-left: 0; /* 移除nav的左边距，确保select与h1对齐 */
+                width: auto;
+            }
+            
+            .category-selector {
+                width: auto;
+            }
+            
             .converter-card, .quick-conversions {
                 padding: 15px;
             }
@@ -450,6 +490,9 @@
                 padding: 10px 14px;
                 font-size: 14px;
                 padding-right: 36px;
+                margin-left: 0; /* 确保与h1标题单字左对齐 */
+                max-width: 180px; /* 更短的手机端select控件宽度 */
+                width: auto; /* 允许宽度自适应内容 */
             }
             
             .ios-circle-button {
@@ -509,12 +552,12 @@
             </nav>
             <div class="header-buttons">
                 <button id="backToHome" class="ios-circle-button" title="返回主页">
-                    <i class="fas fa-home"></i>
+                    <svg t="1762336119677" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="20573" width="20" height="20"><path d="M900.745478 430.904767l-330.418307-308.008394c-16.679524-19.033077-40.82902-29.982212-66.411112-29.982212-25.172779 0-49.322274 10.846807-65.2855 28.8566L120.491656 430.802438c-15.860897 16.270211-20.465674 39.805736-11.665434 60.783052 8.80024 20.977316 29.163585 34.075347 51.880484 34.075347l28.651944 0 0 314.148096c0 48.708304 38.987109 88.309383 87.695413 88.309383l136.608374 0c17.702808 0 33.461377-14.325972 33.461377-32.02878L447.123813 687.032677c0-8.902568 5.832717-16.781853 14.735285-16.781853l96.393325 0c8.902568 0 15.656241 7.981613 15.656241 16.781853l0 208.954532c0 17.805136 14.837614 32.02878 32.540422 32.02878l136.608374 0c48.708304 0 88.616369-39.498751 88.616369-88.309383l0-314.148096 28.549615 0c22.61457 0 42.977915-13.098031 51.778155-33.973019C921.006495 470.812831 916.504047 447.174978 900.745478 430.904767L900.745478 430.904767 900.745478 430.904767M900.745478 430.904767 900.745478 430.904767z" p-id="20574"></path></svg>
                 </button>
                 <button id="themeToggle" class="ios-circle-button" title="切换深色模式">
                     <div class="theme-toggle-icon">
-                        <i class="fas fa-sun sun-icon"></i>
-                        <i class="fas fa-moon moon-icon"></i>
+                        <svg t="1762336409448" class="icon sun-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10410" width="20" height="20"><path d="M512.909414 282.827709q47.28952 0 89.122558 18.188277t72.753108 49.108348 49.108348 72.753108 18.188277 89.122558q0 48.198934-18.188277 90.031972t-49.108348 72.753108-72.753108 49.108348-89.122558 18.188277q-48.198934 0-90.031972-18.188277t-72.753108-49.108348-49.108348-72.753108-18.188277-90.031972q0-47.28952 18.188277-89.122558t49.108348-72.753108 72.753108-49.108348 90.031972-18.188277zM967.616341 454.706927q23.64476 0 40.468917 16.824156t16.824156 40.468917-16.824156 40.468917-40.468917 16.824156l-107.310835 0q-7.275311 43.651865-24.099467 82.301954t-42.287744 72.298401l80.937833 70.024867q16.369449 16.369449 16.369449 40.01421t-16.369449 40.01421q-16.369449 17.278863-40.01421 17.278863t-40.01421-17.278863l-70.934281-80.028419q-68.206039 51.83659-154.600355 65.477798l0 108.220249q0 23.64476-16.369449 40.01421t-40.01421 16.369449-40.468917-16.369449-16.824156-40.01421l0-108.220249q-86.394316-13.641208-154.600355-65.477798l-70.024867 80.028419q-17.278863 17.278863-40.468917 17.278863t-40.468917-17.278863q-16.369449-16.369449-16.369449-40.01421t16.369449-40.01421l80.937833-70.024867q-50.927176-68.206039-66.387211-154.600355l-107.310835 0q-23.64476 0-40.468917-16.824156t-16.824156-40.468917 16.824156-40.468917 40.468917-16.824156l107.310835 0q15.460036-86.394316 66.387211-154.600355l-80.937833-70.024867q-16.369449-16.369449-16.369449-40.01421t16.369449-40.01421q17.278863-17.278863 40.468917-17.278863t40.468917 17.278863l70.024867 80.937833q33.648313-25.463588 72.298401-42.287744t82.301954-24.099467l0-108.220249q0-23.64476 16.824156-40.01421t40.468917-16.369449 40.01421 16.369449 16.369449 40.01421l0 108.220249q43.651865 7.275311 82.301954 24.099467t72.298401 42.287744l70.934281-80.937833q16.369449-17.278863 40.01421-17.278863t40.01421 17.278863q16.369449 16.369449 16.369449 40.01421t-16.369449 40.01421l-80.937833 70.024867q25.463588 33.648313 42.287744 72.298401t24.099467 82.301954l107.310835 0zM512.909414 795.737123q58.202487 0 110.039076-22.280639t90.486679-60.930728 60.930728-90.031972 22.280639-110.493783q0-58.202487-22.280639-110.039076t-60.930728-90.486679-90.486679-60.930728-110.039076-22.280639q-59.111901 0-110.94849 22.280639t-90.031972 60.930728-60.476021 90.486679-22.280639 110.039076q0 59.111901 22.280639 110.493783t60.476021 90.031972 90.031972 60.930728 110.94849 22.280639z" p-id="10411"></path></svg>
+                        <svg t="1762336464783" class="icon moon-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12452" width="20" height="20"><path d="M530.432 945.3568A434.176 434.176 0 0 1 491.52 78.6432a40.96 40.96 0 0 1 26.0096 70.8608 261.7344 261.7344 0 0 0-83.5584 192.3072 266.24 266.24 0 0 0 266.24 266.24 262.3488 262.3488 0 0 0 191.6928-82.944s0 1.024 0 0a40.96 40.96 0 0 1 70.656 24.576 434.176 434.176 0 0 1-432.128 395.6736z m0 0" p-id="12453"></path></svg>
                     </div>
                 </button>
             </div>
@@ -540,12 +583,12 @@
                         
                         <div class="swap-button-container">
                             <button id="swapUnits" class="swap-button">
-                                <i class="fas fa-exchange-alt"></i>
+                                <svg t="1762336712414" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17754" width="20" height="20"><path d="M733.184 303.168C373.696-6.4 0.576 361.536 0.576 361.536 402.816-326.4 883.2 179.2 883.2 179.2L1022.528 47.552v464H560.32z m-441.6 417.664C650.752 1030.4 1024 662.464 1024 662.464 621.696 1350.4 141.44 844.8 141.44 844.8L0 976.576v-422.4h464.256z m0 0" fill="#ffffff" p-id="17755"></path></svg>
                             </button>
                         </div>
                         
                         <div class="input-group">
-                            <input type="number" id="toValue" class="input-field" placeholder="转换结果" readonly>
+                            <input type="number" id="toValue" class="input-field" placeholder="转换结果">
                             <select id="toUnit" class="select-field">
                                 <!-- 动态填充 -->
                             </select>
@@ -1517,8 +1560,11 @@
                 converterDescription.textContent = `在不同${categoryName}单位之间进行转换`;
             }
             
-            // 执行转换
+            // 执行正向转换（从fromValue到toValue）
             function performConversion() {
+                // 移除toValue的事件监听器避免循环触发
+                toValueInput.removeEventListener('input', performReverseConversion);
+                
                 const value = parseFloat(fromValueInput.value);
                 const fromUnit = fromUnitSelect.value;
                 const toUnit = toUnitSelect.value;
@@ -1526,6 +1572,8 @@
                 if (isNaN(value)) {
                     toValueInput.value = '';
                     conversionDetails.innerHTML = '<p>请输入有效的数字</p>';
+                    // 重新添加事件监听器
+                    toValueInput.addEventListener('input', performReverseConversion);
                     return;
                 }
                 
@@ -1542,6 +1590,45 @@
                     const reciprocalDetails = converter.getConversionDetails(1, fromUnit, toUnit, reciprocal);
                     conversionDetails.innerHTML += `<p>${reciprocalDetails}</p>`;
                 }
+                
+                // 重新添加事件监听器
+                toValueInput.addEventListener('input', performReverseConversion);
+            }
+            
+            // 执行反向转换（从toValue到fromValue）
+            function performReverseConversion() {
+                // 移除fromValue的事件监听器避免循环触发
+                fromValueInput.removeEventListener('input', performConversion);
+                
+                const value = parseFloat(toValueInput.value);
+                const fromUnit = fromUnitSelect.value;
+                const toUnit = toUnitSelect.value;
+                
+                if (isNaN(value)) {
+                    fromValueInput.value = '';
+                    conversionDetails.innerHTML = '<p>请输入有效的数字</p>';
+                    // 重新添加事件监听器
+                    fromValueInput.addEventListener('input', performConversion);
+                    return;
+                }
+                
+                // 反向转换：将toUnit转换为fromUnit
+                const result = converter.convert(value, toUnit, fromUnit);
+                fromValueInput.value = converter.formatNumber(result);
+                
+                // 更新转换详情
+                const details = converter.getConversionDetails(value, toUnit, fromUnit, result);
+                conversionDetails.innerHTML = `<p>${details}</p>`;
+                
+                // 添加更多转换详情
+                if (converter.currentCategory !== 'temperature') {
+                    const reciprocal = converter.convert(1, toUnit, fromUnit);
+                    const reciprocalDetails = converter.getConversionDetails(1, toUnit, fromUnit, reciprocal);
+                    conversionDetails.innerHTML += `<p>${reciprocalDetails}</p>`;
+                }
+                
+                // 重新添加事件监听器
+                fromValueInput.addEventListener('input', performConversion);
             }
             
             // 交换单位
@@ -1574,6 +1661,7 @@
             
             // 事件监听器
             fromValueInput.addEventListener('input', performConversion);
+            toValueInput.addEventListener('input', performReverseConversion);
             fromUnitSelect.addEventListener('change', performConversion);
             toUnitSelect.addEventListener('change', performConversion);
             swapButton.addEventListener('click', swapUnits);

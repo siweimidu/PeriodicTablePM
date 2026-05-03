@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>元素周期表-化学必备工具</title>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 已移除Font Awesome，使用SVG图标 -->
+    <!-- 已移除Chart.js以避免连接超时 -->
     
     <!-- 全局样式 -->
     <style>
@@ -244,6 +244,13 @@
             background: rgba(0, 0, 0, 0.2);
         }
         
+        /* SVG图标样式 */
+        .toggle-controls .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
         /* 主题切换按钮 */
         #themeToggle {
             display: none;
@@ -320,6 +327,8 @@
             justify-content: space-evenly;
             align-items: center;
             height: 4rem;
+            min-height: 60px;
+            max-height: 100px;
             z-index: 100;
             padding-bottom: env(safe-area-inset-bottom);
         }
@@ -343,9 +352,13 @@
             transition: all 0.2s ease;
             position: relative;
             border-radius: 12px;
-            width: 60px;
-            height: 60px;
-            margin: 4px 8px;
+            width: 3.75rem;
+            height: 3.75rem;
+            margin: 0.25rem 0.5rem;
+            min-width: 50px;
+            min-height: 50px;
+            max-width: 80px;
+            max-height: 80px;
         }
         
         .bottom-nav button:hover {
@@ -377,6 +390,18 @@
             font-size: 0.7rem;
             margin-top: 0.25rem;
             font-weight: 500;
+        }
+        
+        .bottom-nav button svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-bottom: 0.25rem;
+            max-width: 30px;
+            max-height: 30px;
+        }
+        
+        .bottom-nav button svg path {
+            fill: currentColor;
         }
         
         /* 模态框 */
@@ -2612,9 +2637,27 @@
             left: 100%;
         }
         
+        /* 浅色模式下的按钮样式 */
+        body.light-theme .ios-button {
+            background-color: rgba(var(--primary-rgb), 0.95);
+            color: black;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        
+        body.light-theme .ios-button:hover {
+            background-color: rgba(var(--primary-rgb), 1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+        
+        body.light-theme .ios-button:active {
+            background-color: rgba(var(--primary-rgb), 0.9);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
         /* 暗色模式下的按钮样式 */
         body.dark-mode .ios-button {
             background-color: rgba(var(--primary-rgb), 0.8);
+            color: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
         }
         
@@ -2923,6 +2966,651 @@
         .ios-game-actions .ios-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        
+        /* 平板横屏适配 */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+            /* 容器调整 */
+            .container {
+                max-width: 100%;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* 标题调整 */
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            /* 图例调整 */
+            #legend {
+                padding: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            #legend h3 {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .legend-container {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .legend-item {
+                font-size: 0.8rem;
+            }
+            
+            /* 周期表容器调整 */
+            .periodic-table-container {
+                flex: 1;
+                position: relative;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .periodic-table-scroll {
+                width: 100%;
+                height: 100%;
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* 周期表网格调整 */
+            .periodic-table-grid {
+                grid-template-columns: repeat(18, minmax(0, 1fr));
+                gap: 3px;
+                width: max-content;
+                min-width: 900px;
+                padding: 0.8rem;
+                margin: 0 auto;
+            }
+            
+            /* 镧系和锕系区域 */
+            .lanthanides-actinides {
+                grid-template-columns: repeat(16, minmax(0, 1fr));
+                gap: 3px;
+                margin-top: 0.8rem;
+                left: calc((1 * (55px + 3px)));
+                width: fit-content;
+                min-width: 800px;
+            }
+            
+            /* 元素框调整 */
+            .element-box {
+                min-width: 50px;
+                min-height: 50px;
+                padding: 3px;
+                border-radius: 4px;
+            }
+            
+            .element-box .symbol {
+                font-size: 1.1rem;
+            }
+            
+            .element-box .name {
+                font-size: 0.45rem;
+            }
+            
+            .element-box .weight {
+                font-size: 0.4rem;
+            }
+            
+            .element-box .number {
+                font-size: 0.55rem;
+            }
+            
+            /* f区标签调整 */
+            .f-block-label {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.5rem;
+            }
+            
+            /* 底部导航调整 */
+            .bottom-nav {
+                height: 3.5rem;
+            }
+            
+            .bottom-nav button {
+                font-size: 1.5rem; /* 与电脑端一致 */
+                height: 3.75rem; /* 与电脑端一致 */
+                width: 3.75rem; /* 与电脑端一致 */
+                min-width: 50px; /* 与电脑端一致 */
+                min-height: 50px; /* 与电脑端一致 */
+                max-width: 80px; /* 与电脑端一致 */
+                max-height: 80px; /* 与电脑端一致 */
+                margin: 0.25rem 0.5rem; /* 与电脑端一致 */
+            }
+            
+            .bottom-nav button svg {
+                width: 1.5rem; /* 与电脑端一致 */
+                height: 1.5rem; /* 与电脑端一致 */
+                max-width: 30px; /* 与电脑端一致 */
+                max-height: 30px; /* 与电脑端一致 */
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.7rem; /* 与电脑端一致 */
+                margin-top: 0.25rem; /* 与电脑端一致 */
+            }
+            
+            /* 模态框调整 */
+            .ios-modal-content {
+                max-width: 80%;
+                width: 500px;
+                max-height: 80vh;
+            }
+            
+            /* 工具和分享调整 */
+            .tools-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .share-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            /* 搜索框优化 */
+            .search-container {
+                margin-bottom: 0.8rem;
+            }
+            
+            .search-box {
+                height: 2.5rem;
+                font-size: 1rem;
+            }
+            
+            /* 详情模态框优化 */
+            .element-detail-modal {
+                padding: 1.5rem;
+            }
+            
+            .element-detail-header {
+                margin-bottom: 1.2rem;
+            }
+            
+            .element-symbol-large {
+                font-size: 3rem;
+                width: 5rem;
+                height: 5rem;
+            }
+            
+            .element-name-large {
+                font-size: 1.8rem;
+            }
+            
+            .element-number-large {
+                font-size: 1.2rem;
+            }
+            
+            .element-detail-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.2rem;
+            }
+            
+            .detail-section h4 {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .detail-row {
+                padding: 0.5rem 0;
+                font-size: 0.95rem;
+            }
+            
+            /* 电子排布模拟器优化 */
+            .simulator-container {
+                padding: 1.2rem;
+            }
+            
+            .electron-shell {
+                margin: 1rem 0;
+            }
+            
+            .orbit-label {
+                font-size: 0.9rem;
+            }
+            
+            /* 元素猜谜游戏优化 */
+            .game-container {
+                padding: 1.2rem;
+            }
+            
+            .game-score {
+                font-size: 1.2rem;
+            }
+            
+            .question-area {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+            
+            .option-button {
+                padding: 1rem 0.8rem;
+                font-size: 1rem;
+            }
+            
+            .hint-box {
+                padding: 1rem;
+                font-size: 0.95rem;
+            }
+            
+            .game-actions {
+                margin-top: 1.5rem;
+            }
+            
+            .game-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+        
+        /* 平板竖屏适配 */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            /* 容器调整 */
+            .container {
+                max-width: 100%;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* 标题调整 */
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            /* 图例调整 */
+            #legend {
+                padding: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            #legend h3 {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .legend-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .legend-item {
+                font-size: 0.8rem;
+            }
+            
+            /* 周期表容器调整 */
+            .periodic-table-container {
+                flex: 1;
+                position: relative;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .periodic-table-scroll {
+                width: 100%;
+                height: 100%;
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* 周期表网格调整 */
+            .periodic-table-grid {
+                grid-template-columns: repeat(18, minmax(0, 1fr));
+                gap: 3px;
+                width: max-content;
+                min-width: 900px;
+                padding: 0.8rem;
+                margin: 0 auto;
+            }
+            
+            /* 镧系和锕系区域 */
+            .lanthanides-actinides {
+                grid-template-columns: repeat(16, minmax(0, 1fr));
+                gap: 3px;
+                margin-top: 0.8rem;
+                left: calc((1 * (55px + 3px)));
+                width: fit-content;
+                min-width: 800px;
+            }
+            
+            /* 元素框调整 */
+            .element-box {
+                min-width: 50px;
+                min-height: 50px;
+                padding: 3px;
+                border-radius: 4px;
+            }
+            
+            .element-box .symbol {
+                font-size: 1.1rem;
+            }
+            
+            .element-box .name {
+                font-size: 0.45rem;
+            }
+            
+            .element-box .weight {
+                font-size: 0.4rem;
+            }
+            
+            .element-box .number {
+                font-size: 0.55rem;
+            }
+            
+            /* f区标签调整 */
+            .f-block-label {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.5rem;
+            }
+            
+            /* 底部导航调整 */
+            .bottom-nav {
+                height: 3.5rem;
+            }
+            
+            .bottom-nav button {
+                font-size: 1.3rem;
+                height: 2.8rem;
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.65rem;
+            }
+            
+            /* 模态框调整 */
+            .ios-modal-content {
+                max-width: 85%;
+                width: 500px;
+                max-height: 80vh;
+            }
+            
+            /* 工具和分享调整 */
+            .tools-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .share-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            /* 搜索框优化 */
+            .search-container {
+                margin-bottom: 0.8rem;
+            }
+            
+            .search-box {
+                height: 2.8rem;
+                font-size: 1.1rem;
+            }
+            
+            /* 详情模态框优化 */
+            .element-detail-modal {
+                padding: 1.5rem;
+            }
+            
+            .element-detail-header {
+                margin-bottom: 1.2rem;
+            }
+            
+            .element-symbol-large {
+                font-size: 3.5rem;
+                width: 5.5rem;
+                height: 5.5rem;
+            }
+            
+            .element-name-large {
+                font-size: 2rem;
+            }
+            
+            .element-number-large {
+                font-size: 1.3rem;
+            }
+            
+            .element-detail-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.2rem;
+            }
+            
+            .detail-section h4 {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .detail-row {
+                padding: 0.5rem 0;
+                font-size: 0.95rem;
+            }
+            
+            /* 电子排布模拟器优化 */
+            .simulator-container {
+                padding: 1.2rem;
+            }
+            
+            .electron-shell {
+                margin: 1rem 0;
+            }
+            
+            .orbit-label {
+                font-size: 0.9rem;
+            }
+            
+            /* 元素猜谜游戏优化 */
+            .game-container {
+                padding: 1.2rem;
+            }
+            
+            .game-score {
+                font-size: 1.2rem;
+            }
+            
+            .question-area {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .option-button {
+                padding: 1.2rem 0.8rem;
+                font-size: 1.1rem;
+            }
+            
+            .hint-box {
+                padding: 1rem;
+                font-size: 0.95rem;
+            }
+            
+            .game-actions {
+                margin-top: 1.5rem;
+            }
+            
+            .game-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+        
+        /* 极端屏幕比例适配 */
+        /* 超宽屏适配 */
+        @media (min-width: 1200px) and (min-aspect-ratio: 16/9) {
+            .bottom-nav {
+                height: 3.5rem;
+                min-height: 55px;
+                max-height: 80px;
+            }
+            
+            .bottom-nav button {
+                width: 3.5rem;
+                height: 3.5rem;
+                min-width: 55px;
+                min-height: 55px;
+                max-width: 70px;
+                max-height: 70px;
+                margin: 0.2rem 0.8rem;
+            }
+            
+            .bottom-nav button svg {
+                width: 1.8rem;
+                height: 1.8rem;
+                max-width: 32px;
+                max-height: 32px;
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.6rem;
+            }
+        }
+        
+        /* 超窄屏适配 */
+        @media (max-width: 360px) and (max-aspect-ratio: 9/16) {
+            .bottom-nav {
+                height: 3.2rem;
+                min-height: 50px;
+                max-height: 65px;
+            }
+            
+            .bottom-nav button {
+                width: 3rem;
+                height: 3rem;
+                min-width: 45px;
+                min-height: 45px;
+                max-width: 60px;
+                max-height: 60px;
+                margin: 0.15rem 0.3rem;
+            }
+            
+            .bottom-nav button svg {
+                width: 1.2rem;
+                height: 1.2rem;
+                max-width: 22px;
+                max-height: 22px;
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.55rem;
+                margin-top: 0.15rem;
+            }
+        }
+        
+        /* 小屏手机适配 */
+        @media (max-width: 320px) {
+            .bottom-nav {
+                height: 3rem;
+                min-height: 45px;
+                max-height: 60px;
+            }
+            
+            .bottom-nav button {
+                width: 2.8rem;
+                height: 2.8rem;
+                min-width: 40px;
+                min-height: 40px;
+                max-width: 55px;
+                max-height: 55px;
+                margin: 0.1rem 0.25rem;
+            }
+            
+            .bottom-nav button svg {
+                width: 1.1rem;
+                height: 1.1rem;
+                max-width: 20px;
+                max-height: 20px;
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.5rem;
+                margin-top: 0.1rem;
+            }
+        }
+        
+        /* 大屏平板适配 */
+        @media (min-width: 1024px) and (max-width: 1366px) {
+            .bottom-nav {
+                height: 4rem; /* 适当减小高度，但保持足够空间 */
+                min-height: 65px;
+                max-height: 85px;
+            }
+            
+            .bottom-nav button {
+                width: 3.75rem; /* 与电脑端一致 */
+                height: 3.75rem; /* 与电脑端一致 */
+                min-width: 50px; /* 与电脑端一致 */
+                min-height: 50px; /* 与电脑端一致 */
+                max-width: 80px; /* 与电脑端一致 */
+                max-height: 80px; /* 与电脑端一致 */
+                margin: 0.25rem 0.5rem; /* 与电脑端一致 */
+                font-size: 1.5rem; /* 与电脑端一致 */
+            }
+            
+            .bottom-nav button svg {
+                width: 1.5rem; /* 与电脑端一致 */
+                height: 1.5rem; /* 与电脑端一致 */
+                max-width: 30px; /* 与电脑端一致 */
+                max-height: 30px; /* 与电脑端一致 */
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.7rem; /* 与电脑端一致 */
+                margin-top: 0.25rem; /* 与电脑端一致 */
+            }
+        }
+        
+        /* 828*637比例特定适配 (约1.3:1宽高比) */
+        @media (min-width: 800px) and (max-width: 900px) and (min-height: 600px) and (max-height: 700px) {
+            .bottom-nav {
+                height: 4rem;
+                min-height: 65px;
+                max-height: 85px;
+            }
+            
+            .bottom-nav button {
+                width: 3.75rem; /* 与电脑端一致 */
+                height: 3.75rem; /* 与电脑端一致 */
+                min-width: 50px; /* 与电脑端一致 */
+                min-height: 50px; /* 与电脑端一致 */
+                max-width: 80px; /* 与电脑端一致 */
+                max-height: 80px; /* 与电脑端一致 */
+                margin: 0.25rem 0.5rem; /* 与电脑端一致 */
+                font-size: 1.5rem; /* 与电脑端一致 */
+            }
+            
+            .bottom-nav button svg {
+                width: 1.5rem; /* 与电脑端一致 */
+                height: 1.5rem; /* 与电脑端一致 */
+                max-width: 30px; /* 与电脑端一致 */
+                max-height: 30px; /* 与电脑端一致 */
+            }
+            
+            .bottom-nav button span {
+                font-size: 0.7rem; /* 与电脑端一致 */
+                margin-top: 0.25rem; /* 与电脑端一致 */
+            }
         }
     </style>
 </head>
@@ -3631,7 +4319,7 @@
                 <div class="f-block-label">
                     镧系元素
                     <button class="toggle-controls" onclick="toggleLanthanides()">
-                        <i class="fa fa-chevron-right" id="lanthanideIcon"></i>
+                        <svg t="1762343884159" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5475" width="200" height="200" id="lanthanideIcon"><path d="M474.965333 655.189333a49.152 49.152 0 0 0 73.984 0l187.733334-205.397333A58.112 58.112 0 0 0 699.733333 352H324.266667a58.112 58.112 0 0 0-36.864 97.792z" p-id="5476"></path></svg>
                     </button>
                 </div>
                 <div class="lanthanides-actinides" id="lanthanidesSection" style="display: none;">
@@ -3746,7 +4434,7 @@
                 <div class="f-block-label">
                     锕系元素
                     <button class="toggle-controls" onclick="toggleActinides()">
-                        <i class="fa fa-chevron-right" id="actinideIcon"></i>
+                        <svg t="1762343884159" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5475" width="200" height="200" id="actinideIcon"><path d="M474.965333 655.189333a49.152 49.152 0 0 0 73.984 0l187.733334-205.397333A58.112 58.112 0 0 0 699.733333 352H324.266667a58.112 58.112 0 0 0-36.864 97.792z" p-id="5476"></path></svg>
                     </button>
                 </div>
                 <div class="lanthanides-actinides" id="actinidesSection" style="display: none;">
@@ -3864,24 +4552,24 @@
     <!-- 底部导航 -->
     <div class="bottom-nav">
         <button id="searchBtn">
-            <i class="fa fa-search"></i>
+            <svg t="1762327665041" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10748" width="24" height="24"><path d="M995.648 859.616l-207.2-207.2a424.64 424.64 0 0 0 64.672-225.888C853.152 190.944 662.176 0 426.592 0S0 190.944 0 426.56c0 235.584 190.976 426.592 426.592 426.592a424.64 424.64 0 0 0 225.888-64.704l207.232 207.232a96.224 96.224 0 0 0 135.968 0 96.416 96.416 0 0 0-0.032-136.064z m-569.056-177.12a255.936 255.936 0 1 1-0.032-511.904 255.936 255.936 0 0 1 0.032 511.904z" fill="#8A8A8A" p-id="10749"></path></svg>
             <span>搜索</span>
         </button>
         <button id="toolsBtn">
-            <i class="fa fa-wrench"></i>
+            <svg t="1762328201928" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="23458" width="24" height="24"><path d="M808.113858 364.171547l175.228934-183.164795A343.225994 343.225994 0 0 1 533.110671 652.806496l-308.794597 330.106223a129.661731 129.661731 0 0 1-183.164794 6.143893l-3.071946-3.007948a129.661731 129.661731 0 0 1 0-183.356791l3.071946-2.943949L371.193504 490.825331A343.289992 343.289992 0 0 1 843.057246 40.657208l-183.164794 175.356932a104.830165 104.830165 0 0 0 142.589505 153.661311l5.631901-5.439905zM189.628681 834.563315a53.567063 53.567063 0 1 0-75.774673 75.774674 53.567063 53.567063 0 0 0 75.774673-75.774674z" p-id="23459"></path></svg>
             <span>工具</span>
         </button>
         <button id="sortBtn">
-            <i class="fa fa-sort"></i>
+            <svg t="1762328378004" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="27905" width="24" height="24"><path d="M416.64 927.104H259.584V364.224H67.84l348.8-299.968v862.848zM610.56 97.088h157.056v560.128h191.744l-348.8 299.904V97.088z" fill="#040000" p-id="27906"></path></svg>
             <span>排序</span>
         </button>
         <button id="settingsBtn">
-            <i class="fa fa-cog"></i>
+            <svg t="1762328444584" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3314" width="24" height="24"><path d="M539.877344 668.4192c-53.143467 8.782933-107.236267-8.190933-145.314133-45.461333-38.078933-37.2704-55.278933-90.446933-46.263467-142.4352 11.149867-67.419733 66.666667-121.901867 135.4688-133.0592 53.261867-9.0208 107.592533 7.953067 145.789867 45.341866 38.197333 37.508267 55.397333 90.8032 46.144 142.910934-11.506133 67.538133-67.021867 121.7824-135.825067 132.702933m389.682133-104.928l78.292267-47.953067c12.455467-7.5968 18.5056-22.077867 15.3024-36.084266l-38.315733-164.869334c-3.2032-14.005333-15.184-24.4512-29.774934-25.994666l-91.933866-9.970134c-9.133867-0.949333-17.437867-5.461333-23.131734-12.464l-15.4208-18.990933c-5.693867-7.002667-8.304-16.024533-7.236266-24.925867l10.557866-89.853866c1.6608-14.2432-6.050133-28.011733-19.218133-34.304L653.283211 24.728533c-13.168-6.171733-28.945067-3.560533-39.383467 6.528l-65.243733 64.096c-6.405333 6.2912-15.184 9.9712-24.437334 9.9712h-24.554666a34.848 34.848 0 0 1-24.437334-9.9712l-65.242666-64.096c-10.32-10.208-26.097067-12.8192-39.383467-6.528l-155.278933 73.354667c-13.168 6.2912-20.878933 19.941333-19.218134 34.304l10.557867 89.9712c1.067733 8.9024-1.5424 17.8048-7.236267 24.925867l-15.3024 18.754133c-5.693867 7.003733-13.997867 11.5136-23.131733 12.462933l-91.933867 10.0896c-14.590933 1.543467-26.453333 11.989333-29.774933 25.994667L0.848011 479.335467c-3.2032 14.005333 2.846933 28.4864 15.3024 36.0832l78.292266 48.072533c7.710933 4.747733 13.2864 12.344533 15.3024 21.127467l5.457067 23.621333c2.016 8.782933 0.474667 17.9232-4.389333 25.518933l-49.3472 76.56c-7.829333 12.106667-6.88 27.774933 2.253866 39.050667l107.591467 132.109867c9.134933 11.275733 24.555733 15.5488 38.315733 10.801066l87.189334-30.029866c8.660267-2.967467 18.149333-2.4928 26.334933 1.424l22.1824 10.4448c8.304 3.917867 14.592 10.802133 17.557333 19.348266l30.368 85.461334C398.120544 992.4608 411.169077 1001.6 425.761077 1001.6h172.3616c14.709333 0 27.757867-9.1392 32.5024-22.670933l30.368-85.461334c2.965333-8.427733 9.371733-15.4304 17.557334-19.348266l22.1824-10.4448c8.184533-3.9168 17.674667-4.391467 26.334933-1.424l87.189333 30.029866c13.8784 4.747733 29.1808 0.474667 38.314667-10.801066l107.592533-132.109867c9.133867-11.275733 9.9648-26.944 2.253867-39.050667l-49.3472-76.56c-4.864-7.595733-6.5248-16.736-4.507733-25.518933l5.456-23.501867c2.253867-8.9024 7.712-16.4992 15.540266-21.248" fill="#979797" p-id="3315"></path></svg>
             <span>设置</span>
         </button>
 
         <button id="aboutBtn">
-            <i class="fa fa-info-circle"></i>
+            <svg t="1762328579646" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4301" width="24" height="24"><path d="M512 992C246.912 992 32 777.088 32 512 32 246.912 246.912 32 512 32c265.088 0 480 214.912 480 480 0 265.088-214.912 480-480 480z m-59.072-512v236.32a54.144 54.144 0 1 0 108.288 0V480a54.144 54.144 0 1 0-108.288 0z m53.76-226.464c-14.72 0-27.232 4.544-37.568 15.136-11.04 9.856-16.192 22.72-16.192 38.656 0 15.136 5.152 28 16.192 38.624 10.336 10.592 22.848 15.904 37.6 15.904a57.6 57.6 0 0 0 39.04-15.168c10.304-10.592 15.456-23.456 15.456-39.36s-5.12-28.8-15.456-38.656c-10.304-10.56-23.584-15.136-39.04-15.136z" p-id="4302"></path></svg>
             <span>关于</span>
         </button>
     </div>
@@ -3926,7 +4614,7 @@
                 <div class="ios-tools-column">
                     <button id="moleCalculatorBtn" class="ios-tool-item">
                         <div class="ios-tool-icon">
-                            <i class="fa fa-calculator"></i>
+                            <svg t="1762329113550" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="14802" width="24" height="24"><path d="M167.253333 738.986667h723.626667l92.16 128c34.133333 47.786667 15.36 88.746667-44.373333 88.746666H112.64c-59.733333 0-78.506667-39.253333-42.666667-87.04l97.28-129.706666z" fill="#DAE9FF" p-id="14803"></path><path d="M189.44 223.573333c1.706667-47.786667 40.96-87.04 90.453333-87.04h534.186667c47.786667 0 87.04 39.253333 87.04 87.04v566.613334c0 47.786667-39.253333 87.04-87.04 87.04H259.413333c-47.786667 0-87.04-39.253333-85.333333-87.04l15.36-566.613334z" fill="#DAE9FF" p-id="14804"></path><path d="M247.466667 136.533333h534.186666c47.786667 0 87.04 39.253333 87.04 87.04v566.613334c0 47.786667-39.253333 87.04-87.04 87.04H247.466667c-47.786667 0-87.04-39.253333-87.04-87.04V223.573333C158.72 175.786667 197.973333 136.533333 247.466667 136.533333z" fill="#3889FF" p-id="14805"></path><path d="M283.306667 450.56a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14806"></path><path d="M283.306667 610.986667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14807"></path><path d="M283.306667 769.706667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14808"></path><path d="M474.453333 450.56a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14809"></path><path d="M474.453333 610.986667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14810"></path><path d="M474.453333 769.706667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14811"></path><path d="M667.306667 450.56a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14812"></path><path d="M667.306667 610.986667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14813"></path><path d="M667.306667 769.706667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#DAE9FF" p-id="14814"></path><path d="M250.88 279.893333c0-27.306667 22.186667-51.2 51.2-51.2H716.8c29.013333 0 51.2 22.186667 51.2 51.2 0 27.306667-22.186667 51.2-51.2 51.2H302.08c-27.306667 0-51.2-22.186667-51.2-51.2z" fill="#FFFFFF" p-id="14815"></path><path d="M266.24 440.32a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14816"></path><path d="M266.24 600.746667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14817"></path><path d="M266.24 759.466667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14818"></path><path d="M459.093333 440.32a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14819"></path><path d="M459.093333 600.746667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14820"></path><path d="M459.093333 759.466667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14821"></path><path d="M650.24 440.32a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14822"></path><path d="M650.24 600.746667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14823"></path><path d="M650.24 759.466667a51.2 51.2 0 1 0 102.4 0 51.2 51.2 0 1 0-102.4 0Z" fill="#FFFFFF" p-id="14824"></path><path d="M273.066667 238.933333c-11.946667 8.533333-20.48 23.893333-20.48 40.96 0 27.306667 22.186667 51.2 51.2 51.2H716.8c20.48 0 39.253333-11.946667 46.08-30.72-6.826667 3.413333-13.653333 5.12-22.186667 5.12H317.44c-25.6 0-46.08-20.48-46.08-46.08v-10.24c0-1.706667 0-6.826667 1.706667-10.24z" fill="#DAE9FF" p-id="14825"></path></svg>
                         </div>
                         <div class="ios-tool-label">摩尔计算器</div>
                     </button>
@@ -3944,7 +4632,7 @@
                     </button>
                     <button id="unitConverterBtn" class="ios-tool-item">
                         <div class="ios-tool-icon">
-                            <i class="fa fa-balance-scale"></i>
+                            <svg t="1762329267586" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15837" width="24" height="24"><path d="M1024 512c-2.1248 191.1808-9.6256 312.576-74.496 397.184C863.1296 1014.9376 675.6352 1021.5168 512 1024c-163.6608-2.4832-351.1296-9.0624-437.504-114.816C4.608 827.2896 2.1248 691.2768 0 500.096 2.1504 308.9152 19.072 190.976 74.496 114.816C160.8704 9.088 348.3392 2.5344 512 0c163.6608 2.5088 351.1296 9.088 437.504 114.8416C1012.9408 184.4992 1021.8752 320.8448 1024 512z m-730.496-126.592c-70.0416 0-150.1696 48.384-142.592 152.8832 7.6288 104.4992 87.3984 126.4128 149.504 126.4128 62.08 0 105.472-30.6944 121.0624-59.4688 13.056-24.064 9.5232-49.8688-9.9072-63.4112-19.4304-13.5424-45.056-3.5328-53.2992 8.576-8.2688 12.1088-26.9056 43.4432-57.856 43.4432-30.976 0-58.3168-22.528-58.3168-65.4336 0-42.88 18.8416-65.4592 47.7184-70.912 28.8768-5.4272 51.6352 18.3808 60.5696 34.304 8.9344 15.9488 35.6608 22.912 54.912 13.0048 19.2768-9.9328 28.544-32.3328 16.1792-57.1648-12.3648-24.832-54.016-62.2336-127.9744-62.2336z m183.424 51.0464v174.848c0 20.352 7.7824 53.4016 41.984 53.4016 34.2528 0 47.6928-30.3104 47.6928-49.5872 0-19.2768-0.5376-108.3136 2.1504-121.856 2.688-13.5424 5.376-31.36 27.7248-33.792 22.2976-2.432 32.0768 0.0768 32.0768 33.792v121.856c0 10.5216 7.552 49.5872 45.7728 49.5872 38.2464 0 45.1072-39.168 45.1072-49.5872 0-10.4192-0.4096-112.2816 1.9712-124.7744 2.3552-12.5184 17.3312-33.1776 31.9488-33.1776 14.6432 0 26.624 5.4272 26.624 30.7968v127.1552c0 12.0064 6.4512 49.5872 44.2368 49.5872 37.8112 0 47.488-33.1776 47.488-49.5872v-129.8432c0-16.2048-2.1504-99.1232-91.7248-99.1232-33.3568 0-59.7248 10.4448-79.104 31.3344-18.944-20.8896-43.0336-31.3344-72.32-31.3344-27.2128 0-50.5856 7.8336-70.144 23.4496-8.2688-15.616-22.6816-23.4496-43.1872-23.4496-30.7712 0-38.2976 24.1664-38.2976 50.304z" fill="#FFB921" p-id="15838"></path></svg>
                         </div>
                         <div class="ios-tool-label">单位换算器</div>
                     </button>
@@ -4205,7 +4893,8 @@
             
             if (section.style.display === 'none' || section.style.display === '') {
                 section.style.display = 'grid';
-                icon.className = 'fa fa-chevron-down';
+                // 展开后使用向上的箭头图标
+                icon.innerHTML = '<path d="M165.91289712 759.19238281L858.08710288 759.19238281A49.44079399 49.44079399 0 0 0 898.82518005 681.76709366L552.74039459 286.23610687a49.44079399 49.44079399 0 0 0-81.47924423 1e-8l-346.08633041 395.53098678A49.44156647 49.44156647 0 0 0 165.91289712 759.19238281z" p-id="4488"></path>';
                 // 确保展开后滚动容器能够适应内容
                 setTimeout(() => {
                     const scrollContainer = document.querySelector('.periodic-table-scroll');
@@ -4215,7 +4904,8 @@
                 }, 100);
             } else {
                 section.style.display = 'none';
-                icon.className = 'fa fa-chevron-right';
+                // 折叠后使用向下的箭头图标
+                icon.innerHTML = '<path d="M474.965333 655.189333a49.152 49.152 0 0 0 73.984 0l187.733334-205.397333A58.112 58.112 0 0 0 699.733333 352H324.266667a58.112 58.112 0 0 0-36.864 97.792z" p-id="5476"></path>';
             }
         }
         
@@ -4226,7 +4916,8 @@
             
             if (section.style.display === 'none' || section.style.display === '') {
                 section.style.display = 'grid';
-                icon.className = 'fa fa-chevron-down';
+                // 展开后使用向上的箭头图标
+                icon.innerHTML = '<path d="M165.91289712 759.19238281L858.08710288 759.19238281A49.44079399 49.44079399 0 0 0 898.82518005 681.76709366L552.74039459 286.23610687a49.44079399 49.44079399 0 0 0-81.47924423 1e-8l-346.08633041 395.53098678A49.44156647 49.44156647 0 0 0 165.91289712 759.19238281z" p-id="4488"></path>';
                 // 确保展开后滚动容器能够适应内容
                 setTimeout(() => {
                     const scrollContainer = document.querySelector('.periodic-table-scroll');
@@ -4236,7 +4927,8 @@
                 }, 100);
             } else {
                 section.style.display = 'none';
-                icon.className = 'fa fa-chevron-right';
+                // 折叠后使用向下的箭头图标
+                icon.innerHTML = '<path d="M474.965333 655.189333a49.152 49.152 0 0 0 73.984 0l187.733334-205.397333A58.112 58.112 0 0 0 699.733333 352H324.266667a58.112 58.112 0 0 0-36.864 97.792z" p-id="5476"></path>';
             }
         }
         

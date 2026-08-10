@@ -176,7 +176,6 @@ cd PeriodicTablePM
 
 - **项目主页**: [GitHub Repository](https://github.com/siweimidu/PeriodicTablePM)
 - **问题反馈**: [Issues](https://github.com/siweimidu/PeriodicTablePM/issues)
-- **邮箱**: 352388732ok@gmail.com
 
 ---
 
